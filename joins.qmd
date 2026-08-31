@@ -1,0 +1,251 @@
+---
+title: "Joins"
+subtitle: "Combining tables"
+---
+
+::: {.sas-equiv}
+**SAS:** `DATA` step `MERGE ... BY`, `PROC SQL` `INNER`/`LEFT`/`RIGHT`/`FULL JOIN`,
+`IN=` flags, `WHERE EXISTS`
+:::
+
+R has six named join functions where SAS has one `MERGE` statement plus a set of
+conventions. Once you know which name maps to which `IN=` pattern, joins get shorter and
+much harder to get silently wrong.
+
+## The example tables
+
+Two small tables with deliberate mismatches, used throughout this page.
+
+```{r}
+#| label: setup
+library(dplyr)
+
+dm <- data.frame(
+  subjid = c("001", "002", "003", "004", "005"),
+  sex    = c("M", "F", "F", "M", "M"),
+  trt    = c("Placebo", "Active", "Active", "Placebo", "Active")
+)
+
+ae <- data.frame(
+  subjid = c("001", "001", "002", "003", "006"),
+  aeterm = c("Headache", "Nausea", "Rash", "Fatigue", "Dizziness"),
+  sev    = c("Mild", "Moderate", "Severe", "Mild", "Mild")
+)
+
+dm
+ae
+```
+
+The mismatches matter, because they are what the different joins disagree about:
+
+- subject `001` has two AEs — one-to-many
+- subjects `004` and `005` are in `dm` with no AEs
+- subject `006` has an AE but is **not** in `dm` — a data error you want to catch
+
+## The six joins
+
+### `inner_join()` — rows matching in both
+
+```sas
+proc sql;
+  select * from dm inner join ae on dm.subjid = ae.subjid;
+quit;
+
+/* or, DATA step */
+data out;
+  merge dm(in=a) ae(in=b);
+  by subjid;
+  if a and b;
+run;
+```
+
+```{r}
+inner_join(dm, ae, by = "subjid")
+```
+
+Four rows. Dropped: `004` and `005` (no AE), and `006` (not in `dm`). Note that the data
+error and the legitimately event-free subjects vanish together and without comment —
+which is exactly why `inner_join()` is a poor default.
+
+### `left_join()` — keep everything on the left
+
+```sas
+data out;
+  merge dm(in=a) ae;
+  by subjid;
+  if a;
+run;
+```
+
+```{r}
+left_join(dm, ae, by = "subjid")
+```
+
+This is the workhorse — most real joins are "start from my subject list, annotate it".
+Six rows: `001` twice because it has two AEs, and `004`/`005` once each with `NA` in the
+AE columns.
+
+::: {.callout-important}
+## `NA` from a join means "no match", not "missing value"
+
+R gives you the same `NA` for both, and only context tells you which you have. Here it
+means the subject had no adverse event — not that the term was left blank on the CRF, and
+not that the AE extract failed to load. If that distinction matters downstream, record it
+explicitly with a flag column rather than relying on the `NA`.
+:::
+
+### `right_join()` — keep everything on the right
+
+```{r}
+right_join(dm, ae, by = "subjid")
+```
+
+Identical to `left_join(ae, dm, by = "subjid")` apart from column order, and rare in
+practice — swapping the arguments reads better than making the reader track a mirror.
+Subject `006` shows up here with `NA` demographics.
+
+### `full_join()` — keep everything from both
+
+```sas
+data out;
+  merge dm ae;
+  by subjid;
+run;
+```
+
+```{r}
+full_join(dm, ae, by = "subjid")
+```
+
+Seven rows: every `subjid` from either side. Useful when you are hunting data-quality
+problems and do not yet know which side they are on.
+
+### `anti_join()` — left rows with no match on the right
+
+```sas
+data out;
+  merge dm(in=a) ae(in=b);
+  by subjid;
+  if a and not b;
+run;
+```
+
+The QC workhorse. "Who is missing?" is one line in both directions:
+
+```{r}
+# Subjects with no adverse events at all
+anti_join(dm, ae, by = "subjid")
+
+# AE rows referencing a subject who is not in DM — a data error
+anti_join(ae, dm, by = "subjid")
+```
+
+Running both directions after any join is a cheap habit that catches key problems before
+they reach an analysis dataset.
+
+### `semi_join()` — filter the left by existence on the right
+
+```sas
+proc sql;
+  select * from dm where subjid in (select subjid from ae);
+quit;
+```
+
+```{r}
+semi_join(dm, ae, by = "subjid")
+```
+
+Three rows, and only `dm`'s columns — nothing is merged in. Compare with
+`inner_join(dm, ae)`, which returned four rows because `001` was duplicated by its two
+AEs. **`semi_join()` filters; `inner_join()` filters and merges.** When you only want to
+subset, `semi_join()` cannot change your row count behind your back.
+
+## Summary
+
+| R | SAS `DATA` step | SQL |
+|---|---|---|
+| `inner_join()` | `if a and b;` | `INNER JOIN` |
+| `left_join()` | `if a;` | `LEFT JOIN` |
+| `right_join()` | `if b;` | `RIGHT JOIN` |
+| `full_join()` | no subsetting `if` | `FULL JOIN` |
+| `anti_join()` | `if a and not b;` | `WHERE ... NOT IN` |
+| `semi_join()` | `if a and b;` then dedupe | `WHERE EXISTS` |
+
+## Keys that are named differently
+
+SAS forces you to rename before merging. R does not:
+
+```{r}
+ae_upper <- data.frame(
+  SUBJID = c("001", "002", "003"),
+  aeterm = c("Headache", "Rash", "Fatigue")
+)
+
+left_join(dm, ae_upper, by = c("subjid" = "SUBJID"))
+```
+
+Left name first, right name second. The result keeps the left-hand name.
+
+## Joining on more than one key
+
+```{r}
+lb <- data.frame(
+  subjid = c("001", "001", "002"),
+  visit  = c("Baseline", "Week 4", "Baseline"),
+  alt    = c(22, 28, 31)
+)
+
+visits <- data.frame(
+  subjid     = c("001", "001", "002"),
+  visit      = c("Baseline", "Week 4", "Baseline"),
+  visit_date = as.Date(c("2025-01-10", "2025-02-07", "2025-01-12"))
+)
+
+left_join(lb, visits, by = c("subjid", "visit"))
+```
+
+A row matches only when **both** keys match, exactly like `BY subjid visit`.
+
+## Row-count hygiene
+
+The most common join bug in clinical data is a right-hand table with duplicate keys,
+which quietly multiplies your rows. In SAS you find out by reading the log. In R, state
+the shape you expect and let the join fail if the data disagrees:
+
+```{r}
+nrow(dm)
+nrow(left_join(dm, ae, by = "subjid"))
+```
+
+Six rows from five subjects. Here that is correct — one subject has two AEs — but you
+should have to say so:
+
+```{r}
+left_join(dm, ae, by = "subjid", relationship = "one-to-many")
+```
+
+`relationship =` (dplyr 1.1 and later) takes `"one-to-one"`, `"one-to-many"`,
+`"many-to-one"` or `"many-to-many"`, and aborts when the data violates the claim:
+
+```{r}
+#| error: true
+left_join(dm, ae, by = "subjid", relationship = "one-to-one")
+```
+
+That error is the point. Get into the habit of declaring the relationship on every join —
+it turns a silent row explosion into a loud failure at the line that caused it.
+
+## Base R: `merge()`
+
+Still common in older code, and the closest single function to a `DATA` step `MERGE`:
+
+```{r}
+merge(dm, ae, by = "subjid")                 # inner (the default)
+merge(dm, ae, by = "subjid", all.x = TRUE)   # left
+merge(dm, ae, by = "subjid", all.y = TRUE)   # right
+merge(dm, ae, by = "subjid", all = TRUE)     # full
+```
+
+Readable enough, but there is no `merge()` equivalent of `anti_join()` or `semi_join()`,
+no `relationship =` check, and `all.x = TRUE` says less at a glance than `left_join`.
+Prefer dplyr for new work; recognise `merge()` when you inherit it.

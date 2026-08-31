@@ -1,0 +1,47 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "SAS to R"
+  description: "A practical reference for SAS programmers writing R."
+  site-url: https://kris-ow.github.io/sas-to-r/
+  repo-url: https://github.com/kris-ow/sas-to-r
+  search:
+    location: navbar
+    type: overlay
+    copy-button: true
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+    right:
+      - icon: github
+        href: https://github.com/kris-ow/sas-to-r
+        aria-label: Source on GitHub
+  sidebar:
+    style: floating
+    search: false
+    contents:
+      - href: index.qmd
+        text: Start here
+      - section: "Combining data"
+        contents:
+          - joins.qmd
+  page-footer:
+    center: "Questions or corrections: [sham4n@gmail.com](mailto:sham4n@gmail.com)"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    highlight-style: github
+
+execute:
+  echo: true
+  warning: true
+  message: false
