@@ -343,14 +343,14 @@ run;</code></pre>
 6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;</code></pre>
 </div>
 </div>
-<p>This is the workhorse, because most real joins are “start from my subject list and annotate it”. Six rows: <code>001</code> twice because it has two AEs, and <code>004</code>/<code>005</code> once each with <code>NA</code> in the AE columns.</p>
+<p>This is the workhorse, because most real joins are "start from my subject list and annotate it". Six rows: <code>001</code> twice because it has two AEs, and <code>004</code>/<code>005</code> once each with <code>NA</code> in the AE columns.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span><code>NA</code> from a join means “no match”, not “missing value”
+<span class="screen-reader-only">Important</span><code>NA</code> from a join means "no match", not "missing value"
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -401,7 +401,7 @@ run;</code></pre>
   by subjid;
   if a and not b;
 run;</code></pre>
-<p>The QC workhorse. “Who is missing?” is one line in both directions:</p>
+<p>The QC workhorse. "Who is missing?" is one line in both directions:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subjects with no adverse events at all</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -433,7 +433,7 @@ quit;</code></pre>
 3    003   F  Active</code></pre>
 </div>
 </div>
-<p>Three rows, and only <code>dm</code>’s columns. Nothing is merged in. Compare with <code>inner_join(dm, ae)</code>, which returned four rows because <code>001</code> was duplicated by its two AEs. <strong><code>semi_join()</code> filters; <code>inner_join()</code> filters and merges.</strong> When you only want to subset, <code>semi_join()</code> cannot change your row count behind your back.</p>
+<p>Three rows, and only <code>dm</code>'s columns. Nothing is merged in. Compare with <code>inner_join(dm, ae)</code>, which returned four rows because <code>001</code> was duplicated by its two AEs. <strong><code>semi_join()</code> filters; <code>inner_join()</code> filters and merges.</strong> When you only want to subset, <code>semi_join()</code> cannot change your row count behind your back.</p>
 </section>
 </section>
 <section id="summary" class="level2">
