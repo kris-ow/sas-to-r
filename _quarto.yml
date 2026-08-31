@@ -33,6 +33,10 @@ website:
 
 format:
   html:
+    # Disable Pandoc's smart typography. Without this it silently converts
+    # straight quotes to curly ones and -- to an en dash at render time, so an
+    # all-ASCII source still publishes non-keyboard characters. See README.
+    from: markdown-smart
     theme: cosmo
     css: styles.css
     toc: true

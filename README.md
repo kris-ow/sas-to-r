@@ -20,6 +20,17 @@ quarto render      # build once into _site/
 symbol you cannot type on a standard keyboard. Where a sentence wants an em dash, rewrite
 it or use a colon, a comma or brackets.
 
+Pandoc's smart typography is switched off in `_quarto.yml` (`from: markdown-smart`).
+Leave it off. With it on, Pandoc silently turns straight quotes into curly ones and `--`
+into an en dash at render time, so an all-ASCII source still publishes characters that
+are not on a keyboard.
+
+Two things on the rendered pages are not ASCII and are deliberately left alone: real R
+console output (rlang prints characters like the info bullet in its error messages, and
+faking that would make the examples wrong), and Quarto's own browser-tab separator in
+`<title>`, which is hardcoded in the Pandoc template and would need a custom template to
+change. Neither appears in page content.
+
 `tools/check-ascii.sh` enforces this. It runs in CI before the render, so a page with a
 stray em dash fails the build. Run it yourself before pushing:
 
