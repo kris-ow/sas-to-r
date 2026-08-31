@@ -199,12 +199,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-example-tables" id="toc-the-example-tables" class="nav-link active" data-scroll-target="#the-example-tables">The example tables</a></li>
   <li><a href="#the-six-joins" id="toc-the-six-joins" class="nav-link" data-scroll-target="#the-six-joins">The six joins</a>
   <ul class="collapse">
-  <li><a href="#inner_join-rows-matching-in-both" id="toc-inner_join-rows-matching-in-both" class="nav-link" data-scroll-target="#inner_join-rows-matching-in-both"><code>inner_join()</code> — rows matching in both</a></li>
-  <li><a href="#left_join-keep-everything-on-the-left" id="toc-left_join-keep-everything-on-the-left" class="nav-link" data-scroll-target="#left_join-keep-everything-on-the-left"><code>left_join()</code> — keep everything on the left</a></li>
-  <li><a href="#right_join-keep-everything-on-the-right" id="toc-right_join-keep-everything-on-the-right" class="nav-link" data-scroll-target="#right_join-keep-everything-on-the-right"><code>right_join()</code> — keep everything on the right</a></li>
-  <li><a href="#full_join-keep-everything-from-both" id="toc-full_join-keep-everything-from-both" class="nav-link" data-scroll-target="#full_join-keep-everything-from-both"><code>full_join()</code> — keep everything from both</a></li>
-  <li><a href="#anti_join-left-rows-with-no-match-on-the-right" id="toc-anti_join-left-rows-with-no-match-on-the-right" class="nav-link" data-scroll-target="#anti_join-left-rows-with-no-match-on-the-right"><code>anti_join()</code> — left rows with no match on the right</a></li>
-  <li><a href="#semi_join-filter-the-left-by-existence-on-the-right" id="toc-semi_join-filter-the-left-by-existence-on-the-right" class="nav-link" data-scroll-target="#semi_join-filter-the-left-by-existence-on-the-right"><code>semi_join()</code> — filter the left by existence on the right</a></li>
+  <li><a href="#inner_join-rows-matching-in-both" id="toc-inner_join-rows-matching-in-both" class="nav-link" data-scroll-target="#inner_join-rows-matching-in-both"><code>inner_join()</code>: rows matching in both</a></li>
+  <li><a href="#left_join-keep-everything-on-the-left" id="toc-left_join-keep-everything-on-the-left" class="nav-link" data-scroll-target="#left_join-keep-everything-on-the-left"><code>left_join()</code>: keep everything on the left</a></li>
+  <li><a href="#right_join-keep-everything-on-the-right" id="toc-right_join-keep-everything-on-the-right" class="nav-link" data-scroll-target="#right_join-keep-everything-on-the-right"><code>right_join()</code>: keep everything on the right</a></li>
+  <li><a href="#full_join-keep-everything-from-both" id="toc-full_join-keep-everything-from-both" class="nav-link" data-scroll-target="#full_join-keep-everything-from-both"><code>full_join()</code>: keep everything from both</a></li>
+  <li><a href="#anti_join-left-rows-with-no-match-on-the-right" id="toc-anti_join-left-rows-with-no-match-on-the-right" class="nav-link" data-scroll-target="#anti_join-left-rows-with-no-match-on-the-right"><code>anti_join()</code>: left rows with no match on the right</a></li>
+  <li><a href="#semi_join-filter-the-left-by-existence-on-the-right" id="toc-semi_join-filter-the-left-by-existence-on-the-right" class="nav-link" data-scroll-target="#semi_join-filter-the-left-by-existence-on-the-right"><code>semi_join()</code>: filter the left by existence on the right</a></li>
   </ul></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   <li><a href="#keys-that-are-named-differently" id="toc-keys-that-are-named-differently" class="nav-link" data-scroll-target="#keys-that-are-named-differently">Keys that are named differently</a></li>
@@ -293,15 +293,15 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <p>The mismatches matter, because they are what the different joins disagree about:</p>
 <ul>
-<li>subject <code>001</code> has two AEs — one-to-many</li>
+<li>subject <code>001</code> has two AEs, so this is one-to-many</li>
 <li>subjects <code>004</code> and <code>005</code> are in <code>dm</code> with no AEs</li>
-<li>subject <code>006</code> has an AE but is <strong>not</strong> in <code>dm</code> — a data error you want to catch</li>
+<li>subject <code>006</code> has an AE but is <strong>not</strong> in <code>dm</code>, a data error you want to catch</li>
 </ul>
 </section>
 <section id="the-six-joins" class="level2">
 <h2 class="anchored" data-anchor-id="the-six-joins">The six joins</h2>
 <section id="inner_join-rows-matching-in-both" class="level3">
-<h3 class="anchored" data-anchor-id="inner_join-rows-matching-in-both"><code>inner_join()</code> — rows matching in both</h3>
+<h3 class="anchored" data-anchor-id="inner_join-rows-matching-in-both"><code>inner_join()</code>: rows matching in both</h3>
 <pre class="sas"><code>proc sql;
   select * from dm inner join ae on dm.subjid = ae.subjid;
 quit;
@@ -322,10 +322,10 @@ run;</code></pre>
 4    003   F  Active  Fatigue     Mild</code></pre>
 </div>
 </div>
-<p>Four rows. Dropped: <code>004</code> and <code>005</code> (no AE), and <code>006</code> (not in <code>dm</code>). Note that the data error and the legitimately event-free subjects vanish together and without comment — which is exactly why <code>inner_join()</code> is a poor default.</p>
+<p>Four rows. Dropped: <code>004</code> and <code>005</code> (no AE), and <code>006</code> (not in <code>dm</code>). Note that the data error and the legitimately event-free subjects vanish together and without comment. That is exactly why <code>inner_join()</code> makes a poor default.</p>
 </section>
 <section id="left_join-keep-everything-on-the-left" class="level3">
-<h3 class="anchored" data-anchor-id="left_join-keep-everything-on-the-left"><code>left_join()</code> — keep everything on the left</h3>
+<h3 class="anchored" data-anchor-id="left_join-keep-everything-on-the-left"><code>left_join()</code>: keep everything on the left</h3>
 <pre class="sas"><code>data out;
   merge dm(in=a) ae;
   by subjid;
@@ -343,7 +343,7 @@ run;</code></pre>
 6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;</code></pre>
 </div>
 </div>
-<p>This is the workhorse — most real joins are “start from my subject list, annotate it”. Six rows: <code>001</code> twice because it has two AEs, and <code>004</code>/<code>005</code> once each with <code>NA</code> in the AE columns.</p>
+<p>This is the workhorse, because most real joins are “start from my subject list and annotate it”. Six rows: <code>001</code> twice because it has two AEs, and <code>004</code>/<code>005</code> once each with <code>NA</code> in the AE columns.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -354,12 +354,12 @@ run;</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>R gives you the same <code>NA</code> for both, and only context tells you which you have. Here it means the subject had no adverse event — not that the term was left blank on the CRF, and not that the AE extract failed to load. If that distinction matters downstream, record it explicitly with a flag column rather than relying on the <code>NA</code>.</p>
+<p>R gives you the same <code>NA</code> for both, and only context tells you which you have. Here it means the subject had no adverse event. It does not mean the term was left blank on the CRF, and it does not that the AE extract failed to load. If that distinction matters downstream, record it explicitly with a flag column rather than relying on the <code>NA</code>.</p>
 </div>
 </div>
 </section>
 <section id="right_join-keep-everything-on-the-right" class="level3">
-<h3 class="anchored" data-anchor-id="right_join-keep-everything-on-the-right"><code>right_join()</code> — keep everything on the right</h3>
+<h3 class="anchored" data-anchor-id="right_join-keep-everything-on-the-right"><code>right_join()</code>: keep everything on the right</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -371,10 +371,10 @@ run;</code></pre>
 5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild</code></pre>
 </div>
 </div>
-<p>Identical to <code>left_join(ae, dm, by = "subjid")</code> apart from column order, and rare in practice — swapping the arguments reads better than making the reader track a mirror. Subject <code>006</code> shows up here with <code>NA</code> demographics.</p>
+<p>Identical to <code>left_join(ae, dm, by = "subjid")</code> apart from column order, and rare in practice, because swapping the arguments reads better than making the reader track a mirror image. Subject <code>006</code> shows up here with <code>NA</code> demographics.</p>
 </section>
 <section id="full_join-keep-everything-from-both" class="level3">
-<h3 class="anchored" data-anchor-id="full_join-keep-everything-from-both"><code>full_join()</code> — keep everything from both</h3>
+<h3 class="anchored" data-anchor-id="full_join-keep-everything-from-both"><code>full_join()</code>: keep everything from both</h3>
 <pre class="sas"><code>data out;
   merge dm ae;
   by subjid;
@@ -395,7 +395,7 @@ run;</code></pre>
 <p>Seven rows: every <code>subjid</code> from either side. Useful when you are hunting data-quality problems and do not yet know which side they are on.</p>
 </section>
 <section id="anti_join-left-rows-with-no-match-on-the-right" class="level3">
-<h3 class="anchored" data-anchor-id="anti_join-left-rows-with-no-match-on-the-right"><code>anti_join()</code> — left rows with no match on the right</h3>
+<h3 class="anchored" data-anchor-id="anti_join-left-rows-with-no-match-on-the-right"><code>anti_join()</code>: left rows with no match on the right</h3>
 <pre class="sas"><code>data out;
   merge dm(in=a) ae(in=b);
   by subjid;
@@ -410,7 +410,7 @@ run;</code></pre>
 1    004   M Placebo
 2    005   M  Active</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AE rows referencing a subject who is not in DM — a data error</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AE rows referencing a subject who is not in DM (a data error)</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(ae, dm, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid    aeterm  sev
@@ -420,7 +420,7 @@ run;</code></pre>
 <p>Running both directions after any join is a cheap habit that catches key problems before they reach an analysis dataset.</p>
 </section>
 <section id="semi_join-filter-the-left-by-existence-on-the-right" class="level3">
-<h3 class="anchored" data-anchor-id="semi_join-filter-the-left-by-existence-on-the-right"><code>semi_join()</code> — filter the left by existence on the right</h3>
+<h3 class="anchored" data-anchor-id="semi_join-filter-the-left-by-existence-on-the-right"><code>semi_join()</code>: filter the left by existence on the right</h3>
 <pre class="sas"><code>proc sql;
   select * from dm where subjid in (select subjid from ae);
 quit;</code></pre>
@@ -433,7 +433,7 @@ quit;</code></pre>
 3    003   F  Active</code></pre>
 </div>
 </div>
-<p>Three rows, and only <code>dm</code>’s columns — nothing is merged in. Compare with <code>inner_join(dm, ae)</code>, which returned four rows because <code>001</code> was duplicated by its two AEs. <strong><code>semi_join()</code> filters; <code>inner_join()</code> filters and merges.</strong> When you only want to subset, <code>semi_join()</code> cannot change your row count behind your back.</p>
+<p>Three rows, and only <code>dm</code>’s columns. Nothing is merged in. Compare with <code>inner_join(dm, ae)</code>, which returned four rows because <code>001</code> was duplicated by its two AEs. <strong><code>semi_join()</code> filters; <code>inner_join()</code> filters and merges.</strong> When you only want to subset, <code>semi_join()</code> cannot change your row count behind your back.</p>
 </section>
 </section>
 <section id="summary" class="level2">
@@ -539,7 +539,7 @@ quit;</code></pre>
 <pre><code>[1] 6</code></pre>
 </div>
 </div>
-<p>Six rows from five subjects. Here that is correct — one subject has two AEs — but you should have to say so:</p>
+<p>Six rows from five subjects. Here that is correct, because one subject has two AEs, but you should have to say so:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -561,7 +561,7 @@ quit;</code></pre>
 ℹ Row 1 of `x` matches multiple rows in `y`.</code></pre>
 </div>
 </div>
-<p>That error is the point. Get into the habit of declaring the relationship on every join — it turns a silent row explosion into a loud failure at the line that caused it.</p>
+<p>That error is the point. Get into the habit of declaring the relationship on every join. It turns a silent row explosion into a loud failure at the line that caused it.</p>
 </section>
 <section id="base-r-merge" class="level2">
 <h2 class="anchored" data-anchor-id="base-r-merge">Base R: <code>merge()</code></h2>
