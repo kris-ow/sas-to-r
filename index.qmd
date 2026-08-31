@@ -9,7 +9,13 @@ in R: the working code, its real output, and the places where the two languages 
 **not** line up. The examples run when the site is built, so what you see on a page is
 what R actually printed.
 
+In a hurry, or already know the topic and just want the call? The
+[cheat sheet](cheatsheet.qmd) is every topic reduced to code, on one page.
+
 ## How to use it
+
+Every topic page opens with a short block that is nothing but the code, then works
+through the same material slowly underneath. Read as far down as you need and stop.
 
 Pages are organised by what you are trying to do, not by which package provides it.
 Each one opens with the SAS equivalents it replaces, so searching for `MERGE` or

@@ -1,0 +1,14 @@
+---
+title: "Cheat sheet"
+subtitle: "Every topic, code only"
+---
+
+The essentials from every topic on one page, so you can find the call you have forgotten
+without reading anything. Each block is the same text that opens its topic page, so the
+two cannot drift apart.
+
+Follow a heading through to its full page when the short version is not enough.
+
+## [Joins](joins.qmd)
+
+{{< include _quickref/joins.md >}}

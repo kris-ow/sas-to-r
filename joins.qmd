@@ -12,6 +12,13 @@ R has six named join functions where SAS has one `MERGE` statement plus a set of
 conventions. Once you know which name maps to which `IN=` pattern, joins get shorter and
 much harder to get silently wrong.
 
+## Quick reference
+
+{{< include _quickref/joins.md >}}
+
+The rest of this page is the same material worked through slowly, with runnable examples
+and the output they produce. Skip it if the block above was what you came for.
+
 ## The example tables
 
 Two small tables with deliberate mismatches, used throughout this page.
@@ -161,17 +168,6 @@ Three rows, and only `dm`'s columns. Nothing is merged in. Compare with
 `inner_join(dm, ae)`, which returned four rows because `001` was duplicated by its two
 AEs. **`semi_join()` filters; `inner_join()` filters and merges.** When you only want to
 subset, `semi_join()` cannot change your row count behind your back.
-
-## Summary
-
-| R | SAS `DATA` step | SQL |
-|---|---|---|
-| `inner_join()` | `if a and b;` | `INNER JOIN` |
-| `left_join()` | `if a;` | `LEFT JOIN` |
-| `right_join()` | `if b;` | `RIGHT JOIN` |
-| `full_join()` | no subsetting `if` | `FULL JOIN` |
-| `anti_join()` | `if a and not b;` | `WHERE ... NOT IN` |
-| `semi_join()` | `if a and b;` then dedupe | `WHERE EXISTS` |
 
 ## Keys that are named differently
 

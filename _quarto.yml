@@ -15,6 +15,8 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: cheatsheet.qmd
+        text: Cheat sheet
     right:
       - icon: github
         href: https://github.com/kris-ow/sas-to-r
@@ -25,6 +27,8 @@ website:
     contents:
       - href: index.qmd
         text: Start here
+      - href: cheatsheet.qmd
+        text: Cheat sheet
       - section: "Combining data"
         contents:
           - joins.qmd
