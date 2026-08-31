@@ -5,7 +5,7 @@ title: "SAS to R"
 A practical reference for SAS programmers writing R.
 
 Every page takes one task you already know how to do in SAS and shows how it is done
-in R — the working code, its real output, and the places where the two languages do
+in R: the working code, its real output, and the places where the two languages do
 **not** line up. The examples run when the site is built, so what you see on a page is
 what R actually printed.
 
@@ -22,7 +22,7 @@ Where one is clearly better for the job, the page says so and explains why.
 
 Available now:
 
-- [Joins](joins.qmd) — combining tables
+- [Joins](joins.qmd), combining tables
 
 Planned, in no fixed order: data frames and tibbles, filtering and selecting, sorting,
 grouping and summarising, reshaping, dates and times, text manipulation, numbers and

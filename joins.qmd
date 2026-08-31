@@ -38,13 +38,13 @@ ae
 
 The mismatches matter, because they are what the different joins disagree about:
 
-- subject `001` has two AEs — one-to-many
+- subject `001` has two AEs, so this is one-to-many
 - subjects `004` and `005` are in `dm` with no AEs
-- subject `006` has an AE but is **not** in `dm` — a data error you want to catch
+- subject `006` has an AE but is **not** in `dm`, a data error you want to catch
 
 ## The six joins
 
-### `inner_join()` — rows matching in both
+### `inner_join()`: rows matching in both
 
 ```sas
 proc sql;
@@ -64,10 +64,10 @@ inner_join(dm, ae, by = "subjid")
 ```
 
 Four rows. Dropped: `004` and `005` (no AE), and `006` (not in `dm`). Note that the data
-error and the legitimately event-free subjects vanish together and without comment —
-which is exactly why `inner_join()` is a poor default.
+error and the legitimately event-free subjects vanish together and without comment.
+That is exactly why `inner_join()` makes a poor default.
 
-### `left_join()` — keep everything on the left
+### `left_join()`: keep everything on the left
 
 ```sas
 data out;
@@ -81,7 +81,8 @@ run;
 left_join(dm, ae, by = "subjid")
 ```
 
-This is the workhorse — most real joins are "start from my subject list, annotate it".
+This is the workhorse, because most real joins are "start from my subject list and
+annotate it".
 Six rows: `001` twice because it has two AEs, and `004`/`005` once each with `NA` in the
 AE columns.
 
@@ -89,22 +90,23 @@ AE columns.
 ## `NA` from a join means "no match", not "missing value"
 
 R gives you the same `NA` for both, and only context tells you which you have. Here it
-means the subject had no adverse event — not that the term was left blank on the CRF, and
+means the subject had no adverse event. It does not mean the term was left blank on the CRF, and it does
 not that the AE extract failed to load. If that distinction matters downstream, record it
 explicitly with a flag column rather than relying on the `NA`.
 :::
 
-### `right_join()` — keep everything on the right
+### `right_join()`: keep everything on the right
 
 ```{r}
 right_join(dm, ae, by = "subjid")
 ```
 
 Identical to `left_join(ae, dm, by = "subjid")` apart from column order, and rare in
-practice — swapping the arguments reads better than making the reader track a mirror.
+practice, because swapping the arguments reads better than making the reader track a
+mirror image.
 Subject `006` shows up here with `NA` demographics.
 
-### `full_join()` — keep everything from both
+### `full_join()`: keep everything from both
 
 ```sas
 data out;
@@ -120,7 +122,7 @@ full_join(dm, ae, by = "subjid")
 Seven rows: every `subjid` from either side. Useful when you are hunting data-quality
 problems and do not yet know which side they are on.
 
-### `anti_join()` — left rows with no match on the right
+### `anti_join()`: left rows with no match on the right
 
 ```sas
 data out;
@@ -136,14 +138,14 @@ The QC workhorse. "Who is missing?" is one line in both directions:
 # Subjects with no adverse events at all
 anti_join(dm, ae, by = "subjid")
 
-# AE rows referencing a subject who is not in DM — a data error
+# AE rows referencing a subject who is not in DM (a data error)
 anti_join(ae, dm, by = "subjid")
 ```
 
 Running both directions after any join is a cheap habit that catches key problems before
 they reach an analysis dataset.
 
-### `semi_join()` — filter the left by existence on the right
+### `semi_join()`: filter the left by existence on the right
 
 ```sas
 proc sql;
@@ -155,7 +157,7 @@ quit;
 semi_join(dm, ae, by = "subjid")
 ```
 
-Three rows, and only `dm`'s columns — nothing is merged in. Compare with
+Three rows, and only `dm`'s columns. Nothing is merged in. Compare with
 `inner_join(dm, ae)`, which returned four rows because `001` was duplicated by its two
 AEs. **`semi_join()` filters; `inner_join()` filters and merges.** When you only want to
 subset, `semi_join()` cannot change your row count behind your back.
@@ -217,8 +219,8 @@ nrow(dm)
 nrow(left_join(dm, ae, by = "subjid"))
 ```
 
-Six rows from five subjects. Here that is correct — one subject has two AEs — but you
-should have to say so:
+Six rows from five subjects. Here that is correct, because one subject has two AEs, but
+you should have to say so:
 
 ```{r}
 left_join(dm, ae, by = "subjid", relationship = "one-to-many")
@@ -232,8 +234,8 @@ left_join(dm, ae, by = "subjid", relationship = "one-to-many")
 left_join(dm, ae, by = "subjid", relationship = "one-to-one")
 ```
 
-That error is the point. Get into the habit of declaring the relationship on every join —
-it turns a silent row explosion into a loud failure at the line that caused it.
+That error is the point. Get into the habit of declaring the relationship on every join.
+It turns a silent row explosion into a loud failure at the line that caused it.
 
 ## Base R: `merge()`
 
