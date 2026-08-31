@@ -1,0 +1,13 @@
+/* The "SAS:" line that opens every topic page. */
+.sas-equiv {
+  font-size: 0.9rem;
+  border-left: 3px solid #adb5bd;
+  padding: 0.35rem 0 0.35rem 0.75rem;
+  margin-bottom: 1.5rem;
+  color: #495057;
+}
+
+/* Keep long console output from stretching the page. */
+pre code {
+  font-size: 0.85rem;
+}
