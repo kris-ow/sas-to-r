@@ -1,46 +1,24 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "SAS to R",
+    "objectID": "cheatsheet.html",
+    "href": "cheatsheet.html",
+    "title": "Cheat sheet",
     "section": "",
-    "text": "A practical reference for SAS programmers writing R.\nEvery page takes one task you already know how to do in SAS and shows how it is done in R: the working code, its real output, and the places where the two languages do not line up. The examples run when the site is built, so what you see on a page is what R actually printed.",
+    "text": "The essentials from every topic on one page, so you can find the call you have forgotten without reading anything. Each block is the same text that opens its topic page, so the two cannot drift apart.\nFollow a heading through to its full page when the short version is not enough.",
     "crumbs": [
       "Home",
-      "Start here"
+      "Cheat sheet"
     ]
   },
   {
-    "objectID": "index.html#how-to-use-it",
-    "href": "index.html#how-to-use-it",
-    "title": "SAS to R",
-    "section": "How to use it",
-    "text": "How to use it\nPages are organised by what you are trying to do, not by which package provides it. Each one opens with the SAS equivalents it replaces, so searching for MERGE or PROC TRANSPOSE will find the right page even though nothing is filed under those names.\nCode is shown in base R and the tidyverse side by side where both are worth knowing. Where one is clearly better for the job, the page says so and explains why.",
+    "objectID": "cheatsheet.html#joins",
+    "href": "cheatsheet.html#joins",
+    "title": "Cheat sheet",
+    "section": "Joins",
+    "text": "Joins\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for.",
     "crumbs": [
       "Home",
-      "Start here"
-    ]
-  },
-  {
-    "objectID": "index.html#topics",
-    "href": "index.html#topics",
-    "title": "SAS to R",
-    "section": "Topics",
-    "text": "Topics\nAvailable now:\n\nJoins, combining tables\n\nPlanned, in no fixed order: data frames and tibbles, filtering and selecting, sorting, grouping and summarising, reshaping, dates and times, text manipulation, numbers and rounding, factors, missing data, import and export, functions and control flow, plotting.",
-    "crumbs": [
-      "Home",
-      "Start here"
-    ]
-  },
-  {
-    "objectID": "index.html#corrections",
-    "href": "index.html#corrections",
-    "title": "SAS to R",
-    "section": "Corrections",
-    "text": "Corrections\nSomething wrong, unclear, or missing? sham4n@gmail.com, or open an issue on GitHub.",
-    "crumbs": [
-      "Home",
-      "Start here"
+      "Cheat sheet"
     ]
   },
   {
@@ -49,6 +27,18 @@
     "title": "Joins",
     "section": "",
     "text": "SAS: DATA step MERGE ... BY, PROC SQL INNER/LEFT/RIGHT/FULL JOIN, IN= flags, WHERE EXISTS\nR has six named join functions where SAS has one MERGE statement plus a set of conventions. Once you know which name maps to which IN= pattern, joins get shorter and much harder to get silently wrong.",
+    "crumbs": [
+      "Home",
+      "Combining data",
+      "Joins"
+    ]
+  },
+  {
+    "objectID": "joins.html#quick-reference",
+    "href": "joins.html#quick-reference",
+    "title": "Joins",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for.\nThe rest of this page is the same material worked through slowly, with runnable examples and the output they produce. Skip it if the block above was what you came for.",
     "crumbs": [
       "Home",
       "Combining data",
@@ -73,18 +63,6 @@
     "title": "Joins",
     "section": "The six joins",
     "text": "The six joins\n\ninner_join(): rows matching in both\nproc sql;\n  select * from dm inner join ae on dm.subjid = ae.subjid;\nquit;\n\n/* or, DATA step */\ndata out;\n  merge dm(in=a) ae(in=b);\n  by subjid;\n  if a and b;\nrun;\n\ninner_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n\n\nFour rows. Dropped: 004 and 005 (no AE), and 006 (not in dm). Note that the data error and the legitimately event-free subjects vanish together and without comment. That is exactly why inner_join() makes a poor default.\n\n\nleft_join(): keep everything on the left\ndata out;\n  merge dm(in=a) ae;\n  by subjid;\n  if a;\nrun;\n\nleft_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;\n6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;\n\n\nThis is the workhorse, because most real joins are \"start from my subject list and annotate it\". Six rows: 001 twice because it has two AEs, and 004/005 once each with NA in the AE columns.\n\n\n\n\n\n\nImportantNA from a join means \"no match\", not \"missing value\"\n\n\n\nR gives you the same NA for both, and only context tells you which you have. Here it means the subject had no adverse event. It does not mean the term was left blank on the CRF, and it does not that the AE extract failed to load. If that distinction matters downstream, record it explicitly with a flag column rather than relying on the NA.\n\n\n\n\nright_join(): keep everything on the right\n\nright_join(dm, ae, by = \"subjid\")\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\n\nIdentical to left_join(ae, dm, by = \"subjid\") apart from column order, and rare in practice, because swapping the arguments reads better than making the reader track a mirror image. Subject 006 shows up here with NA demographics.\n\n\nfull_join(): keep everything from both\ndata out;\n  merge dm ae;\n  by subjid;\nrun;\n\nfull_join(dm, ae, by = \"subjid\")\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    004    M Placebo      &lt;NA&gt;     &lt;NA&gt;\n6    005    M  Active      &lt;NA&gt;     &lt;NA&gt;\n7    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\n\nSeven rows: every subjid from either side. Useful when you are hunting data-quality problems and do not yet know which side they are on.\n\n\nanti_join(): left rows with no match on the right\ndata out;\n  merge dm(in=a) ae(in=b);\n  by subjid;\n  if a and not b;\nrun;\nThe QC workhorse. \"Who is missing?\" is one line in both directions:\n\n# Subjects with no adverse events at all\nanti_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt\n1    004   M Placebo\n2    005   M  Active\n\n# AE rows referencing a subject who is not in DM (a data error)\nanti_join(ae, dm, by = \"subjid\")\n\n  subjid    aeterm  sev\n1    006 Dizziness Mild\n\n\nRunning both directions after any join is a cheap habit that catches key problems before they reach an analysis dataset.\n\n\nsemi_join(): filter the left by existence on the right\nproc sql;\n  select * from dm where subjid in (select subjid from ae);\nquit;\n\nsemi_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt\n1    001   M Placebo\n2    002   F  Active\n3    003   F  Active\n\n\nThree rows, and only dm's columns. Nothing is merged in. Compare with inner_join(dm, ae), which returned four rows because 001 was duplicated by its two AEs. semi_join() filters; inner_join() filters and merges. When you only want to subset, semi_join() cannot change your row count behind your back.",
-    "crumbs": [
-      "Home",
-      "Combining data",
-      "Joins"
-    ]
-  },
-  {
-    "objectID": "joins.html#summary",
-    "href": "joins.html#summary",
-    "title": "Joins",
-    "section": "Summary",
-    "text": "Summary\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS",
     "crumbs": [
       "Home",
       "Combining data",
@@ -137,6 +115,50 @@
       "Home",
       "Combining data",
       "Joins"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "SAS to R",
+    "section": "",
+    "text": "A practical reference for SAS programmers writing R.\nEvery page takes one task you already know how to do in SAS and shows how it is done in R: the working code, its real output, and the places where the two languages do not line up. The examples run when the site is built, so what you see on a page is what R actually printed.\nIn a hurry, or already know the topic and just want the call? The cheat sheet is every topic reduced to code, on one page.",
+    "crumbs": [
+      "Home",
+      "Start here"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use-it",
+    "href": "index.html#how-to-use-it",
+    "title": "SAS to R",
+    "section": "How to use it",
+    "text": "How to use it\nEvery topic page opens with a short block that is nothing but the code, then works through the same material slowly underneath. Read as far down as you need and stop.\nPages are organised by what you are trying to do, not by which package provides it. Each one opens with the SAS equivalents it replaces, so searching for MERGE or PROC TRANSPOSE will find the right page even though nothing is filed under those names.\nCode is shown in base R and the tidyverse side by side where both are worth knowing. Where one is clearly better for the job, the page says so and explains why.",
+    "crumbs": [
+      "Home",
+      "Start here"
+    ]
+  },
+  {
+    "objectID": "index.html#topics",
+    "href": "index.html#topics",
+    "title": "SAS to R",
+    "section": "Topics",
+    "text": "Topics\nAvailable now:\n\nJoins, combining tables\n\nPlanned, in no fixed order: data frames and tibbles, filtering and selecting, sorting, grouping and summarising, reshaping, dates and times, text manipulation, numbers and rounding, factors, missing data, import and export, functions and control flow, plotting.",
+    "crumbs": [
+      "Home",
+      "Start here"
+    ]
+  },
+  {
+    "objectID": "index.html#corrections",
+    "href": "index.html#corrections",
+    "title": "SAS to R",
+    "section": "Corrections",
+    "text": "Corrections\nSomething wrong, unclear, or missing? sham4n@gmail.com, or open an issue on GitHub.",
+    "crumbs": [
+      "Home",
+      "Start here"
     ]
   }
 ]

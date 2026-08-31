@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>SAS to R</title>
+<title>Cheat sheet – SAS to R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -25,6 +25,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -120,7 +155,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Start here</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cheatsheet.html">Cheat sheet</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -134,13 +169,13 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Start here</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./cheatsheet.html" class="sidebar-item-text sidebar-link">
+  <a href="./cheatsheet.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Cheat sheet</span></a>
   </div>
 </li>
@@ -171,9 +206,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#how-to-use-it" id="toc-how-to-use-it" class="nav-link active" data-scroll-target="#how-to-use-it">How to use it</a></li>
-  <li><a href="#topics" id="toc-topics" class="nav-link" data-scroll-target="#topics">Topics</a></li>
-  <li><a href="#corrections" id="toc-corrections" class="nav-link" data-scroll-target="#corrections">Corrections</a></li>
+  <li><a href="#joins" id="toc-joins" class="nav-link active" data-scroll-target="#joins">Joins</a></li>
   </ul>
 </nav>
     </div>
@@ -182,7 +215,8 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">SAS to R</h1>
+<h1 class="title">Cheat sheet</h1>
+<p class="subtitle lead">Every topic, code only</p>
 </div>
 
 
@@ -199,26 +233,69 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>A practical reference for SAS programmers writing R.</p>
-<p>Every page takes one task you already know how to do in SAS and shows how it is done in R: the working code, its real output, and the places where the two languages do <strong>not</strong> line up. The examples run when the site is built, so what you see on a page is what R actually printed.</p>
-<p>In a hurry, or already know the topic and just want the call? The <a href="./cheatsheet.html">cheat sheet</a> is every topic reduced to code, on one page.</p>
-<section id="how-to-use-it" class="level2">
-<h2 class="anchored" data-anchor-id="how-to-use-it">How to use it</h2>
-<p>Every topic page opens with a short block that is nothing but the code, then works through the same material slowly underneath. Read as far down as you need and stop.</p>
-<p>Pages are organised by what you are trying to do, not by which package provides it. Each one opens with the SAS equivalents it replaces, so searching for <code>MERGE</code> or <code>PROC TRANSPOSE</code> will find the right page even though nothing is filed under those names.</p>
-<p>Code is shown in base R and the tidyverse side by side where both are worth knowing. Where one is clearly better for the job, the page says so and explains why.</p>
-</section>
-<section id="topics" class="level2">
-<h2 class="anchored" data-anchor-id="topics">Topics</h2>
-<p>Available now:</p>
-<ul>
-<li><a href="./joins.html">Joins</a>, combining tables</li>
-</ul>
-<p>Planned, in no fixed order: data frames and tibbles, filtering and selecting, sorting, grouping and summarising, reshaping, dates and times, text manipulation, numbers and rounding, factors, missing data, import and export, functions and control flow, plotting.</p>
-</section>
-<section id="corrections" class="level2">
-<h2 class="anchored" data-anchor-id="corrections">Corrections</h2>
-<p>Something wrong, unclear, or missing? <a href="mailto:sham4n@gmail.com">sham4n@gmail.com</a>, or open an issue on <a href="https://github.com/kris-ow/sas-to-r/issues">GitHub</a>.</p>
+<p>The essentials from every topic on one page, so you can find the call you have forgotten without reading anything. Each block is the same text that opens its topic page, so the two cannot drift apart.</p>
+<p>Follow a heading through to its full page when the short version is not enough.</p>
+<section id="joins" class="level2">
+<h2 class="anchored" data-anchor-id="joins"><a href="./joins.html">Joins</a></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the six joins ------------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># rows matching on BOTH sides</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of dm, annotated from ae   &lt;- the usual one</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of ae (just swap the args instead)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># everything from either side</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># in dm, NOT in ae               &lt;- "who is missing?"</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">semi_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># filter dm to matches, add no columns</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- keys ---------------------------------------------------------------</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span> <span class="ot">=</span> <span class="st">"SUBJID"</span>))   <span class="co"># different names, left first</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(lb, visits, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span>, <span class="st">"visit"</span>)) <span class="co"># both keys must match</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># --- state what you expect; the join aborts if the data disagrees -------</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># "one-to-one" | "one-to-many" | "many-to-one" | "many-to-many"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>R</th>
+<th>SAS <code>DATA</code> step</th>
+<th>SQL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>inner_join()</code></td>
+<td><code>if a and b;</code></td>
+<td><code>INNER JOIN</code></td>
+</tr>
+<tr class="even">
+<td><code>left_join()</code></td>
+<td><code>if a;</code></td>
+<td><code>LEFT JOIN</code></td>
+</tr>
+<tr class="odd">
+<td><code>right_join()</code></td>
+<td><code>if b;</code></td>
+<td><code>RIGHT JOIN</code></td>
+</tr>
+<tr class="even">
+<td><code>full_join()</code></td>
+<td>no subsetting <code>if</code></td>
+<td><code>FULL JOIN</code></td>
+</tr>
+<tr class="odd">
+<td><code>anti_join()</code></td>
+<td><code>if a and not b;</code></td>
+<td><code>WHERE ... NOT IN</code></td>
+</tr>
+<tr class="even">
+<td><code>semi_join()</code></td>
+<td><code>if a and b;</code> then dedupe</td>
+<td><code>WHERE EXISTS</code></td>
+</tr>
+</tbody>
+</table>
+<p>Three traps: <code>NA</code> after a join means "no match", not "missing value". <code>inner_join()</code> throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what <code>relationship =</code> is for.</p>
 
 
 </section>

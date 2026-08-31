@@ -133,6 +133,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./cheatsheet.html"> 
+<span class="menu-text">Cheat sheet</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -169,6 +173,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Start here</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cheatsheet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cheat sheet</span></a>
+  </div>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
@@ -196,7 +206,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#the-example-tables" id="toc-the-example-tables" class="nav-link active" data-scroll-target="#the-example-tables">The example tables</a></li>
+  <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
+  <li><a href="#the-example-tables" id="toc-the-example-tables" class="nav-link" data-scroll-target="#the-example-tables">The example tables</a></li>
   <li><a href="#the-six-joins" id="toc-the-six-joins" class="nav-link" data-scroll-target="#the-six-joins">The six joins</a>
   <ul class="collapse">
   <li><a href="#inner_join-rows-matching-in-both" id="toc-inner_join-rows-matching-in-both" class="nav-link" data-scroll-target="#inner_join-rows-matching-in-both"><code>inner_join()</code>: rows matching in both</a></li>
@@ -206,7 +217,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#anti_join-left-rows-with-no-match-on-the-right" id="toc-anti_join-left-rows-with-no-match-on-the-right" class="nav-link" data-scroll-target="#anti_join-left-rows-with-no-match-on-the-right"><code>anti_join()</code>: left rows with no match on the right</a></li>
   <li><a href="#semi_join-filter-the-left-by-existence-on-the-right" id="toc-semi_join-filter-the-left-by-existence-on-the-right" class="nav-link" data-scroll-target="#semi_join-filter-the-left-by-existence-on-the-right"><code>semi_join()</code>: filter the left by existence on the right</a></li>
   </ul></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   <li><a href="#keys-that-are-named-differently" id="toc-keys-that-are-named-differently" class="nav-link" data-scroll-target="#keys-that-are-named-differently">Keys that are named differently</a></li>
   <li><a href="#joining-on-more-than-one-key" id="toc-joining-on-more-than-one-key" class="nav-link" data-scroll-target="#joining-on-more-than-one-key">Joining on more than one key</a></li>
   <li><a href="#row-count-hygiene" id="toc-row-count-hygiene" class="nav-link" data-scroll-target="#row-count-hygiene">Row-count hygiene</a></li>
@@ -241,203 +251,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>SAS:</strong> <code>DATA</code> step <code>MERGE ... BY</code>, <code>PROC SQL</code> <code>INNER</code>/<code>LEFT</code>/<code>RIGHT</code>/<code>FULL JOIN</code>, <code>IN=</code> flags, <code>WHERE EXISTS</code></p>
 </div>
 <p>R has six named join functions where SAS has one <code>MERGE</code> statement plus a set of conventions. Once you know which name maps to which <code>IN=</code> pattern, joins get shorter and much harder to get silently wrong.</p>
-<section id="the-example-tables" class="level2">
-<h2 class="anchored" data-anchor-id="the-example-tables">The example tables</h2>
-<p>Two small tables with deliberate mismatches, used throughout this page.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"002"</span>, <span class="st">"003"</span>, <span class="st">"004"</span>, <span class="st">"005"</span>),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">sex    =</span> <span class="fu">c</span>(<span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">trt    =</span> <span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Active"</span>, <span class="st">"Active"</span>, <span class="st">"Placebo"</span>, <span class="st">"Active"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ae <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"001"</span>, <span class="st">"002"</span>, <span class="st">"003"</span>, <span class="st">"006"</span>),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">aeterm =</span> <span class="fu">c</span>(<span class="st">"Headache"</span>, <span class="st">"Nausea"</span>, <span class="st">"Rash"</span>, <span class="st">"Fatigue"</span>, <span class="st">"Dizziness"</span>),</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">sev    =</span> <span class="fu">c</span>(<span class="st">"Mild"</span>, <span class="st">"Moderate"</span>, <span class="st">"Severe"</span>, <span class="st">"Mild"</span>, <span class="st">"Mild"</span>)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>dm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid sex     trt
-1    001   M Placebo
-2    002   F  Active
-3    003   F  Active
-4    004   M Placebo
-5    005   M  Active</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ae</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid    aeterm      sev
-1    001  Headache     Mild
-2    001    Nausea Moderate
-3    002      Rash   Severe
-4    003   Fatigue     Mild
-5    006 Dizziness     Mild</code></pre>
-</div>
-</div>
-<p>The mismatches matter, because they are what the different joins disagree about:</p>
-<ul>
-<li>subject <code>001</code> has two AEs, so this is one-to-many</li>
-<li>subjects <code>004</code> and <code>005</code> are in <code>dm</code> with no AEs</li>
-<li>subject <code>006</code> has an AE but is <strong>not</strong> in <code>dm</code>, a data error you want to catch</li>
-</ul>
-</section>
-<section id="the-six-joins" class="level2">
-<h2 class="anchored" data-anchor-id="the-six-joins">The six joins</h2>
-<section id="inner_join-rows-matching-in-both" class="level3">
-<h3 class="anchored" data-anchor-id="inner_join-rows-matching-in-both"><code>inner_join()</code>: rows matching in both</h3>
-<pre class="sas"><code>proc sql;
-  select * from dm inner join ae on dm.subjid = ae.subjid;
-quit;
-
-/* or, DATA step */
-data out;
-  merge dm(in=a) ae(in=b);
-  by subjid;
-  if a and b;
-run;</code></pre>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid sex     trt   aeterm      sev
-1    001   M Placebo Headache     Mild
-2    001   M Placebo   Nausea Moderate
-3    002   F  Active     Rash   Severe
-4    003   F  Active  Fatigue     Mild</code></pre>
-</div>
-</div>
-<p>Four rows. Dropped: <code>004</code> and <code>005</code> (no AE), and <code>006</code> (not in <code>dm</code>). Note that the data error and the legitimately event-free subjects vanish together and without comment. That is exactly why <code>inner_join()</code> makes a poor default.</p>
-</section>
-<section id="left_join-keep-everything-on-the-left" class="level3">
-<h3 class="anchored" data-anchor-id="left_join-keep-everything-on-the-left"><code>left_join()</code>: keep everything on the left</h3>
-<pre class="sas"><code>data out;
-  merge dm(in=a) ae;
-  by subjid;
-  if a;
-run;</code></pre>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid sex     trt   aeterm      sev
-1    001   M Placebo Headache     Mild
-2    001   M Placebo   Nausea Moderate
-3    002   F  Active     Rash   Severe
-4    003   F  Active  Fatigue     Mild
-5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;
-6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;</code></pre>
-</div>
-</div>
-<p>This is the workhorse, because most real joins are "start from my subject list and annotate it". Six rows: <code>001</code> twice because it has two AEs, and <code>004</code>/<code>005</code> once each with <code>NA</code> in the AE columns.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span><code>NA</code> from a join means "no match", not "missing value"
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>R gives you the same <code>NA</code> for both, and only context tells you which you have. Here it means the subject had no adverse event. It does not mean the term was left blank on the CRF, and it does not that the AE extract failed to load. If that distinction matters downstream, record it explicitly with a flag column rather than relying on the <code>NA</code>.</p>
-</div>
-</div>
-</section>
-<section id="right_join-keep-everything-on-the-right" class="level3">
-<h3 class="anchored" data-anchor-id="right_join-keep-everything-on-the-right"><code>right_join()</code>: keep everything on the right</h3>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid  sex     trt    aeterm      sev
-1    001    M Placebo  Headache     Mild
-2    001    M Placebo    Nausea Moderate
-3    002    F  Active      Rash   Severe
-4    003    F  Active   Fatigue     Mild
-5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild</code></pre>
-</div>
-</div>
-<p>Identical to <code>left_join(ae, dm, by = "subjid")</code> apart from column order, and rare in practice, because swapping the arguments reads better than making the reader track a mirror image. Subject <code>006</code> shows up here with <code>NA</code> demographics.</p>
-</section>
-<section id="full_join-keep-everything-from-both" class="level3">
-<h3 class="anchored" data-anchor-id="full_join-keep-everything-from-both"><code>full_join()</code>: keep everything from both</h3>
-<pre class="sas"><code>data out;
-  merge dm ae;
-  by subjid;
-run;</code></pre>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid  sex     trt    aeterm      sev
-1    001    M Placebo  Headache     Mild
-2    001    M Placebo    Nausea Moderate
-3    002    F  Active      Rash   Severe
-4    003    F  Active   Fatigue     Mild
-5    004    M Placebo      &lt;NA&gt;     &lt;NA&gt;
-6    005    M  Active      &lt;NA&gt;     &lt;NA&gt;
-7    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild</code></pre>
-</div>
-</div>
-<p>Seven rows: every <code>subjid</code> from either side. Useful when you are hunting data-quality problems and do not yet know which side they are on.</p>
-</section>
-<section id="anti_join-left-rows-with-no-match-on-the-right" class="level3">
-<h3 class="anchored" data-anchor-id="anti_join-left-rows-with-no-match-on-the-right"><code>anti_join()</code>: left rows with no match on the right</h3>
-<pre class="sas"><code>data out;
-  merge dm(in=a) ae(in=b);
-  by subjid;
-  if a and not b;
-run;</code></pre>
-<p>The QC workhorse. "Who is missing?" is one line in both directions:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subjects with no adverse events at all</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid sex     trt
-1    004   M Placebo
-2    005   M  Active</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AE rows referencing a subject who is not in DM (a data error)</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(ae, dm, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid    aeterm  sev
-1    006 Dizziness Mild</code></pre>
-</div>
-</div>
-<p>Running both directions after any join is a cheap habit that catches key problems before they reach an analysis dataset.</p>
-</section>
-<section id="semi_join-filter-the-left-by-existence-on-the-right" class="level3">
-<h3 class="anchored" data-anchor-id="semi_join-filter-the-left-by-existence-on-the-right"><code>semi_join()</code>: filter the left by existence on the right</h3>
-<pre class="sas"><code>proc sql;
-  select * from dm where subjid in (select subjid from ae);
-quit;</code></pre>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">semi_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  subjid sex     trt
-1    001   M Placebo
-2    002   F  Active
-3    003   F  Active</code></pre>
-</div>
-</div>
-<p>Three rows, and only <code>dm</code>'s columns. Nothing is merged in. Compare with <code>inner_join(dm, ae)</code>, which returned four rows because <code>001</code> was duplicated by its two AEs. <strong><code>semi_join()</code> filters; <code>inner_join()</code> filters and merges.</strong> When you only want to subset, <code>semi_join()</code> cannot change your row count behind your back.</p>
-</section>
-</section>
-<section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<section id="quick-reference" class="level2">
+<h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the six joins ------------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># rows matching on BOTH sides</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of dm, annotated from ae   &lt;- the usual one</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of ae (just swap the args instead)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># everything from either side</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># in dm, NOT in ae               &lt;- "who is missing?"</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">semi_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># filter dm to matches, add no columns</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- keys ---------------------------------------------------------------</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span> <span class="ot">=</span> <span class="st">"SUBJID"</span>))   <span class="co"># different names, left first</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(lb, visits, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span>, <span class="st">"visit"</span>)) <span class="co"># both keys must match</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># --- state what you expect; the join aborts if the data disagrees -------</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># "one-to-one" | "one-to-many" | "many-to-one" | "many-to-many"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -479,17 +311,214 @@ quit;</code></pre>
 </tr>
 </tbody>
 </table>
+<p>Three traps: <code>NA</code> after a join means "no match", not "missing value". <code>inner_join()</code> throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what <code>relationship =</code> is for.</p>
+<p>The rest of this page is the same material worked through slowly, with runnable examples and the output they produce. Skip it if the block above was what you came for.</p>
+</section>
+<section id="the-example-tables" class="level2">
+<h2 class="anchored" data-anchor-id="the-example-tables">The example tables</h2>
+<p>Two small tables with deliberate mismatches, used throughout this page.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"002"</span>, <span class="st">"003"</span>, <span class="st">"004"</span>, <span class="st">"005"</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">sex    =</span> <span class="fu">c</span>(<span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">trt    =</span> <span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Active"</span>, <span class="st">"Active"</span>, <span class="st">"Placebo"</span>, <span class="st">"Active"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>ae <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"001"</span>, <span class="st">"002"</span>, <span class="st">"003"</span>, <span class="st">"006"</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">aeterm =</span> <span class="fu">c</span>(<span class="st">"Headache"</span>, <span class="st">"Nausea"</span>, <span class="st">"Rash"</span>, <span class="st">"Fatigue"</span>, <span class="st">"Dizziness"</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">sev    =</span> <span class="fu">c</span>(<span class="st">"Mild"</span>, <span class="st">"Moderate"</span>, <span class="st">"Severe"</span>, <span class="st">"Mild"</span>, <span class="st">"Mild"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>dm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid sex     trt
+1    001   M Placebo
+2    002   F  Active
+3    003   F  Active
+4    004   M Placebo
+5    005   M  Active</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ae</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid    aeterm      sev
+1    001  Headache     Mild
+2    001    Nausea Moderate
+3    002      Rash   Severe
+4    003   Fatigue     Mild
+5    006 Dizziness     Mild</code></pre>
+</div>
+</div>
+<p>The mismatches matter, because they are what the different joins disagree about:</p>
+<ul>
+<li>subject <code>001</code> has two AEs, so this is one-to-many</li>
+<li>subjects <code>004</code> and <code>005</code> are in <code>dm</code> with no AEs</li>
+<li>subject <code>006</code> has an AE but is <strong>not</strong> in <code>dm</code>, a data error you want to catch</li>
+</ul>
+</section>
+<section id="the-six-joins" class="level2">
+<h2 class="anchored" data-anchor-id="the-six-joins">The six joins</h2>
+<section id="inner_join-rows-matching-in-both" class="level3">
+<h3 class="anchored" data-anchor-id="inner_join-rows-matching-in-both"><code>inner_join()</code>: rows matching in both</h3>
+<pre class="sas"><code>proc sql;
+  select * from dm inner join ae on dm.subjid = ae.subjid;
+quit;
+
+/* or, DATA step */
+data out;
+  merge dm(in=a) ae(in=b);
+  by subjid;
+  if a and b;
+run;</code></pre>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid sex     trt   aeterm      sev
+1    001   M Placebo Headache     Mild
+2    001   M Placebo   Nausea Moderate
+3    002   F  Active     Rash   Severe
+4    003   F  Active  Fatigue     Mild</code></pre>
+</div>
+</div>
+<p>Four rows. Dropped: <code>004</code> and <code>005</code> (no AE), and <code>006</code> (not in <code>dm</code>). Note that the data error and the legitimately event-free subjects vanish together and without comment. That is exactly why <code>inner_join()</code> makes a poor default.</p>
+</section>
+<section id="left_join-keep-everything-on-the-left" class="level3">
+<h3 class="anchored" data-anchor-id="left_join-keep-everything-on-the-left"><code>left_join()</code>: keep everything on the left</h3>
+<pre class="sas"><code>data out;
+  merge dm(in=a) ae;
+  by subjid;
+  if a;
+run;</code></pre>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid sex     trt   aeterm      sev
+1    001   M Placebo Headache     Mild
+2    001   M Placebo   Nausea Moderate
+3    002   F  Active     Rash   Severe
+4    003   F  Active  Fatigue     Mild
+5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;
+6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;</code></pre>
+</div>
+</div>
+<p>This is the workhorse, because most real joins are "start from my subject list and annotate it". Six rows: <code>001</code> twice because it has two AEs, and <code>004</code>/<code>005</code> once each with <code>NA</code> in the AE columns.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span><code>NA</code> from a join means "no match", not "missing value"
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>R gives you the same <code>NA</code> for both, and only context tells you which you have. Here it means the subject had no adverse event. It does not mean the term was left blank on the CRF, and it does not that the AE extract failed to load. If that distinction matters downstream, record it explicitly with a flag column rather than relying on the <code>NA</code>.</p>
+</div>
+</div>
+</section>
+<section id="right_join-keep-everything-on-the-right" class="level3">
+<h3 class="anchored" data-anchor-id="right_join-keep-everything-on-the-right"><code>right_join()</code>: keep everything on the right</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid  sex     trt    aeterm      sev
+1    001    M Placebo  Headache     Mild
+2    001    M Placebo    Nausea Moderate
+3    002    F  Active      Rash   Severe
+4    003    F  Active   Fatigue     Mild
+5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild</code></pre>
+</div>
+</div>
+<p>Identical to <code>left_join(ae, dm, by = "subjid")</code> apart from column order, and rare in practice, because swapping the arguments reads better than making the reader track a mirror image. Subject <code>006</code> shows up here with <code>NA</code> demographics.</p>
+</section>
+<section id="full_join-keep-everything-from-both" class="level3">
+<h3 class="anchored" data-anchor-id="full_join-keep-everything-from-both"><code>full_join()</code>: keep everything from both</h3>
+<pre class="sas"><code>data out;
+  merge dm ae;
+  by subjid;
+run;</code></pre>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid  sex     trt    aeterm      sev
+1    001    M Placebo  Headache     Mild
+2    001    M Placebo    Nausea Moderate
+3    002    F  Active      Rash   Severe
+4    003    F  Active   Fatigue     Mild
+5    004    M Placebo      &lt;NA&gt;     &lt;NA&gt;
+6    005    M  Active      &lt;NA&gt;     &lt;NA&gt;
+7    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild</code></pre>
+</div>
+</div>
+<p>Seven rows: every <code>subjid</code> from either side. Useful when you are hunting data-quality problems and do not yet know which side they are on.</p>
+</section>
+<section id="anti_join-left-rows-with-no-match-on-the-right" class="level3">
+<h3 class="anchored" data-anchor-id="anti_join-left-rows-with-no-match-on-the-right"><code>anti_join()</code>: left rows with no match on the right</h3>
+<pre class="sas"><code>data out;
+  merge dm(in=a) ae(in=b);
+  by subjid;
+  if a and not b;
+run;</code></pre>
+<p>The QC workhorse. "Who is missing?" is one line in both directions:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subjects with no adverse events at all</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid sex     trt
+1    004   M Placebo
+2    005   M  Active</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AE rows referencing a subject who is not in DM (a data error)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(ae, dm, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid    aeterm  sev
+1    006 Dizziness Mild</code></pre>
+</div>
+</div>
+<p>Running both directions after any join is a cheap habit that catches key problems before they reach an analysis dataset.</p>
+</section>
+<section id="semi_join-filter-the-left-by-existence-on-the-right" class="level3">
+<h3 class="anchored" data-anchor-id="semi_join-filter-the-left-by-existence-on-the-right"><code>semi_join()</code>: filter the left by existence on the right</h3>
+<pre class="sas"><code>proc sql;
+  select * from dm where subjid in (select subjid from ae);
+quit;</code></pre>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">semi_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  subjid sex     trt
+1    001   M Placebo
+2    002   F  Active
+3    003   F  Active</code></pre>
+</div>
+</div>
+<p>Three rows, and only <code>dm</code>'s columns. Nothing is merged in. Compare with <code>inner_join(dm, ae)</code>, which returned four rows because <code>001</code> was duplicated by its two AEs. <strong><code>semi_join()</code> filters; <code>inner_join()</code> filters and merges.</strong> When you only want to subset, <code>semi_join()</code> cannot change your row count behind your back.</p>
+</section>
 </section>
 <section id="keys-that-are-named-differently" class="level2">
 <h2 class="anchored" data-anchor-id="keys-that-are-named-differently">Keys that are named differently</h2>
 <p>SAS forces you to rename before merging. R does not:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>ae_upper <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">SUBJID =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"002"</span>, <span class="st">"003"</span>),</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">aeterm =</span> <span class="fu">c</span>(<span class="st">"Headache"</span>, <span class="st">"Rash"</span>, <span class="st">"Fatigue"</span>)</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae_upper, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span> <span class="ot">=</span> <span class="st">"SUBJID"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>ae_upper <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">SUBJID =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"002"</span>, <span class="st">"003"</span>),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">aeterm =</span> <span class="fu">c</span>(<span class="st">"Headache"</span>, <span class="st">"Rash"</span>, <span class="st">"Fatigue"</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae_upper, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span> <span class="ot">=</span> <span class="st">"SUBJID"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid sex     trt   aeterm
 1    001   M Placebo Headache
@@ -504,19 +533,19 @@ quit;</code></pre>
 <section id="joining-on-more-than-one-key" class="level2">
 <h2 class="anchored" data-anchor-id="joining-on-more-than-one-key">Joining on more than one key</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>lb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"001"</span>, <span class="st">"002"</span>),</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">visit  =</span> <span class="fu">c</span>(<span class="st">"Baseline"</span>, <span class="st">"Week 4"</span>, <span class="st">"Baseline"</span>),</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">alt    =</span> <span class="fu">c</span>(<span class="dv">22</span>, <span class="dv">28</span>, <span class="dv">31</span>)</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>visits <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid     =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"001"</span>, <span class="st">"002"</span>),</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">visit      =</span> <span class="fu">c</span>(<span class="st">"Baseline"</span>, <span class="st">"Week 4"</span>, <span class="st">"Baseline"</span>),</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">visit_date =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2025-01-10"</span>, <span class="st">"2025-02-07"</span>, <span class="st">"2025-01-12"</span>))</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(lb, visits, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span>, <span class="st">"visit"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>lb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"001"</span>, <span class="st">"002"</span>),</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">visit  =</span> <span class="fu">c</span>(<span class="st">"Baseline"</span>, <span class="st">"Week 4"</span>, <span class="st">"Baseline"</span>),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">alt    =</span> <span class="fu">c</span>(<span class="dv">22</span>, <span class="dv">28</span>, <span class="dv">31</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>visits <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">subjid     =</span> <span class="fu">c</span>(<span class="st">"001"</span>, <span class="st">"001"</span>, <span class="st">"002"</span>),</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">visit      =</span> <span class="fu">c</span>(<span class="st">"Baseline"</span>, <span class="st">"Week 4"</span>, <span class="st">"Baseline"</span>),</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">visit_date =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2025-01-10"</span>, <span class="st">"2025-02-07"</span>, <span class="st">"2025-01-12"</span>))</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(lb, visits, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span>, <span class="st">"visit"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid    visit alt visit_date
 1    001 Baseline  22 2025-01-10
@@ -530,18 +559,18 @@ quit;</code></pre>
 <h2 class="anchored" data-anchor-id="row-count-hygiene">Row-count hygiene</h2>
 <p>The most common join bug in clinical data is a right-hand table with duplicate keys, which quietly multiplies your rows. In SAS you find out by reading the log. In R, state the shape you expect and let the join fail if the data disagrees:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(dm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(dm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 5</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6</code></pre>
 </div>
 </div>
 <p>Six rows from five subjects. Here that is correct, because one subject has two AEs, but you should have to say so:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid sex     trt   aeterm      sev
 1    001   M Placebo Headache     Mild
@@ -554,7 +583,7 @@ quit;</code></pre>
 </div>
 <p><code>relationship =</code> (dplyr 1.1 and later) takes <code>"one-to-one"</code>, <code>"one-to-many"</code>, <code>"many-to-one"</code> or <code>"many-to-many"</code>, and aborts when the data violates the claim:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `left_join()`:
 ! Each row in `x` must match at most 1 row in `y`.
@@ -567,7 +596,7 @@ quit;</code></pre>
 <h2 class="anchored" data-anchor-id="base-r-merge">Base R: <code>merge()</code></h2>
 <p>Still common in older code, and the closest single function to a <code>DATA</code> step <code>MERGE</code>:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)                 <span class="co"># inner (the default)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)                 <span class="co"># inner (the default)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid sex     trt   aeterm      sev
 1    001   M Placebo Headache     Mild
@@ -575,7 +604,7 @@ quit;</code></pre>
 3    002   F  Active     Rash   Severe
 4    003   F  Active  Fatigue     Mild</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)   <span class="co"># left</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)   <span class="co"># left</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid sex     trt   aeterm      sev
 1    001   M Placebo Headache     Mild
@@ -585,7 +614,7 @@ quit;</code></pre>
 5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;
 6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">all.y =</span> <span class="cn">TRUE</span>)   <span class="co"># right</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">all.y =</span> <span class="cn">TRUE</span>)   <span class="co"># right</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid  sex     trt    aeterm      sev
 1    001    M Placebo  Headache     Mild
@@ -594,7 +623,7 @@ quit;</code></pre>
 4    003    F  Active   Fatigue     Mild
 5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)     <span class="co"># full</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)     <span class="co"># full</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subjid  sex     trt    aeterm      sev
 1    001    M Placebo  Headache     Mild

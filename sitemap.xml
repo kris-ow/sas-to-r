@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://kris-ow.github.io/sas-to-r/index.html</loc>
-    <lastmod>2026-08-31T12:46:39.867Z</lastmod>
+    <loc>https://kris-ow.github.io/sas-to-r/cheatsheet.html</loc>
+    <lastmod>2026-08-31T13:00:50.955Z</lastmod>
   </url>
   <url>
     <loc>https://kris-ow.github.io/sas-to-r/joins.html</loc>
-    <lastmod>2026-08-31T12:46:39.867Z</lastmod>
+    <lastmod>2026-08-31T13:00:50.955Z</lastmod>
+  </url>
+  <url>
+    <loc>https://kris-ow.github.io/sas-to-r/index.html</loc>
+    <lastmod>2026-08-31T13:00:50.955Z</lastmod>
   </url>
 </urlset>
