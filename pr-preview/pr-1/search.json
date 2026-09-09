@@ -1,5 +1,19 @@
 [
   {
+    "objectID": "cheatsheet.html",
+    "href": "cheatsheet.html",
+    "title": "Cheat sheet",
+    "section": "",
+    "text": "The essentials from every topic on one page, so you can find the call you have forgotten without reading anything. Each block is the same text that opens its topic page, so the two cannot drift apart.\nFollow a heading through to its full page when the short version is not enough."
+  },
+  {
+    "objectID": "cheatsheet.html#joins",
+    "href": "cheatsheet.html#joins",
+    "title": "Cheat sheet",
+    "section": "Joins",
+    "text": "Joins\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for."
+  },
+  {
     "objectID": "joins.html",
     "href": "joins.html",
     "title": "Joins",
@@ -54,20 +68,6 @@
     "title": "Joins",
     "section": "Base R: merge()",
     "text": "Base R: merge()\nStill common in older code, and the closest single function to a DATA step MERGE:\n\nmerge(dm, ae, by = \"subjid\")                 # inner (the default)\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n\nmerge(dm, ae, by = \"subjid\", all.x = TRUE)   # left\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;\n6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;\n\nmerge(dm, ae, by = \"subjid\", all.y = TRUE)   # right\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\nmerge(dm, ae, by = \"subjid\", all = TRUE)     # full\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    004    M Placebo      &lt;NA&gt;     &lt;NA&gt;\n6    005    M  Active      &lt;NA&gt;     &lt;NA&gt;\n7    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\n\nReadable enough, but there is no merge() equivalent of anti_join() or semi_join(), no relationship = check, and all.x = TRUE says less at a glance than left_join. Prefer dplyr for new work; recognise merge() when you inherit it."
-  },
-  {
-    "objectID": "cheatsheet.html",
-    "href": "cheatsheet.html",
-    "title": "Cheat sheet",
-    "section": "",
-    "text": "The essentials from every topic on one page, so you can find the call you have forgotten without reading anything. Each block is the same text that opens its topic page, so the two cannot drift apart.\nFollow a heading through to its full page when the short version is not enough."
-  },
-  {
-    "objectID": "cheatsheet.html#joins",
-    "href": "cheatsheet.html#joins",
-    "title": "Cheat sheet",
-    "section": "Joins",
-    "text": "Joins\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for."
   },
   {
     "objectID": "index.html",
