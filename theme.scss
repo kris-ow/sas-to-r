@@ -1,0 +1,71 @@
+/*-- scss:defaults --*/
+
+/* Phosphor-on-charcoal palette. Darkly is the Bootstrap base; these
+   variables shift it off the stock green-on-gray look. */
+$primary: #3ecf8e;
+$body-bg: #0b0f0c;
+$body-color: #d7e6d9;
+$link-color: #3ecf8e;
+$link-hover-color: #c8e36a;
+$font-family-sans-serif: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+$font-family-monospace: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+$headings-font-family: $font-family-monospace;
+$headings-font-weight: 600;
+$headings-color: #e8f3ea;
+
+$navbar-bg: #0e1511;
+$navbar-fg: #d7e6d9;
+$navbar-hl: #3ecf8e;
+$navbar-font-family: $font-family-monospace;
+
+$sidebar-bg: transparent;
+$sidebar-fg: #d7e6d9;
+$sidebar-hl: #3ecf8e;
+
+$toc-color: #d7e6d9;
+$toc-active-border: #3ecf8e;
+$toc-active-color: #3ecf8e;
+$toc-inactive-color: #7f9483;
+
+$code-bg: #1a2420;
+$code-color: #e8f3ea;
+$code-block-bg: #0e1511;
+$code-block-border-left: #3ecf8e;
+$code-block-font-size: 0.85em;
+
+$input-bg: #0b0f0c;
+$input-color: #d7e6d9;
+$input-border-color: #3ecf8e;
+$input-focus-border-color: #3ecf8e;
+$input-placeholder-color: #7f9483;
+
+$border-color: #243028;
+$light-bg-subtle: #121814;
+$table-striped-bg: rgba(62, 207, 142, 0.04);
+$table-hover-bg: rgba(62, 207, 142, 0.07);
+$table-border-color: #243028;
+
+$footer-bg: transparent;
+$footer-fg: #7f9483;
+$footer-font-size: 0.8em;
+
+$callout-border-width: 0.15rem;
+
+/*-- scss:rules --*/
+
+html {
+  font-size: 16px;
+}
+
+body {
+  letter-spacing: 0.01em;
+}
+
+h1, h2, h3, h4, h5, h6,
+.navbar,
+.sidebar,
+.nav-footer,
+#quarto-search,
+.toc-actions {
+  font-family: $font-family-monospace;
+}
