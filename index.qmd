@@ -1,41 +1,14 @@
 ---
 title: "SAS to R"
+toc: false
 ---
 
-A practical reference for SAS programmers writing R.
+A practical reference for SAS programmers writing R. Each topic is one SAS task
+shown in R: the call, the output, and where the two languages do not line up.
 
-Every page takes one task you already know how to do in SAS and shows how it is done
-in R: the working code, its real output, and the places where the two languages do
-**not** line up. The examples run when the site is built, so what you see on a page is
-what R actually printed.
-
-In a hurry, or already know the topic and just want the call? The
-[cheat sheet](cheatsheet.qmd) is every topic reduced to code, on one page.
-
-## How to use it
-
-Every topic page opens with a short block that is nothing but the code, then works
-through the same material slowly underneath. Read as far down as you need and stop.
-
-Pages are organised by what you are trying to do, not by which package provides it.
-Each one opens with the SAS equivalents it replaces, so searching for `MERGE` or
-`PROC TRANSPOSE` will find the right page even though nothing is filed under those names.
-
-Code is shown in base R and the tidyverse side by side where both are worth knowing.
-Where one is clearly better for the job, the page says so and explains why.
+Search for a SAS name (`MERGE`, `PROC TRANSPOSE`) or pick a topic. The
+[cheat sheet](cheatsheet.qmd) is code only.
 
 ## Topics
 
-Available now:
-
-- [Joins](joins.qmd), combining tables
-
-Planned, in no fixed order: data frames and tibbles, filtering and selecting, sorting,
-grouping and summarising, reshaping, dates and times, text manipulation, numbers and
-rounding, factors, missing data, import and export, functions and control flow,
-plotting.
-
-## Corrections
-
-Something wrong, unclear, or missing? [sham4n@gmail.com](mailto:sham4n@gmail.com), or
-open an issue on [GitHub](https://github.com/kris-ow/sas-to-r/issues).
+- [Joins](joins.qmd): combining tables

@@ -29,7 +29,7 @@ website:
     search: false
     contents:
       - href: index.qmd
-        text: Start here
+        text: Home
       - href: cheatsheet.qmd
         text: Cheat sheet
       - section: "Combining data"
