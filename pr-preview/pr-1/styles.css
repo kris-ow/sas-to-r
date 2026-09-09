@@ -77,10 +77,6 @@ body {
   flex-shrink: 0;
 }
 
-.navbar .quarto-navbar-tools:empty {
-  display: none;
-}
-
 .navbar .nav-link.active,
 .navbar .nav-link:hover,
 .navbar .nav-link:focus {
