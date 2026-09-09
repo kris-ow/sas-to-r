@@ -16,8 +16,6 @@ website:
       - "s"
   navbar:
     left:
-      - href: index.qmd
-        text: Home
       - href: cheatsheet.qmd
         text: Cheat sheet
       - href: about.qmd

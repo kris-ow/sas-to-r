@@ -49,6 +49,14 @@ body {
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--fg-heading) !important;
+  overflow: visible !important;
+  text-overflow: clip;
+  white-space: nowrap;
+  max-width: none !important;
+}
+
+.navbar .navbar-title {
+  white-space: nowrap;
 }
 
 .navbar-brand::before {
@@ -63,8 +71,10 @@ body {
   font-size: 0.85rem;
 }
 
-.navbar .quarto-navbar-tools:empty {
-  display: none;
+.navbar .navbar-brand-container {
+  max-width: none !important;
+  min-width: max-content;
+  flex-shrink: 0;
 }
 
 .navbar .nav-link.active,
@@ -73,49 +83,52 @@ body {
   color: var(--accent) !important;
 }
 
-/* Brand left, wide search in the middle, page links on the right. */
+/* Brand + links on the left, search fills the rest on the right.
+   Quarto's DOM order is brand, search, collapse; flex order puts
+   the links beside the brand and the prompt at the end. */
 @media (min-width: 992px) {
   .navbar .navbar-container.container-fluid {
-    display: grid;
-    grid-template-columns: minmax(8rem, 1fr) minmax(36rem, 50vw) minmax(14rem, 1fr);
-    column-gap: 1.25rem;
+    display: flex;
+    flex-wrap: nowrap;
     align-items: center;
+    column-gap: 0.75rem;
   }
 
   .navbar .navbar-brand-container {
-    grid-column: 1;
-    justify-self: start;
+    order: 1;
+    flex: 0 0 auto;
+    max-width: none !important;
+    min-width: max-content;
     margin-left: 0 !important;
     margin-right: 0 !important;
-    order: 1;
+  }
+
+  .navbar .navbar-collapse {
+    order: 2;
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .navbar .navbar-nav.me-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   .navbar #quarto-search,
   .navbar #quarto-search.type-textbox {
-    grid-column: 2;
-    width: 100% !important;
+    order: 3 !important;
+    flex: 1 1 auto;
+    min-width: 12rem;
+    width: auto !important;
     max-width: none;
-    margin: 0 !important;
-    justify-self: stretch;
-    order: 2 !important;
+    margin-left: 1rem !important;
+    margin-right: 0 !important;
   }
 
   .navbar #quarto-search .aa-Autocomplete,
   .navbar #quarto-search .aa-Form {
     width: 100% !important;
     max-width: none !important;
-  }
-
-  .navbar .navbar-collapse {
-    grid-column: 3;
-    justify-self: end;
-    width: auto;
-    order: 3;
-  }
-
-  .navbar .navbar-nav.me-auto {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
   }
 }
 
