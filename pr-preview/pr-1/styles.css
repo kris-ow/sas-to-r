@@ -63,10 +63,51 @@ body {
   font-size: 0.85rem;
 }
 
+.navbar .quarto-navbar-tools:empty {
+  display: none;
+}
+
 .navbar .nav-link.active,
 .navbar .nav-link:hover,
 .navbar .nav-link:focus {
   color: var(--accent) !important;
+}
+
+/* Brand left, wide search in the middle, page links on the right. */
+@media (min-width: 992px) {
+  .navbar .navbar-container.container-fluid {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) minmax(36rem, 50vw) minmax(14rem, 1fr);
+    column-gap: 1.25rem;
+    align-items: center;
+  }
+
+  .navbar .navbar-brand-container {
+    grid-column: 1;
+    justify-self: start;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .navbar #quarto-search,
+  .navbar #quarto-search.type-textbox {
+    grid-column: 2;
+    width: 100% !important;
+    max-width: none;
+    margin: 0 !important;
+    justify-self: stretch;
+  }
+
+  .navbar .navbar-collapse {
+    grid-column: 3;
+    justify-self: end;
+    width: auto;
+  }
+
+  .navbar .navbar-nav.me-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
 }
 
 .sidebar nav[role="doc-toc"],
@@ -142,6 +183,14 @@ body {
   border-bottom: 2px solid var(--accent);
   padding-bottom: 0.2rem;
   margin-bottom: 0.4rem;
+}
+
+/* Home is a topic index, not an article. Keep the list tight and mono. */
+#quarto-document-content > ul {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  line-height: 1.8;
+  padding-left: 1.1rem;
 }
 
 #title-block-header .subtitle {
@@ -430,14 +479,6 @@ div.callout-important.callout.callout-style-default > .callout-header {
   color: var(--accent-2);
   font-weight: 600;
   padding: 0;
-}
-
-/* Desktop textbox: a command line in the navbar. Below 992px Quarto
-   switches the same control to a detached overlay button; do not force
-   a wide input there or the trigger disappears. */
-.navbar #quarto-search.type-textbox {
-  width: min(22rem, 42vw);
-  margin-left: auto;
 }
 
 .navbar #quarto-search.type-overlay,
