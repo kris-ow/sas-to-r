@@ -87,6 +87,7 @@ body {
     justify-self: start;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    order: 1;
   }
 
   .navbar #quarto-search,
@@ -96,12 +97,20 @@ body {
     max-width: none;
     margin: 0 !important;
     justify-self: stretch;
+    order: 2 !important;
+  }
+
+  .navbar #quarto-search .aa-Autocomplete,
+  .navbar #quarto-search .aa-Form {
+    width: 100% !important;
+    max-width: none !important;
   }
 
   .navbar .navbar-collapse {
     grid-column: 3;
     justify-self: end;
     width: auto;
+    order: 3;
   }
 
   .navbar .navbar-nav.me-auto {
