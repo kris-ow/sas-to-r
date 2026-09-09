@@ -1,0 +1,60 @@
+name: PR preview
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+
+concurrency: preview-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Check for non-ASCII characters
+        if: github.event.action != 'closed'
+        run: bash tools/check-ascii.sh
+
+      - name: Set up Quarto
+        if: github.event.action != 'closed'
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Set up R
+        if: github.event.action != 'closed'
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install R packages used by the examples
+        if: github.event.action != 'closed'
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::knitr
+            any::rmarkdown
+            any::dplyr
+
+      - name: Render site
+        if: github.event.action != 'closed'
+        uses: quarto-dev/quarto-actions/render@v2
+
+      # Deploys to gh-pages/pr-preview/pr-N/ and comments the URL on the PR.
+      # Closed PRs skip the build above; this step then removes that preview.
+      - name: Deploy or remove preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: ./_site/
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          wait-for-pages-deployment: true
+          qr-code: false
