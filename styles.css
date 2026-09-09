@@ -373,7 +373,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
 
 #quarto-search .aa-Input:placeholder-shown,
 .aa-DetachedOverlay .aa-Input:placeholder-shown {
-  caret-color: transparent;
+  caret-color: transparent !important;
 }
 
 /* Overlay (type: overlay) as a terminal command surface. */
@@ -432,20 +432,61 @@ div.callout-important.callout.callout-style-default > .callout-header {
   padding: 0;
 }
 
-/* Navbar textbox: give the prompt room to read as a command line. */
-.navbar #quarto-search,
+/* Desktop textbox: a command line in the navbar. Below 992px Quarto
+   switches the same control to a detached overlay button; do not force
+   a wide input there or the trigger disappears. */
 .navbar #quarto-search.type-textbox {
   width: min(22rem, 42vw);
   margin-left: auto;
 }
 
-.navbar #quarto-search.type-overlay {
+.navbar #quarto-search.type-overlay,
+.navbar #quarto-search .aa-DetachedSearchButton {
   width: auto;
 }
 
 @media (max-width: 991.98px) {
   .navbar #quarto-search,
   .navbar #quarto-search.type-textbox {
-    width: 11rem;
+    width: auto;
+    min-width: 2.5rem;
+    margin-left: auto;
+    flex-shrink: 0;
   }
+}
+
+/* Detached / mobile trigger: same prompt language as the desktop input. */
+.aa-DetachedSearchButton {
+  display: flex !important;
+  align-items: center;
+  gap: 0.15rem;
+  min-height: 2.1rem;
+  padding: 0 0.55rem !important;
+  background: var(--bg) !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  font-family: var(--font-mono) !important;
+  color: var(--fg-muted) !important;
+}
+
+.aa-DetachedSearchButtonIcon {
+  display: none !important;
+}
+
+.aa-DetachedSearchButtonPlaceholder {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+}
+
+.aa-DetachedSearchButtonPlaceholder::before {
+  content: "> ";
+  color: var(--accent);
+}
+
+.aa-DetachedSearchButtonPlaceholder::after {
+  content: "_";
+  color: var(--accent);
+  animation: caret-blink var(--caret-blink) step-end infinite;
 }
