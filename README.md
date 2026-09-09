@@ -49,8 +49,7 @@ bash tools/check-ascii.sh
 3. Open it with a `::: {.sas-equiv} **SAS:** ... :::` block naming the SAS procedures,
    statements or functions it replaces. The site search indexes this, which is how
    readers looking for `PROC TRANSPOSE` find the reshaping page.
-4. Add the file to the `sidebar` contents in `_quarto.yml`, and link it from the topic
-   list in `index.qmd`.
+4. Add the topic to the list in `index.qmd`.
 5. If it uses a package not already installed in CI, add it to
    `.github/workflows/publish.yml` and `.github/workflows/pr-preview.yml`.
 6. Run `bash tools/check-ascii.sh` before pushing.

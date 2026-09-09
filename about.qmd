@@ -1,0 +1,10 @@
+---
+title: "About"
+toc: false
+---
+
+A practical reference for SAS programmers writing R. Each topic is one SAS task
+shown in R: the call, the output, and where the two languages do not line up.
+
+Search for a SAS name (`MERGE`, `PROC TRANSPOSE`) or pick a topic from Home.
+The [cheat sheet](cheatsheet.qmd) is code only.

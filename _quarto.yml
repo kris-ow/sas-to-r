@@ -20,21 +20,8 @@ website:
         text: Home
       - href: cheatsheet.qmd
         text: Cheat sheet
-    right:
-      - icon: github
-        href: https://github.com/kris-ow/sas-to-r
-        aria-label: Source on GitHub
-  sidebar:
-    style: floating
-    search: false
-    contents:
-      - href: index.qmd
-        text: Home
-      - href: cheatsheet.qmd
-        text: Cheat sheet
-      - section: "Combining data"
-        contents:
-          - joins.qmd
+      - href: about.qmd
+        text: About
   page-footer:
     center: "Questions or corrections: [sham4n@gmail.com](mailto:sham4n@gmail.com)"
 
