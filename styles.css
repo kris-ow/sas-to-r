@@ -77,6 +77,10 @@ body {
   flex-shrink: 0;
 }
 
+.navbar .quarto-navbar-tools:empty {
+  display: none;
+}
+
 .navbar .nav-link.active,
 .navbar .nav-link:hover,
 .navbar .nav-link:focus {
@@ -85,7 +89,8 @@ body {
 
 /* Brand + links on the left, search fills the rest on the right.
    Quarto's DOM order is brand, search, collapse; flex order puts
-   the links beside the brand and the prompt at the end. */
+   the links beside the brand and the prompt at the end.
+   Breakpoint matches navbar-expand-lg / Quarto detached search: 992px. */
 @media (min-width: 992px) {
   .navbar .navbar-container.container-fluid {
     display: flex;
@@ -106,6 +111,7 @@ body {
   .navbar .navbar-collapse {
     order: 2;
     flex: 0 0 auto;
+    flex-shrink: 0;
     width: auto;
   }
 
@@ -114,21 +120,31 @@ body {
     margin-right: 0 !important;
   }
 
+  /* flex-basis, not auto: otherwise width:100% on the inner form
+     circular-shrinks the field to a sliver as the viewport narrows. */
   .navbar #quarto-search,
   .navbar #quarto-search.type-textbox {
     order: 3 !important;
-    flex: 1 1 auto;
-    min-width: 12rem;
+    flex: 1 1 16rem;
+    min-width: 16rem;
     width: auto !important;
-    max-width: none;
+    max-width: none !important;
     margin-left: 1rem !important;
     margin-right: 0 !important;
   }
 
   .navbar #quarto-search .aa-Autocomplete,
-  .navbar #quarto-search .aa-Form {
+  .navbar #quarto-search .aa-Form,
+  .navbar .aa-Autocomplete,
+  .navbar .aa-Autocomplete .aa-Form {
     width: 100% !important;
     max-width: none !important;
+    min-width: 0;
+  }
+
+  .navbar #quarto-search .aa-InputWrapper {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 }
 
@@ -510,19 +526,33 @@ div.callout-important.callout.callout-style-default > .callout-header {
 
 @media (max-width: 991.98px) {
   .navbar #quarto-search,
-  .navbar #quarto-search.type-textbox {
-    width: auto;
-    min-width: 2.5rem;
+  .navbar #quarto-search.type-textbox,
+  .navbar #quarto-search.type-overlay {
+    width: auto !important;
+    min-width: 2.75rem;
     margin-left: auto;
     flex-shrink: 0;
   }
+
+  /* Quarto overlay Autocomplete is 40px and our placeholder node is empty,
+     which collapsed the trigger to an empty bordered sliver. */
+  .navbar #quarto-search .aa-Autocomplete,
+  .navbar #quarto-search.type-overlay .aa-Autocomplete {
+    width: auto !important;
+    min-width: 2.75rem;
+  }
 }
 
-/* Detached / mobile trigger: same prompt language as the desktop input. */
+/* Detached / mobile trigger: same prompt language as the desktop input.
+   Draw > _ on the button itself. The placeholder span is empty (no
+   placeholder text) so Algolia may hide it; pseudo-elements on that
+   span then never paint. */
 .aa-DetachedSearchButton {
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center;
-  gap: 0.15rem;
+  justify-content: center;
+  gap: 0.2rem;
+  min-width: 2.75rem;
   min-height: 2.1rem;
   padding: 0 0.55rem !important;
   background: var(--bg) !important;
@@ -533,23 +563,28 @@ div.callout-important.callout.callout-style-default > .callout-header {
   color: var(--fg-muted) !important;
 }
 
+.aa-DetachedSearchButton::before {
+  content: ">";
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.aa-DetachedSearchButton::after {
+  content: "_";
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1;
+  animation: caret-blink var(--caret-blink) step-end infinite;
+}
+
 .aa-DetachedSearchButtonIcon {
   display: none !important;
 }
 
 .aa-DetachedSearchButtonPlaceholder {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--fg-muted);
-}
-
-.aa-DetachedSearchButtonPlaceholder::before {
-  content: "> ";
-  color: var(--accent);
-}
-
-.aa-DetachedSearchButtonPlaceholder::after {
-  content: "_";
-  color: var(--accent);
-  animation: caret-blink var(--caret-blink) step-end infinite;
+  display: none;
 }
