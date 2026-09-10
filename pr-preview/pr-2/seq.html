@@ -190,7 +190,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sas-equiv">
 <p><strong>SAS:</strong> <code>PROC SORT</code> then <code>_N_</code> within <code>BY</code>, <code>--SEQ</code></p>
 </div>
-<p><code>--SEQ</code> is a within-subject row number after a defined order. In R that is <code>arrange()</code>, then <code>group_by(USUBJID)</code>, then <code>row_number()</code>. Skip the sort and you still get a sequence. It is just not the sequence the IG asked for.</p>
+<p><code>--SEQ</code> is a within-subject row number after a defined order. In R: <code>arrange()</code>, then <code>group_by(USUBJID)</code>, then <code>row_number()</code>. Without <code>arrange()</code>, the numbers follow the current row order, not the IG order.</p>
 <section id="quick-reference" class="level2">
 <h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
@@ -227,11 +227,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p>Three traps: <code>row_number()</code> follows the current row order, so skip <code>arrange()</code> and <code>--SEQ</code> is whatever the last PROC left behind. Equal dates need tie-breakers in <code>arrange()</code>. Integer <code>SEQ</code> is not how SAS XPT stores it; use <code>as.double()</code>.</p>
-<p>The rest of this page is the same material worked through slowly, with runnable examples and the output they produce. Skip it if the block above was what you came for.</p>
+<p>Worked examples below.</p>
 </section>
 <section id="the-example-table" class="level2">
 <h2 class="anchored" data-anchor-id="the-example-table">The example table</h2>
-<p>Tumor results in arrival order, which is not the order <code>TUSEQ</code> should use.</p>
+<p>Tumor results in input order, which is not the <code>TUSEQ</code> order.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -250,8 +250,8 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tu <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID  =</span> <span class="fu">c</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"XYZ-101-0001"</span>, <span class="st">"XYZ-101-0001"</span>, <span class="st">"XYZ-101-0001"</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"XYZ-101-0001"</span>, <span class="st">"XYZ-101-0002"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">TUEVAL   =</span> <span class="fu">c</span>(</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"INVESTIGATOR"</span>, <span class="st">"INVESTIGATOR"</span>, <span class="st">"INVESTIGATOR"</span>,</span>
@@ -266,14 +266,14 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>tu</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID               TUEVAL TULNKID VISITNUM TUDY TUSTRESC
-1 XYZ-101-0001         INVESTIGATOR     T01        3   15       SD
-2 XYZ-101-0001         INVESTIGATOR     T01        1    1       CR
-3 XYZ-101-0001         INVESTIGATOR     T02        1    1       CR
-4 XYZ-101-0001 INDEPENDENT ASSESSOR     T01        1    1       CR
-5 XYZ-101-0002         INVESTIGATOR     T01        2    8       PR</code></pre>
+1 STD-001-0001         INVESTIGATOR     T01        3   15       SD
+2 STD-001-0001         INVESTIGATOR     T01        1    1       CR
+3 STD-001-0001         INVESTIGATOR     T02        1    1       CR
+4 STD-001-0001 INDEPENDENT ASSESSOR     T01        1    1       CR
+5 STD-001-0002         INVESTIGATOR     T01        2    8       PR</code></pre>
 </div>
 </div>
-<p><code>0001</code> has investigator lesions T01 and T02, plus one independent-assessor row. Visit 3 arrived first. The IG order is evaluator, lesion, visit, study day.</p>
+<p><code>STD-001-0001</code> has investigator lesions T01 and T02, and one independent-assessor row. <code>VISITNUM</code> 3 is the first input row. IG order: evaluator, lesion, visit, study day.</p>
 </section>
 <section id="wrong-row_number-without-arrange" class="level2">
 <h2 class="anchored" data-anchor-id="wrong-row_number-without-arrange">Wrong: <code>row_number()</code> without <code>arrange()</code></h2>
@@ -286,14 +286,14 @@ Attaching package: 'dplyr'</code></pre>
 <pre><code># A tibble: 5 × 7
   USUBJID      TUEVAL               TULNKID VISITNUM  TUDY TUSTRESC TUSEQ
   &lt;chr&gt;        &lt;chr&gt;                &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;int&gt;
-1 XYZ-101-0001 INVESTIGATOR         T01            3    15 SD           1
-2 XYZ-101-0001 INVESTIGATOR         T01            1     1 CR           2
-3 XYZ-101-0001 INVESTIGATOR         T02            1     1 CR           3
-4 XYZ-101-0001 INDEPENDENT ASSESSOR T01            1     1 CR           4
-5 XYZ-101-0002 INVESTIGATOR         T01            2     8 PR           1</code></pre>
+1 STD-001-0001 INVESTIGATOR         T01            3    15 SD           1
+2 STD-001-0001 INVESTIGATOR         T01            1     1 CR           2
+3 STD-001-0001 INVESTIGATOR         T02            1     1 CR           3
+4 STD-001-0001 INDEPENDENT ASSESSOR T01            1     1 CR           4
+5 STD-001-0002 INVESTIGATOR         T01            2     8 PR           1</code></pre>
 </div>
 </div>
-<p><code>0001</code> is numbered 1..4 in file order. Visit 3 is <code>TUSEQ</code> 1 because it was on top. That is <code>_N_</code> without the <code>PROC SORT</code>.</p>
+<p><code>STD-001-0001</code> is numbered 1 to 4 in file order. <code>VISITNUM</code> 3 is <code>TUSEQ</code> 1. Equivalent to <code>_N_</code> without <code>PROC SORT</code>.</p>
 </section>
 <section id="right-arrange-then-number" class="level2">
 <h2 class="anchored" data-anchor-id="right-arrange-then-number">Right: <code>arrange()</code>, then number</h2>
@@ -317,14 +317,14 @@ run;</code></pre>
 <pre><code># A tibble: 5 × 7
   USUBJID      TUEVAL               TULNKID VISITNUM  TUDY TUSTRESC TUSEQ
   &lt;chr&gt;        &lt;chr&gt;                &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;
-1 XYZ-101-0001 INDEPENDENT ASSESSOR T01            1     1 CR           1
-2 XYZ-101-0001 INVESTIGATOR         T01            1     1 CR           2
-3 XYZ-101-0001 INVESTIGATOR         T01            3    15 SD           3
-4 XYZ-101-0001 INVESTIGATOR         T02            1     1 CR           4
-5 XYZ-101-0002 INVESTIGATOR         T01            2     8 PR           1</code></pre>
+1 STD-001-0001 INDEPENDENT ASSESSOR T01            1     1 CR           1
+2 STD-001-0001 INVESTIGATOR         T01            1     1 CR           2
+3 STD-001-0001 INVESTIGATOR         T01            3    15 SD           3
+4 STD-001-0001 INVESTIGATOR         T02            1     1 CR           4
+5 STD-001-0002 INVESTIGATOR         T01            2     8 PR           1</code></pre>
 </div>
 </div>
-<p><code>INDEPENDENT ASSESSOR</code> sorts before <code>INVESTIGATOR</code>, so it is <code>TUSEQ</code> 1. Then investigator T01 visit 1, T01 visit 3, T02 visit 1. <code>TULNKID</code> comes before <code>VISITNUM</code>, so T01 visit 3 is still ahead of T02 visit 1. <code>0002</code> restarts at 1.</p>
+<p><code>INDEPENDENT ASSESSOR</code> sorts before <code>INVESTIGATOR</code> and is <code>TUSEQ</code> 1. Then investigator T01 visit 1, T01 visit 3, T02 visit 1. <code>TULNKID</code> precedes <code>VISITNUM</code>, so T01 visit 3 precedes T02 visit 1. <code>STD-001-0002</code> restarts at 1.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -335,17 +335,17 @@ run;</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>It does not infer a clinical order. If you <code>group_by(USUBJID)</code> and number, you get the order the frame happens to be in. Sort explicitly. Put every key the IG names into <code>arrange()</code>, including the tie-breakers.</p>
+<p>It does not infer a clinical order. <code>group_by(USUBJID)</code> then <code>row_number()</code> uses the frame's current order. Sort first. Include every IG key in <code>arrange()</code>, including tie-breakers.</p>
 </div>
 </div>
 </section>
 <section id="tie-breakers" class="level2">
 <h2 class="anchored" data-anchor-id="tie-breakers">Tie-breakers</h2>
-<p>Two rows can share a study day. <code>arrange(USUBJID, TUDY)</code> alone then leaves their relative order to whatever came before. Add the keys that make a row unique, in the IG's order: <code>TUEVAL</code>, <code>TULNKID</code>, <code>VISITNUM</code>, <code>TUDY</code>. If two rows still tie, add a source sequence or a datetime. Do not leave a tie unnamed.</p>
+<p>Two rows can share a study day. <code>arrange(USUBJID, TUDY)</code> alone leaves their relative order undefined. Add keys that make a row unique, in IG order: <code>TUEVAL</code>, <code>TULNKID</code>, <code>VISITNUM</code>, <code>TUDY</code>. If a tie remains, add a source sequence or a datetime.</p>
 </section>
 <section id="as.double-for-xpt" class="level2">
 <h2 class="anchored" data-anchor-id="as.double-for-xpt"><code>as.double()</code> for XPT</h2>
-<p>SAS numeric is double. <code>row_number()</code> returns integer. <code>haven</code> / <code>xportr</code> will write that as an integer column unless you cast it. SDTM <code>--SEQ</code> in a SAS XPT is double, so:</p>
+<p>SAS numeric is double. <code>row_number()</code> returns integer. <code>haven</code> / <code>xportr</code> write that as integer unless it is cast. SDTM <code>--SEQ</code> in a SAS XPT is double:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span></span>
@@ -358,7 +358,7 @@ run;</code></pre>
 <pre><code>[1] "double"</code></pre>
 </div>
 </div>
-<p><code>double</code>. Match the SAS type now, not after the first failed compare against production.</p>
+<p><code>double</code>. Cast before writing XPT so the type matches SAS.</p>
 
 
 </section>

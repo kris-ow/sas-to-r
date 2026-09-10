@@ -190,7 +190,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sas-equiv">
 <p><strong>SAS:</strong> <code>COALESCE</code>, <code>coalescec</code>, <code>IFN</code> / <code>IFC</code>, specify-then-coded</p>
 </div>
-<p>SAS <code>COALESCE</code> / <code>coalescec</code> skip missing values. R's <code>dplyr::coalesce()</code> skips <code>NA</code> only. Blank <code>""</code> is a real value, so it wins. That is the whole page.</p>
+<p>SAS <code>COALESCE</code> / <code>coalescec</code> skip missing values. <code>dplyr::coalesce()</code> skips <code>NA</code> only. Blank <code>""</code> is a value, not missing.</p>
 <section id="quick-reference" class="level2">
 <h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
@@ -223,11 +223,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p>Three traps: <code>coalesce()</code> skips <code>NA</code> only, not <code>""</code>. A specify field of <code>""</code> therefore beats the coded value. Convert blanks with <code>na_if()</code> first, then prefer specify over coded: <code>coalesce(na_if(spy, ""), coded)</code>.</p>
-<p>The rest of this page is the same material worked through slowly, with runnable examples and the output they produce. Skip it if the block above was what you came for.</p>
+<p>Worked examples below.</p>
 </section>
 <section id="the-example-table" class="level2">
 <h2 class="anchored" data-anchor-id="the-example-table">The example table</h2>
-<p>Specify versus coded location. Four rows, four states of the specify field.</p>
+<p>Specify versus coded location. Four rows; four states of the specify field.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -245,7 +245,7 @@ Attaching package: 'dplyr'</code></pre>
     intersect, setdiff, setequal, union</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cm <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"XYZ-101-0001"</span>, <span class="st">"XYZ-101-0002"</span>, <span class="st">"XYZ-101-0003"</span>, <span class="st">"XYZ-101-0004"</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>, <span class="st">"STD-001-0003"</span>, <span class="st">"STD-001-0004"</span>),</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">LOCSPY  =</span> <span class="fu">c</span>(<span class="st">"Left deltoid"</span>, <span class="st">""</span>, <span class="cn">NA</span>, <span class="st">"Right thigh, anterior"</span>),</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">LOC     =</span> <span class="fu">c</span>(<span class="st">"ARM"</span>, <span class="st">"ARM"</span>, <span class="st">"LEG"</span>, <span class="st">"THIGH"</span>)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -253,17 +253,17 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>cm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID                LOCSPY   LOC
-1 XYZ-101-0001          Left deltoid   ARM
-2 XYZ-101-0002                         ARM
-3 XYZ-101-0003                  &lt;NA&gt;   LEG
-4 XYZ-101-0004 Right thigh, anterior THIGH</code></pre>
+1 STD-001-0001          Left deltoid   ARM
+2 STD-001-0002                         ARM
+3 STD-001-0003                  &lt;NA&gt;   LEG
+4 STD-001-0004 Right thigh, anterior THIGH</code></pre>
 </div>
 </div>
 <ul>
-<li><code>0001</code> has a specify value, which should override <code>ARM</code></li>
-<li><code>0002</code> has <code>""</code> on the specify field: use the coded value</li>
-<li><code>0003</code> has <code>NA</code> on the specify field: also use the coded value</li>
-<li><code>0004</code> has a specify value, which should override <code>THIGH</code></li>
+<li><code>STD-001-0001</code>: specify present; overrides <code>ARM</code></li>
+<li><code>STD-001-0002</code>: specify is <code>""</code>; use coded</li>
+<li><code>STD-001-0003</code>: specify is <code>NA</code>; use coded</li>
+<li><code>STD-001-0004</code>: specify present; overrides <code>THIGH</code></li>
 </ul>
 </section>
 <section id="coalesce-skips-na" class="level2">
@@ -274,13 +274,13 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">LOC_OUT =</span> <span class="fu">coalesce</span>(LOCSPY, LOC))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID                LOCSPY   LOC               LOC_OUT
-1 XYZ-101-0001          Left deltoid   ARM          Left deltoid
-2 XYZ-101-0002                         ARM                      
-3 XYZ-101-0003                  &lt;NA&gt;   LEG                   LEG
-4 XYZ-101-0004 Right thigh, anterior THIGH Right thigh, anterior</code></pre>
+1 STD-001-0001          Left deltoid   ARM          Left deltoid
+2 STD-001-0002                         ARM                      
+3 STD-001-0003                  &lt;NA&gt;   LEG                   LEG
+4 STD-001-0004 Right thigh, anterior THIGH Right thigh, anterior</code></pre>
 </div>
 </div>
-<p><code>0003</code> is correct: <code>NA</code> is skipped, <code>LEG</code> comes through. <code>0002</code> is not. <code>""</code> is not <code>NA</code>, so <code>coalesce()</code> keeps it and the coded <code>ARM</code> never gets a look.</p>
+<p><code>STD-001-0003</code> is correct: <code>NA</code> is skipped, <code>LEG</code> is used. <code>STD-001-0002</code> is not. <code>""</code> is not <code>NA</code>, so <code>coalesce()</code> keeps it and does not use coded <code>ARM</code>.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -291,7 +291,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>SAS character missing is blank. R character missing is <code>NA</code>. <code>coalesce()</code> follows R. A specify field of <code>""</code> is a present value, so it beats the coded term. Convert blanks first with <code>na_if()</code>, then coalesce.</p>
+<p>SAS character missing is blank. R character missing is <code>NA</code>. <code>coalesce()</code> follows R. A specify field of <code>""</code> is present, so it overrides the coded term. Convert blanks with <code>na_if()</code>, then coalesce.</p>
 </div>
 </div>
 </section>
@@ -302,14 +302,14 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">LOC_OUT =</span> <span class="fu">coalesce</span>(<span class="fu">na_if</span>(LOCSPY, <span class="st">""</span>), LOC))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID                LOCSPY   LOC               LOC_OUT
-1 XYZ-101-0001          Left deltoid   ARM          Left deltoid
-2 XYZ-101-0002                         ARM                   ARM
-3 XYZ-101-0003                  &lt;NA&gt;   LEG                   LEG
-4 XYZ-101-0004 Right thigh, anterior THIGH Right thigh, anterior</code></pre>
+1 STD-001-0001          Left deltoid   ARM          Left deltoid
+2 STD-001-0002                         ARM                   ARM
+3 STD-001-0003                  &lt;NA&gt;   LEG                   LEG
+4 STD-001-0004 Right thigh, anterior THIGH Right thigh, anterior</code></pre>
 </div>
 </div>
-<p>Four rows, four coded-or-specify results. Specify wins when it has text. Coded wins when specify is <code>""</code> or <code>NA</code>.</p>
-<p>That is the specify-overrides-coded pattern: <code>coalesce(na_if(spy, ""), coded)</code>. Do not reverse the arguments. <code>coalesce(coded, na_if(spy, ""))</code> would keep <code>ARM</code> on <code>0001</code> and throw the free text away.</p>
+<p>Specify is used when it has text. Coded is used when specify is <code>""</code> or <code>NA</code>.</p>
+<p>Specify-overrides-coded is <code>coalesce(na_if(spy, ""), coded)</code>. Reversed arguments <code>coalesce(coded, na_if(spy, ""))</code> keep <code>ARM</code> on <code>STD-001-0001</code> and drop the specify text.</p>
 </section>
 <section id="na_if-on-its-own" class="level2">
 <h2 class="anchored" data-anchor-id="na_if-on-its-own"><code>na_if()</code> on its own</h2>
@@ -320,12 +320,12 @@ Attaching package: 'dplyr'</code></pre>
 [4] "Right thigh, anterior"</code></pre>
 </div>
 </div>
-<p><code>""</code> becomes <code>NA</code>. Everything else, including a real specify string, is untouched. <code>NA</code> in is <code>NA</code> out.</p>
-<p>The literal characters <code>"NA"</code> are also not missing. If a CRF export wrote that string, <code>na_if(x, "NA")</code> is a separate conversion, not a side effect of <code>na_if(x, "")</code>.</p>
+<p><code>""</code> becomes <code>NA</code>. Other strings are unchanged. <code>NA</code> remains <code>NA</code>.</p>
+<p>The characters <code>"NA"</code> are not missing. If an export stored that string, convert it with <code>na_if(x, "NA")</code>. That is separate from <code>na_if(x, "")</code>.</p>
 </section>
 <section id="ifn-ifc" class="level2">
 <h2 class="anchored" data-anchor-id="ifn-ifc"><code>IFN</code> / <code>IFC</code></h2>
-<p>SAS <code>IFN</code> (numeric) and <code>IFC</code> (character) are a condition plus two (or three) results. That is <code>if_else()</code>, not <code>coalesce()</code>:</p>
+<p>SAS <code>IFN</code> (numeric) and <code>IFC</code> (character) are a condition and two (or three) results. That mapping is <code>if_else()</code>, not <code>coalesce()</code>:</p>
 <pre class="sas"><code>loc = ifc(missing(locspy) or locspy = "", loc, locspy);</code></pre>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cm <span class="sc">|&gt;</span></span>
@@ -338,13 +338,13 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID                LOCSPY   LOC               LOC_OUT
-1 XYZ-101-0001          Left deltoid   ARM          Left deltoid
-2 XYZ-101-0002                         ARM                   ARM
-3 XYZ-101-0003                  &lt;NA&gt;   LEG                   LEG
-4 XYZ-101-0004 Right thigh, anterior THIGH Right thigh, anterior</code></pre>
+1 STD-001-0001          Left deltoid   ARM          Left deltoid
+2 STD-001-0002                         ARM                   ARM
+3 STD-001-0003                  &lt;NA&gt;   LEG                   LEG
+4 STD-001-0004 Right thigh, anterior THIGH Right thigh, anterior</code></pre>
 </div>
 </div>
-<p>Same output as <code>coalesce(na_if(LOCSPY, ""), LOC)</code>. Prefer <code>coalesce()</code> when the rule is "first non-missing", and <code>if_else()</code> when the rule is a condition you can name.</p>
+<p>Same result as <code>coalesce(na_if(LOCSPY, ""), LOC)</code>. Use <code>coalesce()</code> for first non-missing. Use <code>if_else()</code> when the rule is a named condition.</p>
 
 
 </section>

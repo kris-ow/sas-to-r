@@ -189,7 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sas-equiv">
 <p><strong>SAS:</strong> <code>SUBSTR(string, start, length)</code>, <code>SUBSTRN</code></p>
 </div>
-<p>SAS <code>SUBSTR</code> takes a length. R <code>substr()</code> takes a stop position. Same three-argument shape, different meaning for the last one. Mixing them up returns <code>""</code> and does not error.</p>
+<p>SAS <code>SUBSTR</code> takes a length. R <code>substr()</code> takes a stop position. The three-argument shape is the same; the last argument is not. A SAS length passed as <code>stop</code> can return <code>""</code> with no error.</p>
 <section id="quick-reference" class="level2">
 <h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SAS: SUBSTR(string, start, length)</span></span>
@@ -224,11 +224,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p>Three traps: the third argument is a stop position, not a length. <code>substr(x, 5, 3)</code> is not "three characters from 5"; it is the empty range 5-to-3. Write <code>start+len-1</code>, or count the end position. <code>substring()</code> and <code>str_sub()</code> use end positions too.</p>
-<p>The rest of this page is the same material worked through slowly, with runnable examples and the output they produce. Skip it if the block above was what you came for.</p>
+<p>Worked examples below.</p>
 </section>
 <section id="the-example-values" class="level2">
 <h2 class="anchored" data-anchor-id="the-example-values">The example values</h2>
-<p>Study-site-subject identifiers, and a few visit codes of the <code>CYCnDn</code> form.</p>
+<p><code>USUBJID</code> values of the form study-site-subject, and visit codes of the form <code>CYCnDn</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -246,23 +246,23 @@ Attaching package: 'dplyr'</code></pre>
     intersect, setdiff, setequal, union</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"XYZ-101-0001"</span>, <span class="st">"XYZ-101-0002"</span>, <span class="st">"XYZ-102-0001"</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>, <span class="st">"STD-002-0001"</span>),</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">VISIT   =</span> <span class="fu">c</span>(<span class="st">"CYC1D1"</span>, <span class="st">"CYC2D1"</span>, <span class="st">"CYC1D8"</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>dm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID  VISIT
-1 XYZ-101-0001 CYC1D1
-2 XYZ-101-0002 CYC2D1
-3 XYZ-102-0001 CYC1D8</code></pre>
+1 STD-001-0001 CYC1D1
+2 STD-001-0002 CYC2D1
+3 STD-002-0001 CYC1D8</code></pre>
 </div>
 </div>
-<p><code>XYZ-101-0001</code> is 12 characters. Positions 5-7 are the site, <code>101</code>. <code>CYC1D1</code> is cycle 1 day 1: cycle at position 4, day from position 6.</p>
+<p><code>STD-001-0001</code> is 12 characters. Positions 5-7 are the site, <code>001</code>. <code>CYC1D1</code>: cycle at position 4, day from position 6.</p>
 </section>
 <section id="the-empty-range-mistake" class="level2">
 <h2 class="anchored" data-anchor-id="the-empty-range-mistake">The empty-range mistake</h2>
-<p>SAS <code>SUBSTR(usubjid, 5, 3)</code> means start at 5, take 3 characters: the site.</p>
+<p>SAS <code>SUBSTR(usubjid, 5, 3)</code> means start at 5, length 3: the site.</p>
 <pre class="sas"><code>site = substr(usubjid, 5, 3);</code></pre>
 <p>R <code>substr(usubjid, 5, 3)</code> means start at 5, stop at 3. Stop is before start, so the range is empty:</p>
 <div class="cell">
@@ -271,16 +271,16 @@ Attaching package: 'dplyr'</code></pre>
 <pre><code>[1] "" "" ""</code></pre>
 </div>
 </div>
-<p>Three empty strings. No warning. The call looks like SAS and does nothing.</p>
-<p>Fix it by giving the end position, or by writing the SAS length as <code>start + len - 1</code>:</p>
+<p>Three empty strings. No warning.</p>
+<p>Use the end position, or write the SAS length as <code>start + len - 1</code>:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">substr</span>(dm<span class="sc">$</span>USUBJID, <span class="dv">5</span>, <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "101" "101" "102"</code></pre>
+<pre><code>[1] "001" "001" "002"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">substr</span>(dm<span class="sc">$</span>USUBJID, <span class="dv">5</span>, <span class="dv">5</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">-</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "101" "101" "102"</code></pre>
+<pre><code>[1] "001" "001" "002"</code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -293,13 +293,13 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>substr(x, start, stop)</code> keeps characters from <code>start</code> through <code>stop</code> inclusive. If you pass a SAS length and <code>stop &lt; start</code>, R returns <code>""</code> for every row. Count the end position, or write <code>start + len - 1</code>. The call will not tell you that you translated the signature wrong.</p>
+<p><code>substr(x, start, stop)</code> keeps characters from <code>start</code> through <code>stop</code> inclusive. A SAS length with <code>stop &lt; start</code> returns <code>""</code> on every row. Count the end position, or write <code>start + len - 1</code>.</p>
 </div>
 </div>
 </section>
 <section id="visit-codes-cyc1d1" class="level2">
 <h2 class="anchored" data-anchor-id="visit-codes-cyc1d1">Visit codes: <code>CYC1D1</code></h2>
-<p>Cycle is one character at position 4. Day starts at position 6 and runs to the end, so <code>CYC1D8</code> and <code>CYC1D15</code> both work if you stop at <code>nchar()</code>.</p>
+<p>Cycle is one character at position 4. Day starts at position 6 and continues to the end of the string, so <code>CYC1D8</code> and <code>CYC1D15</code> both work with <code>nchar()</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dm <span class="sc">|&gt;</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
@@ -308,17 +308,17 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID  VISIT CYCLE DAY
-1 XYZ-101-0001 CYC1D1     1   1
-2 XYZ-101-0002 CYC2D1     2   1
-3 XYZ-102-0001 CYC1D8     1   8</code></pre>
+1 STD-001-0001 CYC1D1     1   1
+2 STD-001-0002 CYC2D1     2   1
+3 STD-002-0001 CYC1D8     1   8</code></pre>
 </div>
 </div>
-<p>SAS for the cycle would be <code>SUBSTR(visit, 4, 1)</code>. In R that is <code>substr(visit, 4, 4)</code>, not <code>substr(visit, 4, 1)</code>.</p>
+<p>SAS for the cycle is <code>SUBSTR(visit, 4, 1)</code>. In R that is <code>substr(visit, 4, 4)</code>, not <code>substr(visit, 4, 1)</code>.</p>
 </section>
 <section id="substring-and-str_sub" class="level2">
 <h2 class="anchored" data-anchor-id="substring-and-str_sub"><code>substring()</code> and <code>str_sub()</code></h2>
-<p>Base R also has <code>substring()</code>. Same start-and-stop model as <code>substr()</code>. Arguments recycle when lengths differ, and you can assign into it (<code>substring(x, 5, 7) &lt;- "000"</code>). For ordinary extraction, <code>substr()</code> is enough.</p>
-<p><code>stringr::str_sub()</code> also takes end positions, not a length. <code>str_sub(x, 5, 7)</code> matches <code>substr(x, 5, 7)</code>. Negative indices count from the end. It does not restore SAS <code>SUBSTR(x, 5, 3)</code>. If you want a length API, compute the stop yourself.</p>
+<p>Base R <code>substring()</code> uses the same start-and-stop model as <code>substr()</code>. Arguments recycle when lengths differ. Assignment is supported (<code>substring(x, 5, 7) &lt;- "000"</code>). For extraction, <code>substr()</code> is sufficient.</p>
+<p><code>stringr::str_sub()</code> also takes end positions, not a length. <code>str_sub(x, 5, 7)</code> matches <code>substr(x, 5, 7)</code>. Negative indices count from the end. It is not SAS <code>SUBSTR(x, 5, 3)</code>. For a length API, compute the stop position.</p>
 
 
 </section>
