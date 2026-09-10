@@ -7,20 +7,19 @@ subtitle: "--SEQ within a subject"
 **SAS:** `PROC SORT` then `_N_` within `BY`, `--SEQ`
 :::
 
-`--SEQ` is a within-subject row number after a defined order. In R that is
-`arrange()`, then `group_by(USUBJID)`, then `row_number()`. Skip the sort and you
-still get a sequence. It is just not the sequence the IG asked for.
+`--SEQ` is a within-subject row number after a defined order. In R: `arrange()`,
+then `group_by(USUBJID)`, then `row_number()`. Without `arrange()`, the numbers
+follow the current row order, not the IG order.
 
 ## Quick reference
 
 {{< include _quickref/seq.md >}}
 
-The rest of this page is the same material worked through slowly, with runnable examples
-and the output they produce. Skip it if the block above was what you came for.
+Worked examples below.
 
 ## The example table
 
-Tumor results in arrival order, which is not the order `TUSEQ` should use.
+Tumor results in input order, which is not the `TUSEQ` order.
 
 ```{r}
 #| label: setup
@@ -28,8 +27,8 @@ library(dplyr)
 
 tu <- data.frame(
   USUBJID  = c(
-    "XYZ-101-0001", "XYZ-101-0001", "XYZ-101-0001",
-    "XYZ-101-0001", "XYZ-101-0002"
+    "STD-001-0001", "STD-001-0001", "STD-001-0001",
+    "STD-001-0001", "STD-001-0002"
   ),
   TUEVAL   = c(
     "INVESTIGATOR", "INVESTIGATOR", "INVESTIGATOR",
@@ -44,8 +43,9 @@ tu <- data.frame(
 tu
 ```
 
-`0001` has investigator lesions T01 and T02, plus one independent-assessor row.
-Visit 3 arrived first. The IG order is evaluator, lesion, visit, study day.
+`STD-001-0001` has investigator lesions T01 and T02, and one independent-assessor
+row. `VISITNUM` 3 is the first input row. IG order: evaluator, lesion, visit,
+study day.
 
 ## Wrong: `row_number()` without `arrange()`
 
@@ -56,8 +56,8 @@ tu |>
   ungroup()
 ```
 
-`0001` is numbered 1..4 in file order. Visit 3 is `TUSEQ` 1 because it was on top.
-That is `_N_` without the `PROC SORT`.
+`STD-001-0001` is numbered 1 to 4 in file order. `VISITNUM` 3 is `TUSEQ` 1.
+Equivalent to `_N_` without `PROC SORT`.
 
 ## Right: `arrange()`, then number
 
@@ -82,30 +82,29 @@ tu |>
   ungroup()
 ```
 
-`INDEPENDENT ASSESSOR` sorts before `INVESTIGATOR`, so it is `TUSEQ` 1. Then
-investigator T01 visit 1, T01 visit 3, T02 visit 1. `TULNKID` comes before
-`VISITNUM`, so T01 visit 3 is still ahead of T02 visit 1. `0002` restarts at 1.
+`INDEPENDENT ASSESSOR` sorts before `INVESTIGATOR` and is `TUSEQ` 1. Then
+investigator T01 visit 1, T01 visit 3, T02 visit 1. `TULNKID` precedes
+`VISITNUM`, so T01 visit 3 precedes T02 visit 1. `STD-001-0002` restarts at 1.
 
 ::: {.callout-important}
 ## `row_number()` numbers the current order
 
-It does not infer a clinical order. If you `group_by(USUBJID)` and number, you get
-the order the frame happens to be in. Sort explicitly. Put every key the IG names
-into `arrange()`, including the tie-breakers.
+It does not infer a clinical order. `group_by(USUBJID)` then `row_number()` uses
+the frame's current order. Sort first. Include every IG key in `arrange()`,
+including tie-breakers.
 :::
 
 ## Tie-breakers
 
-Two rows can share a study day. `arrange(USUBJID, TUDY)` alone then leaves their
-relative order to whatever came before. Add the keys that make a row unique, in
-the IG's order: `TUEVAL`, `TULNKID`, `VISITNUM`, `TUDY`. If two rows still tie,
-add a source sequence or a datetime. Do not leave a tie unnamed.
+Two rows can share a study day. `arrange(USUBJID, TUDY)` alone leaves their
+relative order undefined. Add keys that make a row unique, in IG order:
+`TUEVAL`, `TULNKID`, `VISITNUM`, `TUDY`. If a tie remains, add a source sequence
+or a datetime.
 
 ## `as.double()` for XPT
 
-SAS numeric is double. `row_number()` returns integer. `haven` / `xportr` will
-write that as an integer column unless you cast it. SDTM `--SEQ` in a SAS XPT is
-double, so:
+SAS numeric is double. `row_number()` returns integer. `haven` / `xportr` write
+that as integer unless it is cast. SDTM `--SEQ` in a SAS XPT is double:
 
 ```{r}
 tu |>
@@ -117,4 +116,4 @@ tu |>
   typeof()
 ```
 
-`double`. Match the SAS type now, not after the first failed compare against production.
+`double`. Cast before writing XPT so the type matches SAS.

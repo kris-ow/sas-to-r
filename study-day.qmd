@@ -7,21 +7,20 @@ subtitle: "Date subtraction for --DY"
 **SAS:** date minus date, `INTCK('day', ...)`, CDISC `--DY`
 :::
 
-CDISC `--DY` has no day 0. The reference start date is day 1. Dates before it stay
-negative and do not shift. Raw subtraction is the wrong answer on and after the
-reference date.
+CDISC `--DY` has no day 0. The reference start date is day 1. Dates before the
+reference stay negative and are not shifted. Raw subtraction is not `--DY` on or
+after the reference date.
 
 ## Quick reference
 
 {{< include _quickref/study-day.md >}}
 
-The rest of this page is the same material worked through slowly, with runnable examples
-and the output they produce. Skip it if the block above was what you came for.
+Worked examples below.
 
 ## Raw diff versus `--DY`
 
-Five lab dates around one reference start. First two are before it, then the
-reference day itself, then two after.
+Five lab dates around one reference start: two before, the reference date, two
+after.
 
 ```{r}
 #| label: setup
@@ -29,8 +28,8 @@ library(dplyr)
 
 lb <- data.frame(
   USUBJID = c(
-    "XYZ-101-0001", "XYZ-101-0001", "XYZ-101-0001",
-    "XYZ-101-0001", "XYZ-101-0001"
+    "STD-001-0001", "STD-001-0001", "STD-001-0001",
+    "STD-001-0001", "STD-001-0001"
   ),
   LBDT   = as.Date(c(
     "2025-06-01", "2025-06-02", "2025-06-03",
@@ -58,21 +57,21 @@ lb |>
 | one day after | 1 | 2 |
 | two days after | 2 | 3 |
 
-The day before and the day after the reference are not symmetric. That is the rule.
-SAS date arithmetic gives you the raw column. `--DY` is the `LBDY` column.
+The day before and the day after the reference are not symmetric. SAS date
+arithmetic returns the raw column. `--DY` is the `LBDY` column.
 
 ::: {.callout-important}
 ## There is no day 0
 
-`date - rfstdt` on the reference date is 0. `--DY` on that date is 1. Every date on
-or after the reference is shifted by +1. Dates before it are left as a negative
-offset. If you ship the raw diff, day 1 of treatment is labelled 0 and every
-subsequent day is off by one.
+`date - rfstdt` on the reference date is 0. `--DY` on that date is 1. Every date
+on or after the reference is shifted by +1. Dates before the reference remain a
+negative offset. The raw diff labels the first treatment day as 0 and offsets
+every later day by one.
 :::
 
 ## Compact form
 
-The branch is a +1 when `date >= rfstdt`, and +0 otherwise:
+Add 1 when `date >= rfstdt`, otherwise add 0:
 
 ```{r}
 lb |>
@@ -81,20 +80,19 @@ lb |>
   )
 ```
 
-`as.integer(TRUE)` is 1. `as.integer(FALSE)` is 0. Same values as the `if_else()`
-form. `date - rfstdt` is a `difftime`; `as.integer()` turns it into a number before
-you add 1.
+`as.integer(TRUE)` is 1. `as.integer(FALSE)` is 0. Same values as `if_else()`.
+`date - rfstdt` is a `difftime`; `as.integer()` converts it before the +1.
 
 ## A subject table
 
-Two subjects. `0002` starts on `2025-06-10` and has one lab on that day. Missing
-`LBDT` stays missing.
+Two subjects. `STD-001-0002` starts on `2025-06-10` and has one lab on that day.
+Missing `LBDT` remains missing.
 
 ```{r}
 lb2 <- data.frame(
   USUBJID = c(
-    "XYZ-101-0001", "XYZ-101-0001", "XYZ-101-0001",
-    "XYZ-101-0002", "XYZ-101-0002"
+    "STD-001-0001", "STD-001-0001", "STD-001-0001",
+    "STD-001-0002", "STD-001-0002"
   ),
   LBDT = as.Date(c(
     "2025-06-02", "2025-06-03", "2025-06-04",
@@ -112,8 +110,8 @@ lb2 |>
   )
 ```
 
-`0001` has study days -1, 1, 2. `0002` has study day 1, then `NA`. Do not fill
+`STD-001-0001` study days: -1, 1, 2. `STD-001-0002`: 1, then `NA`. Do not replace
 missing dates with 0. CDISC leaves `--DY` missing when either date is missing.
 
-`INTCK('day', rfstdt, date)` in SAS is the raw interval, not `--DY`. Add the same
-+1 on and after the reference date there too.
+`INTCK('day', rfstdt, date)` in SAS is the raw interval, not `--DY`. Apply the
+same +1 on and after the reference date.

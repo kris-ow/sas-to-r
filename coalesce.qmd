@@ -7,26 +7,25 @@ subtitle: "Prefer one value, fall back to another"
 **SAS:** `COALESCE`, `coalescec`, `IFN` / `IFC`, specify-then-coded
 :::
 
-SAS `COALESCE` / `coalescec` skip missing values. R's `dplyr::coalesce()` skips `NA`
-only. Blank `""` is a real value, so it wins. That is the whole page.
+SAS `COALESCE` / `coalescec` skip missing values. `dplyr::coalesce()` skips `NA`
+only. Blank `""` is a value, not missing.
 
 ## Quick reference
 
 {{< include _quickref/coalesce.md >}}
 
-The rest of this page is the same material worked through slowly, with runnable examples
-and the output they produce. Skip it if the block above was what you came for.
+Worked examples below.
 
 ## The example table
 
-Specify versus coded location. Four rows, four states of the specify field.
+Specify versus coded location. Four rows; four states of the specify field.
 
 ```{r}
 #| label: setup
 library(dplyr)
 
 cm <- data.frame(
-  USUBJID = c("XYZ-101-0001", "XYZ-101-0002", "XYZ-101-0003", "XYZ-101-0004"),
+  USUBJID = c("STD-001-0001", "STD-001-0002", "STD-001-0003", "STD-001-0004"),
   LOCSPY  = c("Left deltoid", "", NA, "Right thigh, anterior"),
   LOC     = c("ARM", "ARM", "LEG", "THIGH")
 )
@@ -34,10 +33,10 @@ cm <- data.frame(
 cm
 ```
 
-- `0001` has a specify value, which should override `ARM`
-- `0002` has `""` on the specify field: use the coded value
-- `0003` has `NA` on the specify field: also use the coded value
-- `0004` has a specify value, which should override `THIGH`
+- `STD-001-0001`: specify present; overrides `ARM`
+- `STD-001-0002`: specify is `""`; use coded
+- `STD-001-0003`: specify is `NA`; use coded
+- `STD-001-0004`: specify present; overrides `THIGH`
 
 ## `coalesce()` skips `NA`
 
@@ -50,15 +49,15 @@ cm |>
   mutate(LOC_OUT = coalesce(LOCSPY, LOC))
 ```
 
-`0003` is correct: `NA` is skipped, `LEG` comes through. `0002` is not. `""` is not `NA`,
-so `coalesce()` keeps it and the coded `ARM` never gets a look.
+`STD-001-0003` is correct: `NA` is skipped, `LEG` is used. `STD-001-0002` is not.
+`""` is not `NA`, so `coalesce()` keeps it and does not use coded `ARM`.
 
 ::: {.callout-important}
 ## `coalesce()` does not treat `""` as missing
 
 SAS character missing is blank. R character missing is `NA`. `coalesce()` follows R.
-A specify field of `""` is a present value, so it beats the coded term. Convert blanks
-first with `na_if()`, then coalesce.
+A specify field of `""` is present, so it overrides the coded term. Convert blanks
+with `na_if()`, then coalesce.
 :::
 
 ## The fix: `na_if()` then `coalesce()`
@@ -68,12 +67,11 @@ cm |>
   mutate(LOC_OUT = coalesce(na_if(LOCSPY, ""), LOC))
 ```
 
-Four rows, four coded-or-specify results. Specify wins when it has text. Coded wins
-when specify is `""` or `NA`.
+Specify is used when it has text. Coded is used when specify is `""` or `NA`.
 
-That is the specify-overrides-coded pattern: `coalesce(na_if(spy, ""), coded)`. Do not
-reverse the arguments. `coalesce(coded, na_if(spy, ""))` would keep `ARM` on `0001` and
-throw the free text away.
+Specify-overrides-coded is `coalesce(na_if(spy, ""), coded)`. Reversed arguments
+`coalesce(coded, na_if(spy, ""))` keep `ARM` on `STD-001-0001` and drop the specify
+text.
 
 ## `na_if()` on its own
 
@@ -81,16 +79,15 @@ throw the free text away.
 na_if(cm$LOCSPY, "")
 ```
 
-`""` becomes `NA`. Everything else, including a real specify string, is untouched.
-`NA` in is `NA` out.
+`""` becomes `NA`. Other strings are unchanged. `NA` remains `NA`.
 
-The literal characters `"NA"` are also not missing. If a CRF export wrote that string,
-`na_if(x, "NA")` is a separate conversion, not a side effect of `na_if(x, "")`.
+The characters `"NA"` are not missing. If an export stored that string, convert it
+with `na_if(x, "NA")`. That is separate from `na_if(x, "")`.
 
 ## `IFN` / `IFC`
 
-SAS `IFN` (numeric) and `IFC` (character) are a condition plus two (or three) results.
-That is `if_else()`, not `coalesce()`:
+SAS `IFN` (numeric) and `IFC` (character) are a condition and two (or three) results.
+That mapping is `if_else()`, not `coalesce()`:
 
 ```sas
 loc = ifc(missing(locspy) or locspy = "", loc, locspy);
@@ -107,5 +104,5 @@ cm |>
   )
 ```
 
-Same output as `coalesce(na_if(LOCSPY, ""), LOC)`. Prefer `coalesce()` when the rule
-is "first non-missing", and `if_else()` when the rule is a condition you can name.
+Same result as `coalesce(na_if(LOCSPY, ""), LOC)`. Use `coalesce()` for first
+non-missing. Use `if_else()` when the rule is a named condition.
