@@ -39,7 +39,7 @@ lb <- data.frame(
   RFSTDT = as.Date("2025-06-03")
 )
 
-lb %>%
+lb |>
   mutate(
     RAW  = as.integer(LBDT - RFSTDT),
     LBDY = if_else(
@@ -75,7 +75,7 @@ subsequent day is off by one.
 The branch is a +1 when `date >= rfstdt`, and +0 otherwise:
 
 ```{r}
-lb %>%
+lb |>
   mutate(
     LBDY = as.integer(LBDT - RFSTDT) + as.integer(LBDT >= RFSTDT)
   )
@@ -106,7 +106,7 @@ lb2 <- data.frame(
   ))
 )
 
-lb2 %>%
+lb2 |>
   mutate(
     LBDY = as.integer(LBDT - RFSTDT) + as.integer(LBDT >= RFSTDT)
   )

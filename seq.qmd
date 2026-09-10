@@ -50,9 +50,9 @@ Visit 3 arrived first. The IG order is evaluator, lesion, visit, study day.
 ## Wrong: `row_number()` without `arrange()`
 
 ```{r}
-tu %>%
-  group_by(USUBJID) %>%
-  mutate(TUSEQ = row_number()) %>%
+tu |>
+  group_by(USUBJID) |>
+  mutate(TUSEQ = row_number()) |>
   ungroup()
 ```
 
@@ -75,10 +75,10 @@ run;
 ```
 
 ```{r}
-tu %>%
-  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) %>%
-  group_by(USUBJID) %>%
-  mutate(TUSEQ = as.double(row_number())) %>%
+tu |>
+  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |>
+  group_by(USUBJID) |>
+  mutate(TUSEQ = as.double(row_number())) |>
   ungroup()
 ```
 
@@ -108,12 +108,12 @@ write that as an integer column unless you cast it. SDTM `--SEQ` in a SAS XPT is
 double, so:
 
 ```{r}
-tu %>%
-  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) %>%
-  group_by(USUBJID) %>%
-  mutate(TUSEQ = as.double(row_number())) %>%
-  ungroup() %>%
-  pull(TUSEQ) %>%
+tu |>
+  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |>
+  group_by(USUBJID) |>
+  mutate(TUSEQ = as.double(row_number())) |>
+  ungroup() |>
+  pull(TUSEQ) |>
   typeof()
 ```
 

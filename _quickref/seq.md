@@ -1,10 +1,10 @@
 ```r
 library(dplyr)
 
-df %>%
-  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) %>%  # order first
-  group_by(USUBJID) %>%
-  mutate(SEQ = as.double(row_number())) %>%              # --SEQ, XPT-shaped
+df |>
+  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |>  # order first
+  group_by(USUBJID) |>
+  mutate(SEQ = as.double(row_number())) |>              # --SEQ, XPT-shaped
   ungroup()
 ```
 

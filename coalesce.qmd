@@ -46,7 +46,7 @@ loc = coalescec(locspy, loc);
 ```
 
 ```{r}
-cm %>%
+cm |>
   mutate(LOC_OUT = coalesce(LOCSPY, LOC))
 ```
 
@@ -64,7 +64,7 @@ first with `na_if()`, then coalesce.
 ## The fix: `na_if()` then `coalesce()`
 
 ```{r}
-cm %>%
+cm |>
   mutate(LOC_OUT = coalesce(na_if(LOCSPY, ""), LOC))
 ```
 
@@ -97,7 +97,7 @@ loc = ifc(missing(locspy) or locspy = "", loc, locspy);
 ```
 
 ```{r}
-cm %>%
+cm |>
   mutate(
     LOC_OUT = if_else(
       is.na(na_if(LOCSPY, "")),

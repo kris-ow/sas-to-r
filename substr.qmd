@@ -76,7 +76,7 @@ Cycle is one character at position 4. Day starts at position 6 and runs to the e
 so `CYC1D8` and `CYC1D15` both work if you stop at `nchar()`.
 
 ```{r}
-dm %>%
+dm |>
   mutate(
     CYCLE = substr(VISIT, 4, 4),
     DAY   = substr(VISIT, 6, nchar(VISIT))

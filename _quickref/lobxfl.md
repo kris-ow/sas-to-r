@@ -1,16 +1,16 @@
 ```r
 library(dplyr)
 
-last_before <- tu %>%
-  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC <= RFSTDTC) %>%
-  group_by(USUBJID, TULNKID) %>%
-  slice_max(TUDTC, n = 1, with_ties = TRUE) %>%
-  ungroup() %>%
-  distinct(USUBJID, TULNKID, TUDTC) %>%
+last_before <- tu |>
+  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC <= RFSTDTC) |>
+  group_by(USUBJID, TULNKID) |>
+  slice_max(TUDTC, n = 1, with_ties = TRUE) |>
+  ungroup() |>
+  distinct(USUBJID, TULNKID, TUDTC) |>
   mutate(TULOBXFL = "Y")
 
-tu %>%
-  left_join(last_before, by = c("USUBJID", "TULNKID", "TUDTC")) %>%
+tu |>
+  left_join(last_before, by = c("USUBJID", "TULNKID", "TUDTC")) |>
   mutate(TULOBXFL = coalesce(TULOBXFL, ""))
 ```
 
