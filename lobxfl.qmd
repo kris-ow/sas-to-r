@@ -1,0 +1,120 @@
+---
+title: "Last observation before exposure"
+subtitle: "--LOBXFL flags"
+---
+
+::: {.sas-equiv}
+**SAS:** last on or before `RFSTDTC`, `--LOBXFL`
+:::
+
+`--LOBXFL` is `"Y"` on the last record on or before the reference start, per entity,
+and blank everywhere else. Build the flag table from the qualifying rows, then join
+it back. Do not try to flag in place with a running `last.`.
+
+## Quick reference
+
+{{< include _quickref/lobxfl.md >}}
+
+The rest of this page is the same material worked through slowly, with runnable examples
+and the output they produce. Skip it if the block above was what you came for.
+
+## The example table
+
+Two subjects, two lesions. `RFSTDTC` is already on the row.
+
+```{r}
+#| label: setup
+library(dplyr)
+
+tu <- data.frame(
+  USUBJID = c(
+    "XYZ-101-0001", "XYZ-101-0001", "XYZ-101-0001",
+    "XYZ-101-0001", "XYZ-101-0001", "XYZ-101-0001",
+    "XYZ-101-0002", "XYZ-101-0002"
+  ),
+  TULNKID = c("T01", "T01", "T01", "T02", "T02", "T02", "T01", "T01"),
+  TUDTC   = as.Date(c(
+    "2025-05-20",
+    "2025-06-03",
+    "2025-06-17",
+    "2025-05-20",
+    "2025-05-20",
+    "2025-06-17",
+    "2025-06-20",
+    "2025-06-27"
+  )),
+  RFSTDTC = as.Date(c(
+    "2025-06-03", "2025-06-03", "2025-06-03",
+    "2025-06-03", "2025-06-03", "2025-06-03",
+    "2025-06-10", "2025-06-10"
+  )),
+  TUSTRESC = c("CR", "CR", "SD", "CR", "NE", "PD", "PR", "PR")
+)
+
+tu
+```
+
+- `0001` T01: last on or before `2025-06-03` is `2025-06-03` (on the reference date)
+- `0001` T02: two rows share `2025-05-20`, and the later visit is after start, so both
+  of those rows qualify as last
+- `0002` T01: both dates are after `2025-06-10`, so nothing qualifies
+
+## Filter, `slice_max()`, join a `"Y"`
+
+Keep rows on or before `RFSTDTC`. Per `USUBJID` and `TULNKID`, take the latest
+`TUDTC`. Distinct the keys so a tied date does not explode the join. Flag `"Y"`,
+join back, and fill the rest with `""`.
+
+```{r}
+last_before <- tu %>%
+  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC <= RFSTDTC) %>%
+  group_by(USUBJID, TULNKID) %>%
+  slice_max(TUDTC, n = 1, with_ties = TRUE) %>%
+  ungroup() %>%
+  distinct(USUBJID, TULNKID, TUDTC) %>%
+  mutate(TULOBXFL = "Y")
+
+last_before
+
+tu %>%
+  left_join(last_before, by = c("USUBJID", "TULNKID", "TUDTC")) %>%
+  mutate(TULOBXFL = coalesce(TULOBXFL, ""))
+```
+
+`0001` T01 on 3 June is `"Y"`. Both `0001` T02 rows on 20 May are `"Y"` because
+`with_ties = TRUE`. Post-baseline rows are blank. `0002` is blank on both rows.
+
+::: {.callout-important}
+## Blank is `""`, not `NA`
+
+SDTM `--LOBXFL` is `"Y"` or blank. A left join puts `NA` on rows with no match.
+`waldo` and a SAS XPT compare will report `NA` versus `""` as a real difference on
+every unflagged row. `coalesce(TULOBXFL, "")` is part of the flag, not polish.
+:::
+
+## Group by the entity
+
+`TULNKID` is the lesion. Last-before-exposure is per lesion, not per subject.
+`group_by(USUBJID)` alone would pick one date for the whole subject and flag the
+wrong T02 row, or miss it. Whatever the IG calls the entity (`TULNKID`, `RSGRPID`,
+a record identifier) goes in the `group_by()`.
+
+## Empty qualifying set stays blank
+
+`0002` has no row with `TUDTC <= RFSTDTC`. `last_before` has no `0002` keys. The
+left join therefore matches nothing, and `coalesce(..., "")` leaves both rows
+blank. Do not invent a `"Y"` on the earliest post-baseline record.
+
+## `with_ties = TRUE`
+
+`slice_max(..., with_ties = TRUE)` keeps every row that shares the maximum date.
+That is what you want when two records on the same entity fall on the same last
+qualifying day: both get `"Y"`.
+
+`distinct(USUBJID, TULNKID, TUDTC)` then makes the right-hand table unique on the
+join keys, so those two left rows each match once. Skip `distinct()` and a two-row
+tie on the right cartesian-joins against two left rows with the same keys.
+
+`with_ties = FALSE` drops down to one row and does not say which. If the IG wants
+exactly one flag per entity on a tied date, add a tie-breaker to `slice_max()`
+(a sequence, a datetime) rather than leaving the choice implicit.

@@ -1,0 +1,97 @@
+---
+title: "Substrings"
+subtitle: "Extract part of a character value"
+---
+
+::: {.sas-equiv}
+**SAS:** `SUBSTR(string, start, length)`, `SUBSTRN`
+:::
+
+SAS `SUBSTR` takes a length. R `substr()` takes a stop position. Same three-argument
+shape, different meaning for the last one. Mixing them up returns `""` and does not
+error.
+
+## Quick reference
+
+{{< include _quickref/substr.md >}}
+
+The rest of this page is the same material worked through slowly, with runnable examples
+and the output they produce. Skip it if the block above was what you came for.
+
+## The example values
+
+Study-site-subject identifiers, and a few visit codes of the `CYCnDn` form.
+
+```{r}
+#| label: setup
+library(dplyr)
+
+dm <- data.frame(
+  USUBJID = c("XYZ-101-0001", "XYZ-101-0002", "XYZ-102-0001"),
+  VISIT   = c("CYC1D1", "CYC2D1", "CYC1D8")
+)
+
+dm
+```
+
+`XYZ-101-0001` is 12 characters. Positions 5-7 are the site, `101`.
+`CYC1D1` is cycle 1 day 1: cycle at position 4, day from position 6.
+
+## The empty-range mistake
+
+SAS `SUBSTR(usubjid, 5, 3)` means start at 5, take 3 characters: the site.
+
+```sas
+site = substr(usubjid, 5, 3);
+```
+
+R `substr(usubjid, 5, 3)` means start at 5, stop at 3. Stop is before start, so the
+range is empty:
+
+```{r}
+substr(dm$USUBJID, 5, 3)
+```
+
+Three empty strings. No warning. The call looks like SAS and does nothing.
+
+Fix it by giving the end position, or by writing the SAS length as `start + len - 1`:
+
+```{r}
+substr(dm$USUBJID, 5, 7)
+substr(dm$USUBJID, 5, 5 + 3 - 1)
+```
+
+::: {.callout-important}
+## The third argument is a stop position, not a length
+
+`substr(x, start, stop)` keeps characters from `start` through `stop` inclusive.
+If you pass a SAS length and `stop < start`, R returns `""` for every row. Count
+the end position, or write `start + len - 1`. The call will not tell you that you
+translated the signature wrong.
+:::
+
+## Visit codes: `CYC1D1`
+
+Cycle is one character at position 4. Day starts at position 6 and runs to the end,
+so `CYC1D8` and `CYC1D15` both work if you stop at `nchar()`.
+
+```{r}
+dm %>%
+  mutate(
+    CYCLE = substr(VISIT, 4, 4),
+    DAY   = substr(VISIT, 6, nchar(VISIT))
+  )
+```
+
+SAS for the cycle would be `SUBSTR(visit, 4, 1)`. In R that is `substr(visit, 4, 4)`,
+not `substr(visit, 4, 1)`.
+
+## `substring()` and `str_sub()`
+
+Base R also has `substring()`. Same start-and-stop model as `substr()`. Arguments
+recycle when lengths differ, and you can assign into it (`substring(x, 5, 7) <- "000"`).
+For ordinary extraction, `substr()` is enough.
+
+`stringr::str_sub()` also takes end positions, not a length. `str_sub(x, 5, 7)` matches
+`substr(x, 5, 7)`. Negative indices count from the end. It does not restore SAS
+`SUBSTR(x, 5, 3)`. If you want a length API, compute the stop yourself.
