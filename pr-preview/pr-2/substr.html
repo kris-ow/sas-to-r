@@ -301,7 +301,7 @@ Attaching package: 'dplyr'</code></pre>
 <h2 class="anchored" data-anchor-id="visit-codes-cyc1d1">Visit codes: <code>CYC1D1</code></h2>
 <p>Cycle is one character at position 4. Day starts at position 6 and runs to the end, so <code>CYC1D8</code> and <code>CYC1D15</code> both work if you stop at <code>nchar()</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dm <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dm <span class="sc">|&gt;</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">CYCLE =</span> <span class="fu">substr</span>(VISIT, <span class="dv">4</span>, <span class="dv">4</span>),</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">DAY   =</span> <span class="fu">substr</span>(VISIT, <span class="dv">6</span>, <span class="fu">nchar</span>(VISIT))</span>

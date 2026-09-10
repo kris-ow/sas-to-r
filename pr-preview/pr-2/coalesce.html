@@ -270,7 +270,7 @@ Attaching package: 'dplyr'</code></pre>
 <h2 class="anchored" data-anchor-id="coalesce-skips-na"><code>coalesce()</code> skips <code>NA</code></h2>
 <pre class="sas"><code>loc = coalescec(locspy, loc);</code></pre>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cm <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cm <span class="sc">|&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">LOC_OUT =</span> <span class="fu">coalesce</span>(LOCSPY, LOC))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID                LOCSPY   LOC               LOC_OUT
@@ -298,7 +298,7 @@ Attaching package: 'dplyr'</code></pre>
 <section id="the-fix-na_if-then-coalesce" class="level2">
 <h2 class="anchored" data-anchor-id="the-fix-na_if-then-coalesce">The fix: <code>na_if()</code> then <code>coalesce()</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cm <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cm <span class="sc">|&gt;</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">LOC_OUT =</span> <span class="fu">coalesce</span>(<span class="fu">na_if</span>(LOCSPY, <span class="st">""</span>), LOC))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       USUBJID                LOCSPY   LOC               LOC_OUT
@@ -328,7 +328,7 @@ Attaching package: 'dplyr'</code></pre>
 <p>SAS <code>IFN</code> (numeric) and <code>IFC</code> (character) are a condition plus two (or three) results. That is <code>if_else()</code>, not <code>coalesce()</code>:</p>
 <pre class="sas"><code>loc = ifc(missing(locspy) or locspy = "", loc, locspy);</code></pre>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cm <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cm <span class="sc">|&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">LOC_OUT =</span> <span class="fu">if_else</span>(</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">is.na</span>(<span class="fu">na_if</span>(LOCSPY, <span class="st">""</span>)),</span>
