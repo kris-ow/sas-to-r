@@ -4,7 +4,7 @@
     "href": "cheatsheet.html",
     "title": "Cheat sheet",
     "section": "",
-    "text": "The essentials from every topic on one page, so you can find the call you have forgotten without reading anything. Each block is the same text that opens its topic page, so the two cannot drift apart.\nFollow a heading through to its full page when the short version is not enough."
+    "text": "This page is short SAS-to-R code pairs from each topic. Open the topic page for more detail."
   },
   {
     "objectID": "cheatsheet.html#joins",
@@ -340,6 +340,6 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "A practical reference for SAS programmers writing R. Each topic is one SAS task shown in R: the call, the output, and where the two languages do not line up.\nSearch for a SAS name (MERGE, PROC TRANSPOSE) or pick a topic from Home. The cheat sheet is code only."
+    "text": "SAS to R maps common SAS programming tasks to R: the call, the result, and places where the two languages diverge.\nHome lists topics by group. Search matches SAS or R names.\nThe cheat sheet is one page of short SAS-to-R code pairs. For more detail, open a topic page.\nThis site is not affiliated with SAS Institute Inc."
   }
 ]

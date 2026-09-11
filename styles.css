@@ -62,8 +62,18 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   font-family: var(--font-sans) !important;
-  line-height: 1.5;
+  line-height: 1.6;
   letter-spacing: 0;
+}
+
+/* Prose is IBM Plex Sans so it stays distinct from code. Headings,
+   navbar, tables, and code stay mono (rules below). */
+#quarto-document-content > p,
+#quarto-document-content > section p,
+div.callout,
+div.callout p {
+  font-family: var(--font-sans);
+  line-height: 1.6;
 }
 
 /* Cosmo is a light Bootswatch. Compiling dark colors on top of it still
@@ -525,7 +535,33 @@ body.quarto-dark .navbar .theme-switch-light {
   display: inline-block;
   border-bottom: 2px solid var(--accent);
   padding-bottom: 0.2rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.85rem;
+}
+
+#title-block-header {
+  margin-bottom: 1.75rem;
+}
+
+#title-block-header .quarto-title {
+  margin-bottom: 0.65rem;
+}
+
+#title-block-header .subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+  font-weight: 400;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+#title-block-header .description {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+  line-height: 1.5;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
 }
 
 /* Home is a topic index, not an article. Category labels are quiet
@@ -571,13 +607,6 @@ body.quarto-dark .navbar .theme-switch-light {
   padding-left: 1.1rem;
 }
 
-#title-block-header .subtitle {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  color: var(--fg-muted);
-  font-weight: 400;
-}
-
 h2, h3, h4 {
   font-family: var(--font-mono);
   color: var(--fg-heading);
@@ -588,6 +617,17 @@ h2 {
   line-height: 1.3;
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.3rem;
+  margin-top: 2rem;
+  margin-bottom: 0.9rem;
+}
+
+#quarto-document-content > p {
+  margin-bottom: 1.15rem;
+}
+
+#quarto-document-content table + p,
+#quarto-document-content .table + p {
+  margin-top: 1.35rem;
 }
 
 a {
@@ -622,6 +662,7 @@ div.sourceCode {
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   background-color: var(--code-bg);
+  margin-bottom: 1.25rem;
 }
 
 pre.sourceCode,
@@ -675,6 +716,8 @@ pre code {
 .table {
   font-family: var(--font-mono);
   font-size: 0.82rem;
+  margin-top: 0.75rem;
+  margin-bottom: 1.6rem;
 }
 
 .table > :not(caption) > * > * {
@@ -684,6 +727,7 @@ pre code {
 }
 
 div.callout {
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   border-color: var(--border);
   background: var(--bg-raised);
