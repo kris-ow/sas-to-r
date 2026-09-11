@@ -193,7 +193,7 @@
     "href": "index.html",
     "title": "Topics",
     "section": "",
-    "text": "Joins: combining tables\nCoalesce: prefer one value, fall back to another\nSubstrings: extract part of a character value\nStudy day: date subtraction for --DY\nSequence numbers: --SEQ within a subject\nLast observation before exposure: --LOBXFL flags"
+    "text": "Text\n\n\nSubstrings extract part of a character value\n\n\n\n\nDates\n\n\nStudy day date subtraction for --DY\n\n\n\n\nTables\n\n\nJoins combining tables\nCoalesce prefer one value, fall back to another\n\n\n\n\nDerivations\n\n\nSequence numbers --SEQ within a subject\nLast observation before exposure --LOBXFL flags"
   },
   {
     "objectID": "seq.html",
