@@ -243,24 +243,23 @@ header.headroom--not-top {
   flex-shrink: 0;
 }
 
-/* Light | Dark as secondary nav text. Same size/weight/color as Cheat
-   sheet / About. Both labels always paint so width does not change.
-   Kill Quarto/Bootstrap focus rings so a click does not turn this
-   into a bordered chip. */
+/* Light | Dark as secondary nav text. Same size/weight as Cheat sheet /
+   About. Both labels always paint so width does not change. JS in
+   _theme-switch.html splits the Quarto cycle-link into two buttons. */
 .navbar .quarto-color-scheme-toggle.quarto-navigation-tool,
 .navbar .quarto-color-scheme-toggle {
   display: inline-flex !important;
   align-items: center;
   align-self: center;
   justify-content: flex-start;
-  column-gap: 0.4em;
+  column-gap: 0.35em;
   box-sizing: border-box;
   height: auto;
   min-height: 0;
   max-height: none;
   width: auto;
   min-width: 0;
-  padding: 0.4rem 0.6rem !important;
+  padding: 0.4rem 0.15rem 0.4rem 0.6rem !important;
   margin: 0;
   background: transparent !important;
   border: none !important;
@@ -293,8 +292,8 @@ header.headroom--not-top {
   display: none !important;
 }
 
-.navbar .quarto-color-scheme-toggle::before,
-.navbar .quarto-color-scheme-toggle::after {
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::before,
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::after {
   display: inline;
   flex: 0 0 auto;
   height: auto;
@@ -308,23 +307,73 @@ header.headroom--not-top {
   background: transparent;
 }
 
-.navbar .quarto-color-scheme-toggle::before {
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::before {
   content: "Light";
 }
 
-.navbar .quarto-color-scheme-toggle::after {
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::after {
   content: "| Dark";
 }
 
-body.quarto-light .navbar .quarto-color-scheme-toggle::before,
-body.quarto-dark .navbar .quarto-color-scheme-toggle::after {
-  background: transparent;
+body.quarto-light .navbar .quarto-color-scheme-toggle:not(.theme-split)::before,
+body.quarto-dark .navbar .quarto-color-scheme-toggle:not(.theme-split)::after {
   color: var(--fg);
 }
 
-body.quarto-light .navbar .quarto-color-scheme-toggle::after,
-body.quarto-dark .navbar .quarto-color-scheme-toggle::before {
-  background: transparent;
+body.quarto-light .navbar .quarto-color-scheme-toggle:not(.theme-split)::after,
+body.quarto-dark .navbar .quarto-color-scheme-toggle:not(.theme-split)::before {
+  color: var(--fg-muted);
+}
+
+.navbar .theme-switch-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+  color: var(--fg-muted);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navbar .theme-switch-btn:hover,
+.navbar .theme-switch-btn:focus,
+.navbar .theme-switch-btn:focus-visible,
+.navbar .theme-switch-btn:active,
+body.quarto-light .navbar .theme-switch-dark:hover,
+body.quarto-dark .navbar .theme-switch-light:hover,
+body.quarto-light .navbar .theme-switch-dark:focus-visible,
+body.quarto-dark .navbar .theme-switch-light:focus-visible {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: var(--fg);
+}
+
+.navbar .theme-switch-sep {
+  color: var(--fg-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+body.quarto-light .navbar .theme-switch-light,
+body.quarto-dark .navbar .theme-switch-dark {
+  color: var(--fg);
+}
+
+body.quarto-light .navbar .theme-switch-dark,
+body.quarto-dark .navbar .theme-switch-light {
   color: var(--fg-muted);
 }
 
@@ -367,20 +416,11 @@ body.quarto-dark .navbar .quarto-color-scheme-toggle::before {
     margin-right: 0 !important;
   }
 
-  /* Toggle sits with the nav links, not beside the search box, so
-     brand/links stay primary and Light | Dark stays secondary. */
-  .navbar .quarto-navbar-tools {
-    order: 3 !important;
-    flex: 0 0 auto;
-    margin-left: 0.15rem;
-    margin-right: 0;
-  }
-
   /* flex-basis, not auto: otherwise width:100% on the inner form
      circular-shrinks the field to a sliver as the viewport narrows. */
   .navbar #quarto-search,
   .navbar #quarto-search.type-textbox {
-    order: 4 !important;
+    order: 3 !important;
     flex: 1 1 16rem;
     min-width: 16rem;
     width: auto !important;
@@ -401,6 +441,13 @@ body.quarto-dark .navbar .quarto-color-scheme-toggle::before {
   .navbar #quarto-search .aa-InputWrapper {
     flex: 1 1 auto;
     min-width: 0;
+  }
+
+  .navbar .quarto-navbar-tools {
+    order: 4 !important;
+    flex: 0 0 auto;
+    margin-left: 0.5rem;
+    margin-right: 0;
   }
 }
 
