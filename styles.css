@@ -1,13 +1,1011 @@
-/* The "SAS:" line that opens every topic page. */
-.sas-equiv {
-  font-size: 0.9rem;
-  border-left: 3px solid #adb5bd;
-  padding: 0.35rem 0 0.35rem 0.75rem;
-  margin-bottom: 1.5rem;
-  color: #495057;
+/* SAS to R: one layout, two palettes.
+   Light = Paper terminal (warm paper, teal). Dark = Slate IDE (slate,
+   green accent, cyan links). Quarto swaps Bootstrap sheets and sets
+   .quarto-light / .quarto-dark on body; tokens here follow that class
+   so the chrome stays in sync. IBM Plex is loaded from _quarto.yml. */
+
+:root,
+body.quarto-light {
+  --bg: #f3f0e8;
+  --bg-raised: #eae6dc;
+  --bg-chrome: #f3f0e8;
+  --fg: #1e2a26;
+  --fg-heading: #15201c;
+  --fg-muted: #7a7f78;
+  --accent: #1b8a7c;
+  --accent-2: #14685e;
+  --link: #1b8a7c;
+  --link-hover: #14685e;
+  --inline-code: #14685e;
+  --amber: #b07d1a;
+  --border: #d4cfc3;
+  --grid: rgba(28, 32, 28, 0.012);
+  --code-bg: #e8e4d8;
+  --input-bg: #faf8f3;
+  --overlay: rgba(243, 240, 232, 0.82);
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --caret-blink: 1.05s;
+  color-scheme: light;
 }
 
-/* Keep long console output from stretching the page. */
-pre code {
+body.quarto-dark {
+  --bg: #1a2330;
+  --bg-raised: #222c3c;
+  --bg-chrome: #161e2a;
+  --fg: #c5d0dc;
+  --fg-heading: #e6edf4;
+  --fg-muted: #7d8b99;
+  --accent: #3ecf8e;
+  --accent-2: #c8e36a;
+  --link: #5ec8e8;
+  --link-hover: #8ad9f0;
+  --inline-code: #c8e36a;
+  --amber: #e6b84d;
+  --border: #2c3a4c;
+  --grid: rgba(190, 215, 225, 0.012);
+  --code-bg: #141c28;
+  --input-bg: #121820;
+  --overlay: rgba(26, 35, 48, 0.82);
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --caret-blink: 1.05s;
+  color-scheme: dark;
+}
+
+html {
+  background-color: var(--bg);
+  scrollbar-gutter: stable;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans) !important;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+/* Cosmo is a light Bootswatch. Compiling dark colors on top of it still
+   leaves light-theme defaults: --bs-emphasis-color #000, pre { color:#000 }
+   on #222c3c (knitr/console blocks), .text-body-emphasis, .text-dark.
+   That is the black-on-slate bug. Do not color pre code span.* or
+   highlighting flattens. */
+body.quarto-dark {
+  --bs-body-color: var(--fg);
+  --bs-emphasis-color: #e6edf4;
+  --bs-emphasis-color-rgb: 230, 237, 244;
+  --bs-heading-color: var(--fg-heading);
+  --bs-secondary-color: var(--fg-muted);
+  --bs-tertiary-color: var(--fg-muted);
+  --bs-code-color: var(--inline-code);
+  color: var(--fg);
+}
+
+body.quarto-dark caption,
+body.quarto-dark figcaption,
+body.quarto-dark .table,
+body.quarto-dark .callout,
+body.quarto-dark .callout-header,
+body.quarto-dark .callout-body,
+body.quarto-dark .callout-title,
+body.quarto-dark .cell-output,
+body.quarto-dark .cell-output-stdout,
+body.quarto-dark .nav-footer,
+body.quarto-dark .text-body,
+body.quarto-dark .description,
+body.quarto-dark .quarto-title-meta,
+body.quarto-dark .quarto-title-meta-contents {
+  color: var(--fg);
+}
+
+body.quarto-dark h1,
+body.quarto-dark h2,
+body.quarto-dark h3,
+body.quarto-dark h4,
+body.quarto-dark h5,
+body.quarto-dark h6 {
+  color: var(--fg-heading);
+}
+
+body.quarto-dark pre {
+  color: var(--fg);
+}
+
+body.quarto-dark pre code {
+  color: inherit;
+}
+
+body.quarto-dark .text-body-emphasis,
+body.quarto-dark .text-dark,
+body.quarto-dark .text-black {
+  color: var(--fg-heading) !important;
+}
+
+body.quarto-dark .text-muted,
+body.quarto-dark .text-secondary,
+body.quarto-dark .text-body-secondary,
+body.quarto-dark .text-body-tertiary {
+  color: var(--fg-muted) !important;
+}
+
+body.quarto-dark .nav-footer a {
+  color: var(--link);
+}
+
+/* Grid as a fixed overlay so it is not eaten by attachment/stacking bugs.
+   Same 1.2% treatment in both palettes: present if you look, not at a glance. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+#quarto-content,
+.quarto-container,
+main.content,
+#quarto-document-content,
+.nav-footer {
+  background-color: transparent !important;
+}
+
+/* Keep the bar on screen. Quarto still marks the header as headroom /
+   fixed-top; navbar.pinned stops loading headroom.js, and these rules
+   cancel the leftover translateY(-100%) hide. Opaque so content cannot
+   show through while scrolling. */
+#quarto-header,
+#quarto-header.headroom,
+#quarto-header.headroom--pinned,
+#quarto-header.headroom--unpinned,
+#quarto-header.headroom--top,
+#quarto-header.headroom--not-top,
+header.headroom,
+header.headroom--pinned,
+header.headroom--unpinned,
+header.headroom--top,
+header.headroom--not-top {
+  background-color: var(--bg) !important;
+  transform: none !important;
+  transition: none !important;
+  will-change: auto;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1030;
+}
+
+/* ----- chrome: navbar, sidebar, footer ----- */
+
+.navbar {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: transparent !important;
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  min-height: 3.75rem;
+}
+
+.navbar-brand {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--fg-heading) !important;
+  overflow: visible !important;
+  text-overflow: clip;
+  white-space: nowrap;
+  max-width: none !important;
+}
+
+.navbar .navbar-title {
+  white-space: nowrap;
+}
+
+.navbar-brand::before {
+  content: ">";
+  color: var(--accent);
+  margin-right: 0.45em;
+  font-weight: 500;
+}
+
+.navbar .nav-link {
+  font-family: var(--font-mono);
   font-size: 0.85rem;
+  line-height: 1.25;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  color: var(--fg-muted) !important;
+}
+
+.navbar .navbar-brand-container {
+  max-width: none !important;
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
+.navbar .quarto-navbar-tools:empty {
+  display: none;
+}
+
+.navbar .quarto-navbar-tools {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+}
+
+/* Light | Dark as secondary nav text. Same size/weight as Cheat sheet /
+   About. Both labels always paint so width does not change. JS in
+   _theme-switch.html splits the Quarto cycle-link into two buttons. */
+.navbar .quarto-color-scheme-toggle.quarto-navigation-tool,
+.navbar .quarto-color-scheme-toggle {
+  display: inline-flex !important;
+  align-items: center;
+  align-self: center;
+  justify-content: flex-start;
+  column-gap: 0.35em;
+  box-sizing: border-box;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  width: auto;
+  min-width: 0;
+  padding: 0.4rem 0.15rem 0.4rem 0.6rem !important;
+  margin: 0;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  color: var(--fg-muted) !important;
+  text-decoration: none !important;
+  overflow: visible;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.25;
+}
+
+.navbar .quarto-color-scheme-toggle:hover,
+.navbar .quarto-color-scheme-toggle:focus,
+.navbar .quarto-color-scheme-toggle:focus-visible,
+.navbar .quarto-color-scheme-toggle:active {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: var(--fg-muted) !important;
+}
+
+.navbar .quarto-color-scheme-toggle i.bi {
+  display: none !important;
+}
+
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::before,
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::after {
+  display: inline;
+  flex: 0 0 auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+  background: transparent;
+}
+
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::before {
+  content: "Light";
+}
+
+.navbar .quarto-color-scheme-toggle:not(.theme-split)::after {
+  content: "| Dark";
+}
+
+body.quarto-light .navbar .quarto-color-scheme-toggle:not(.theme-split)::before,
+body.quarto-dark .navbar .quarto-color-scheme-toggle:not(.theme-split)::after {
+  color: var(--fg);
+}
+
+body.quarto-light .navbar .quarto-color-scheme-toggle:not(.theme-split)::after,
+body.quarto-dark .navbar .quarto-color-scheme-toggle:not(.theme-split)::before {
+  color: var(--fg-muted);
+}
+
+.navbar .theme-switch-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+  color: var(--fg-muted);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navbar .theme-switch-btn:hover,
+.navbar .theme-switch-btn:focus,
+.navbar .theme-switch-btn:focus-visible,
+.navbar .theme-switch-btn:active,
+body.quarto-light .navbar .theme-switch-dark:hover,
+body.quarto-dark .navbar .theme-switch-light:hover,
+body.quarto-light .navbar .theme-switch-dark:focus-visible,
+body.quarto-dark .navbar .theme-switch-light:focus-visible {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: var(--fg);
+}
+
+.navbar .theme-switch-sep {
+  color: var(--fg-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+body.quarto-light .navbar .theme-switch-light,
+body.quarto-dark .navbar .theme-switch-dark {
+  color: var(--fg);
+}
+
+body.quarto-light .navbar .theme-switch-dark,
+body.quarto-dark .navbar .theme-switch-light {
+  color: var(--fg-muted);
+}
+
+.navbar .nav-link.active,
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: var(--accent) !important;
+}
+
+/* Brand + links on the left, search fills the rest on the right.
+   Quarto's DOM order is brand, search, collapse; flex order puts
+   the links beside the brand and the prompt at the end.
+   Breakpoint matches navbar-expand-lg / Quarto detached search: 992px. */
+@media (min-width: 992px) {
+  .navbar .navbar-container.container-fluid {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    column-gap: 0.75rem;
+  }
+
+  .navbar .navbar-brand-container {
+    order: 1;
+    flex: 0 0 auto;
+    max-width: none !important;
+    min-width: max-content;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .navbar .navbar-collapse {
+    order: 2;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    width: auto;
+  }
+
+  .navbar .navbar-nav.me-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* flex-basis, not auto: otherwise width:100% on the inner form
+     circular-shrinks the field to a sliver as the viewport narrows. */
+  .navbar #quarto-search,
+  .navbar #quarto-search.type-textbox {
+    order: 3 !important;
+    flex: 1 1 16rem;
+    min-width: 16rem;
+    width: auto !important;
+    max-width: none !important;
+    margin-left: 1rem !important;
+    margin-right: 0 !important;
+  }
+
+  .navbar #quarto-search .aa-Autocomplete,
+  .navbar #quarto-search .aa-Form,
+  .navbar .aa-Autocomplete,
+  .navbar .aa-Autocomplete .aa-Form {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0;
+  }
+
+  .navbar #quarto-search .aa-InputWrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .navbar .quarto-navbar-tools {
+    order: 4 !important;
+    flex: 0 0 auto;
+    margin-left: 0.5rem;
+    margin-right: 0;
+  }
+}
+
+.sidebar nav[role="doc-toc"],
+#quarto-sidebar {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+#quarto-sidebar .sidebar-item-container .menu-text {
+  color: var(--fg);
+}
+
+#quarto-sidebar .sidebar-item-container a:hover .menu-text,
+#quarto-sidebar .sidebar-item-container a.active .menu-text {
+  color: var(--accent);
+}
+
+#quarto-sidebar .sidebar-item-section .sidebar-section-item {
+  color: var(--fg-muted);
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+}
+
+.sidebar.sidebar-navigation:not(.rollup) {
+  border-right: 1px solid var(--border);
+}
+
+.nav-footer {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  border-top: 1px solid var(--border);
+  background: transparent;
+}
+
+.quarto-secondary-nav {
+  font-family: var(--font-mono);
+  background: var(--bg-chrome);
+  border-bottom: 1px solid var(--border);
+}
+
+.quarto-secondary-nav .breadcrumb,
+.quarto-secondary-nav .breadcrumb-item,
+.quarto-secondary-nav .breadcrumb-item a {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+}
+
+.quarto-secondary-nav .breadcrumb-item.active,
+.quarto-secondary-nav .breadcrumb-item a:hover {
+  color: var(--accent);
+}
+
+#toc-title, .toc-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+/* ----- typography ----- */
+
+#title-block-header .title {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--fg-heading);
+  display: inline-block;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.2rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Home is a topic index, not an article. Category labels are quiet
+   uppercase chrome; links keep the accent/link token. */
+.topic-index .topic-group {
+  margin: 0 0 1.35rem;
+}
+
+.topic-index .topic-cat,
+.topic-index .topic-cat p {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin: 0 0 0.4rem;
+}
+
+.topic-index ul {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  line-height: 1.8;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.topic-index li a {
+  color: var(--link);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.topic-index li a:hover {
+  color: var(--link-hover);
+}
+
+#quarto-document-content > ul {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  line-height: 1.8;
+  padding-left: 1.1rem;
+}
+
+#title-block-header .subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+
+h2, h3, h4 {
+  font-family: var(--font-mono);
+  color: var(--fg-heading);
+}
+
+h2 {
+  font-size: 1.2rem;
+  line-height: 1.3;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3rem;
+}
+
+a {
+  color: var(--link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+/* ----- code ----- */
+
+/* Inline code only. Highlighted tokens live in pre code span.* from
+   Quarto/Pandoc skylighting (atom-one light/dark). Do not set a single
+   color on pre code or the blocks flatten to grey. */
+:not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-raised);
+  color: var(--inline-code);
+}
+
+pre, pre code,
+div.sourceCode, div.sourceCode pre {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+div.sourceCode {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  background-color: var(--code-bg);
+}
+
+pre.sourceCode,
+div.sourceCode pre,
+div.sourceCode pre code,
+pre code {
+  background-color: transparent !important;
+}
+
+pre code {
+  font-size: 0.82rem;
+}
+
+.code-copy-button {
+  background: var(--bg-raised);
+  color: var(--fg-muted);
+  border-color: var(--border);
+}
+
+.code-copy-button:hover {
+  color: var(--accent);
+  background: var(--bg);
+}
+
+/* ----- SAS equiv callout ----- */
+
+.sas-equiv {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  background: var(--bg-raised);
+  padding: 0.55rem 0.85rem;
+  margin-bottom: 1.5rem;
+  color: var(--fg-muted);
+}
+
+.sas-equiv strong {
+  color: var(--amber);
+  font-weight: 500;
+}
+
+.sas-equiv code {
+  color: var(--fg-heading);
+  background: transparent;
+}
+
+/* ----- tables, callouts, toc ----- */
+
+.table {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.table > :not(caption) > * > * {
+  background-color: transparent;
+  border-bottom-color: var(--border);
+  color: var(--fg);
+}
+
+div.callout {
+  font-size: 0.95rem;
+  border-color: var(--border);
+  background: var(--bg-raised);
+}
+
+div.callout-important {
+  border-left-color: var(--amber) !important;
+}
+
+div.callout-important.callout.callout-style-default > .callout-header {
+  background-color: color-mix(in srgb, var(--amber) 14%, transparent);
+}
+
+#TOC a {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+}
+
+#TOC a.active, #TOC a:hover {
+  color: var(--accent);
+}
+
+#TOC .active {
+  border-left-color: var(--accent);
+}
+
+/* ----- search: terminal prompt + flashing caret ----- */
+
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+#quarto-search {
+  font-family: var(--font-mono);
+}
+
+#quarto-search .aa-Autocomplete,
+#quarto-search .aa-Form,
+.aa-DetachedOverlay .aa-Form {
+  font-family: var(--font-mono);
+}
+
+#quarto-search .aa-Form,
+.aa-DetachedFormContainer .aa-Form {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  min-height: 36px;
+}
+
+#quarto-search .aa-Form:focus-within,
+.aa-DetachedFormContainer .aa-Form:focus-within {
+  box-shadow: 0 0 0 1px var(--accent) !important;
+  outline: none;
+}
+
+#quarto-search .aa-Input,
+.aa-DetachedOverlay .aa-Input {
+  font-family: var(--font-mono) !important;
+  font-size: 0.85rem !important;
+  color: var(--fg-heading) !important;
+  caret-color: var(--accent);
+  caret-shape: block;
+}
+
+#quarto-search .aa-Input::placeholder,
+.aa-DetachedOverlay .aa-Input::placeholder {
+  color: var(--fg-muted) !important;
+  opacity: 1;
+  font-family: var(--font-mono);
+}
+
+/* Prompt prefix in place of the default search glyph. */
+#quarto-search .aa-SubmitIcon,
+.aa-DetachedOverlay .aa-SubmitIcon {
+  display: none;
+}
+
+#quarto-search .aa-InputWrapperPrefix,
+.aa-DetachedOverlay .aa-InputWrapperPrefix {
+  position: relative;
+  min-width: 1.1rem;
+}
+
+#quarto-search .aa-InputWrapperPrefix::before,
+.aa-DetachedOverlay .aa-InputWrapperPrefix::before {
+  content: ">";
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding-left: 0.45rem;
+  padding-right: 0.15rem;
+}
+
+/* Flashing underscore caret. Shown at the start when the field is empty
+   (native caret is hidden then). While typing, the native block caret is used. */
+#quarto-search .aa-InputWrapper,
+.aa-DetachedOverlay .aa-InputWrapper {
+  position: relative;
+}
+
+#quarto-search .aa-InputWrapper:has(.aa-Input:placeholder-shown)::after,
+.aa-DetachedOverlay .aa-InputWrapper:has(.aa-Input:placeholder-shown)::after {
+  content: "_";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1;
+  pointer-events: none;
+  animation: caret-blink var(--caret-blink) step-end infinite;
+}
+
+#quarto-search .aa-Input:placeholder-shown,
+.aa-DetachedOverlay .aa-Input:placeholder-shown {
+  caret-color: transparent !important;
+}
+
+/* Overlay (type: overlay) as a terminal command surface. */
+.aa-DetachedOverlay {
+  background: var(--overlay) !important;
+}
+
+.aa-DetachedContainer,
+.aa-DetachedContainer--modal {
+  background: var(--bg-chrome) !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: 2px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45) !important;
+  font-family: var(--font-mono);
+}
+
+.aa-DetachedCancelButton {
+  font-family: var(--font-mono);
+  color: var(--fg-muted) !important;
+}
+
+.aa-Panel,
+.aa-PanelLayout {
+  background: var(--bg-chrome) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 2px !important;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.aa-Item {
+  color: var(--fg) !important;
+}
+
+#quarto-search-results li.aa-Item[aria-selected="false"] .search-item,
+.aa-DetachedOverlay li.aa-Item[aria-selected="false"] .search-item {
+  background-color: transparent !important;
+  color: var(--fg) !important;
+}
+
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-section,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-text,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-title-container,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-text-container,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-section,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-text,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-title-container,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-text-container {
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg-chrome)) !important;
+  color: var(--fg-heading) !important;
+}
+
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item mark.search-match,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item mark.search-match {
+  color: var(--accent-2) !important;
+  background: transparent !important;
+}
+
+.aa-Item .aa-ItemContentTitle,
+.aa-Item .search-result-title {
+  color: var(--link) !important;
+  font-family: var(--font-mono);
+}
+
+.aa-Item .aa-ItemContentDescription,
+.aa-Item .search-result-text-cell {
+  color: var(--fg-muted) !important;
+}
+
+.aa-Item mark {
+  background: transparent;
+  color: var(--accent-2);
+  font-weight: 600;
+  padding: 0;
+}
+
+@media (min-width: 992px) {
+  .navbar #quarto-search.type-overlay,
+  .navbar #quarto-search .aa-DetachedSearchButton {
+    width: auto;
+  }
+}
+
+/* Narrow / mobile: hamburger + brand on the first row, search on a
+   full-width row under them. Quarto detaches the input at 992px; the
+   trigger has to look like the desktop prompt, not a 40px sliver. */
+@media (max-width: 991.98px) {
+  .navbar .navbar-container.container-fluid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.5rem;
+    row-gap: 0.45rem;
+  }
+
+  .navbar .navbar-toggler {
+    order: 1;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0.2rem;
+    border: 1px solid var(--border);
+  }
+
+  .navbar .navbar-brand-container {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: max-content;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .navbar .quarto-navbar-tools {
+    order: 3 !important;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .navbar #quarto-search,
+  .navbar #quarto-search.type-textbox,
+  .navbar #quarto-search.type-overlay {
+    order: 4 !important;
+    flex: 1 0 100%;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .navbar .navbar-collapse {
+    order: 5;
+    flex: 1 0 100%;
+  }
+
+  .navbar #quarto-search .aa-Autocomplete,
+  .navbar #quarto-search.type-overlay .aa-Autocomplete {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .navbar #quarto-search .aa-DetachedSearchButton {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px;
+    justify-content: flex-start;
+    padding: 0 0.75rem !important;
+  }
+}
+
+/* Detached trigger: same prompt language as the desktop input.
+   Draw > _ on the button itself. The placeholder span is empty (no
+   placeholder text) so Algolia may hide it; pseudo-elements on that
+   span then never paint. */
+.aa-DetachedSearchButton {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0 0.75rem !important;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  font-family: var(--font-mono) !important;
+  font-size: 1rem !important;
+  color: var(--fg-muted) !important;
+}
+
+.aa-DetachedSearchButton::before {
+  content: ">";
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.aa-DetachedSearchButton::after {
+  content: "_";
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 1.05rem;
+  line-height: 1;
+  animation: caret-blink var(--caret-blink) step-end infinite;
+}
+
+.aa-DetachedSearchButtonIcon {
+  display: none !important;
+}
+
+.aa-DetachedSearchButtonPlaceholder {
+  display: none;
 }
