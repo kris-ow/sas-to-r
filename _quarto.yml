@@ -29,9 +29,11 @@ format:
     # straight quotes to curly ones and -- to an en dash at render time, so an
     # all-ASCII source still publishes non-keyboard characters. See README.
     from: markdown-smart
+    # Same Bootswatch base in both modes. Cosmo vs darkly was shifting
+    # fonts, heading sizes, and navbar padding on every theme toggle.
     theme:
       light: [cosmo, theme-light.scss]
-      dark: [darkly, theme-dark.scss]
+      dark: [cosmo, theme-dark.scss]
     respect-user-color-scheme: true
     css: styles.css
     toc: true

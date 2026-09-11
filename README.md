@@ -21,11 +21,12 @@ Dark is Slate IDE (slate background, green accent, cyan links). Fonts, grid,
 navbar and search chrome stay the same; only the color tokens change.
 
 The site follows `prefers-color-scheme` on first visit
-(`respect-user-color-scheme: true` in `_quarto.yml`). A Light/Dark control in
-the navbar overrides that and Quarto stores the choice in localStorage. Palette
-tokens live in `styles.css` under `body.quarto-light` / `body.quarto-dark`.
-Bootstrap variables for each mode are in `theme-light.scss` and
-`theme-dark.scss`.
+(`respect-user-color-scheme: true` in `_quarto.yml`). A Light | Dark control in
+the navbar overrides that and Quarto stores the choice in localStorage. Both
+modes compile from the same Cosmo Bootstrap base so toggling does not reflow
+the page. Palette tokens live in `styles.css` under `body.quarto-light` /
+`body.quarto-dark`. Bootstrap color variables for each mode are in
+`theme-light.scss` and `theme-dark.scss`.
 
 Code blocks keep Quarto/Pandoc syntax highlighting (`highlight-style: atom-one`).
 Token colors switch with the page theme. They are not flattened to a single grey.
