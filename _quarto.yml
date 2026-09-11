@@ -22,7 +22,7 @@ website:
       - href: about.qmd
         text: About
   page-footer:
-    center: "Krzysztof Owczarek, [k.owczarek84@gmail.com](mailto:k.owczarek84@gmail.com)"
+    center: "&copy; 2026 Krzysztof Owczarek, [k.owczarek84@gmail.com](mailto:k.owczarek84@gmail.com)"
 
 format:
   html:
