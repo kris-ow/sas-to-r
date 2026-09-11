@@ -1,12 +1,24 @@
 project:
   type: website
   output-dir: _site
+  resources:
+    - assets
 
 website:
   title: "SAS to R"
-  description: "A practical reference for SAS programmers writing R."
+  description: "SAS programming tasks mapped to R."
   site-url: https://kris-ow.github.io/sas-to-r/
   repo-url: https://github.com/kris-ow/sas-to-r
+  favicon: assets/favicon.png
+  image: assets/og.png
+  image-alt: "SAS to R. SAS programming tasks mapped to R."
+  open-graph:
+    image-width: 1920
+    image-height: 1080
+  twitter-card:
+    card-style: summary_large_image
+    image-width: 1920
+    image-height: 1080
   search:
     location: navbar
     type: textbox
@@ -49,6 +61,9 @@ format:
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+          <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+          <link rel="alternate icon" href="assets/favicon.ico">
+          <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     include-after-body:
       - file: _theme-switch.html
 

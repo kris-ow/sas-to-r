@@ -66,6 +66,12 @@ body {
   letter-spacing: 0;
 }
 
+/* Prose stays IBM Plex Sans. Headings, navbar, tables, and code are
+   mono (rules below). Do not set #quarto-document-content to mono. */
+#quarto-document-content > p {
+  font-family: var(--font-sans);
+}
+
 /* Cosmo is a light Bootswatch. Compiling dark colors on top of it still
    leaves light-theme defaults: --bs-emphasis-color #000, pre { color:#000 }
    on #222c3c (knitr/console blocks), .text-body-emphasis, .text-dark.
