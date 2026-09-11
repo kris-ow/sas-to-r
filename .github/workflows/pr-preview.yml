@@ -43,6 +43,7 @@ jobs:
             any::knitr
             any::rmarkdown
             any::dplyr
+            any::lubridate
 
       - name: Render site
         if: github.event.action != 'closed'

@@ -1,0 +1,110 @@
+---
+title: "Partial dates"
+subtitle: "Impute year-only or year-month to a full date"
+---
+
+::: {.sas-equiv}
+**SAS:** partial `--DTC` / character dates; impute with `INTNX` beginning/end or a fixed mid day
+:::
+
+Clinical data often arrive as incomplete ISO-like strings: year only (`2025`)
+or year-month (`2024-04`). Derivation rules usually push these to the first,
+middle, or last day of the known period. Month bounds matter most for
+year-month; year-only is the same idea at year scale.
+
+Always follow the study imputation convention and record how far you imputed
+(for example CDISC `--DTF`) when required. Examples below use generic
+`STD-001-*` subjects and one explicit mid rule.
+
+## Quick reference
+
+{{< include _quickref/partial-dates.md >}}
+
+Worked examples below.
+
+## Year-month to first, mid, last
+
+Three partial year-month values, including February in a leap year.
+
+```{r}
+#| label: ym
+library(dplyr)
+library(lubridate)
+
+partial_ym <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0001", "STD-001-0002"),
+  DTC_YM  = c("2024-02", "2024-03", "2025-12")
+)
+
+partial_ym |>
+  mutate(
+    START = ymd(paste0(DTC_YM, "-01")),
+    MID   = ymd(paste0(DTC_YM, "-15")),
+    END   = (ceiling_date(ymd(paste0(DTC_YM, "-01")), "month") - days(1)) |>
+      as.Date()
+  )
+```
+
+| `DTC_YM` | first | mid (day 15) | last |
+|---|---|---|---|
+| 2024-02 | 2024-02-01 | 2024-02-15 | 2024-02-29 |
+| 2024-03 | 2024-03-01 | 2024-03-15 | 2024-03-31 |
+| 2025-12 | 2025-12-01 | 2025-12-15 | 2025-12-31 |
+
+First day matches SAS `INTNX('month', ..., 0, 'beginning')` on a real date in
+that month. Last day matches `INTNX(..., 'end')`. Day 15 is a common mid-month
+convention; some protocols use other mid rules. Pick one and keep it consistent.
+
+::: {.callout-important}
+## Month end is not bare `ceiling_date`
+
+`ceiling_date(start, "month")` is the first day of the *next* month. Last day of
+the current month is that value minus one day.
+:::
+
+## Year-only to first, mid, last
+
+Year-only strings are easier: fixed calendar anchors.
+
+```{r}
+#| label: year
+partial_y <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002"),
+  DTC_Y   = c("2024", "2025")
+)
+
+partial_y |>
+  mutate(
+    START = ymd(paste0(DTC_Y, "-01-01")),
+    MID   = ymd(paste0(DTC_Y, "-06-30")),
+    END   = ymd(paste0(DTC_Y, "-12-31"))
+  )
+```
+
+| `DTC_Y` | first | mid (30 Jun) | last |
+|---|---|---|---|
+| 2024 | 2024-01-01 | 2024-06-30 | 2024-12-31 |
+| 2025 | 2025-01-01 | 2025-06-30 | 2025-12-31 |
+
+30 June is a common mid-year convention (half-year boundary). Some conventions
+use 1 July or day 183. Document the choice the same way you document day 15 for
+months.
+
+SAS analogs: `INTNX('year', ..., 0, 'beginning')` / `'end'`, or a fixed mid date
+constructed from the year.
+
+## Choosing first vs last vs mid
+
+| Situation | Typical choice |
+|---|---|
+| Conservative "earliest possible" onset | first of period |
+| Conservative "latest possible" | last of period |
+| Neutral / midpoint rule in SAP | mid (day 15 / 30 Jun or protocol rule) |
+
+Do not invent a mid rule in production code. Read the SAP or derivation
+specification. When CDISC date imputation flags apply, set `--DTF` to show which
+parts were imputed (for example `D` when day was imputed, `M` when month and day
+were imputed). Exact flag codes follow the standard and the study metadata.
+
+Missing or unusable partial strings stay missing after failed parses. Do not
+silently coerce blank `--DTC` to period start.

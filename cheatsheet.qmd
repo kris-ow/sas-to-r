@@ -40,6 +40,10 @@ page for more detail.
 
 {{< include _quickref/study-day.md >}}
 
+### [Partial dates](partial-dates.qmd)
+
+{{< include _quickref/partial-dates.md >}}
+
 ## Combining Data
 
 ### [Joins](joins.qmd)

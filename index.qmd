@@ -33,6 +33,7 @@ Dates
 :::
 
 - [Study day](study-day.qmd) date subtraction for `--DY`
+- [Partial dates](partial-dates.qmd) impute year-only or year-month to a full date
 :::
 
 ::: {.topic-group}
