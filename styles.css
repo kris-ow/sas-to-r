@@ -61,15 +61,15 @@ html {
 body {
   background-color: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans) !important;
-  line-height: 1.5;
+  font-family: var(--font-mono) !important;
+  line-height: 1.6;
   letter-spacing: 0;
 }
 
-/* Prose stays IBM Plex Sans. Headings, navbar, tables, and code are
-   mono (rules below). Do not set #quarto-document-content to mono. */
+/* Body prose is IBM Plex Mono, same as headings, navbar, and code. */
 #quarto-document-content > p {
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
+  line-height: 1.6;
 }
 
 /* Cosmo is a light Bootswatch. Compiling dark colors on top of it still

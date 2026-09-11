@@ -6,7 +6,7 @@ toc: false
 SAS to R maps common SAS programming tasks to R: the call, the result, and
 places where the two languages diverge.
 
-Home lists topics by group. Search matches SAS or R names.
+[Home](index.qmd) lists topics by group. Search matches SAS or R names.
 
 The [cheat sheet](cheatsheet.qmd) is one page of short SAS-to-R code pairs.
 For more detail, open a topic page.
