@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="SAS programming tasks mapped to R.">
 
-<title>SAS to R</title>
+<title>Partial dates – SAS to R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,6 +25,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -85,15 +119,15 @@ ul.task-list li input[type="checkbox"] {
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="SAS to R">
-<meta property="og:description" content="SAS programming tasks mapped to R.">
+<meta property="og:title" content="Partial dates – SAS to R">
+<meta property="og:description" content="Impute year-only or year-month to a full date">
 <meta property="og:image" content="https://kris-ow.github.io/sas-to-r/assets/og.png">
 <meta property="og:site_name" content="SAS to R">
 <meta property="og:image:height" content="630">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
-<meta name="twitter:title" content="SAS to R">
-<meta name="twitter:description" content="SAS programming tasks mapped to R.">
+<meta name="twitter:title" content="Partial dates – SAS to R">
+<meta name="twitter:description" content="Impute year-only or year-month to a full date">
 <meta name="twitter:image" content="https://kris-ow.github.io/sas-to-r/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
@@ -101,7 +135,7 @@ ul.task-list li input[type="checkbox"] {
 <meta name="twitter:image-width" content="1200">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -309,21 +343,28 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
+  <li><a href="#year-month-to-first-mid-last" id="toc-year-month-to-first-mid-last" class="nav-link" data-scroll-target="#year-month-to-first-mid-last">Year-month to first, mid, last</a></li>
+  <li><a href="#year-only-to-first-mid-last" id="toc-year-only-to-first-mid-last" class="nav-link" data-scroll-target="#year-only-to-first-mid-last">Year-only to first, mid, last</a></li>
+  <li><a href="#choosing-first-vs-last-vs-mid" id="toc-choosing-first-vs-last-vs-mid" class="nav-link" data-scroll-target="#choosing-first-vs-last-vs-mid">Choosing first vs last vs mid</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Topics</h1>
+<h1 class="title">Partial dates</h1>
+<p class="subtitle lead">Impute year-only or year-month to a full date</p>
 </div>
 
-<div>
-  <div class="description">
-    SAS programming tasks mapped to R.
-  </div>
-</div>
 
 
 <div class="quarto-title-meta">
@@ -338,57 +379,224 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<div class="topic-index">
-<div class="topic-group">
-<div class="topic-cat">
-<p>Basics</p>
+<div class="sas-equiv">
+<p><strong>SAS:</strong> partial <code>--DTC</code> / character dates; impute with <code>INTNX</code> beginning/end or a fixed mid day</p>
 </div>
-<ul>
-<li><a href="./mutate.html">Mutate</a> create or change columns</li>
-<li><a href="./select-rename.html">Select and rename</a> keep, drop, and rename columns</li>
-<li><a href="./filter.html">Filter</a> keep rows that match a condition</li>
-<li><a href="./if-else-case-when.html">If else and case when</a> conditional column values</li>
-<li><a href="./coalesce.html">Coalesce</a> prefer one value, fall back to another</li>
-</ul>
+<p>Clinical data often arrive as incomplete ISO-like strings: year only (<code>2025</code>) or year-month (<code>2024-04</code>). Derivation rules usually push these to the first, middle, or last day of the known period. Month bounds matter most for year-month; year-only is the same idea at year scale.</p>
+<p>Always follow the study imputation convention and record how far you imputed (for example CDISC <code>--DTF</code>) when required. Examples below use generic <code>STD-001-*</code> subjects and one explicit mid rule.</p>
+<section id="quick-reference" class="level2">
+<h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># year-only "2025" -&gt; first / mid / last day of year</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(year_txt, <span class="st">"-01-01"</span>))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(year_txt, <span class="st">"-06-30"</span>))   <span class="co"># common mid-year convention</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(year_txt, <span class="st">"-12-31"</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># year-month "2024-04" -&gt; first / mid / last day of month</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-15"</span>))        <span class="co"># common mid-month convention</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>(<span class="fu">ceiling_date</span>(<span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>)), <span class="st">"month"</span>) <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">as.Date</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>R (after parsing the known part)</th>
+<th>SAS idea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>first day of month/year</td>
+<td>impute to period start (<code>INTNX</code> beginning)</td>
+</tr>
+<tr class="even">
+<td>mid day (often 15 / 30 Jun)</td>
+<td>sponsor mid-point rule</td>
+</tr>
+<tr class="odd">
+<td>last day of month/year</td>
+<td>impute to period end (<code>INTNX</code> end)</td>
+</tr>
+</tbody>
+</table>
+<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Keep an imputation flag (<code>--DTF</code>) when the standard requires it.</p>
+<p>Worked examples below.</p>
+</section>
+<section id="year-month-to-first-mid-last" class="level2">
+<h2 class="anchored" data-anchor-id="year-month-to-first-mid-last">Year-month to first, mid, last</h2>
+<p>Three partial year-month values, including February in a leap year.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
 </div>
-<div class="topic-group">
-<div class="topic-cat">
-<p>Text</p>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
 </div>
-<ul>
-<li><a href="./substr.html">Substrings</a> extract part of a character value</li>
-</ul>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
 </div>
-<div class="topic-group">
-<div class="topic-cat">
-<p>Dates</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'</code></pre>
 </div>
-<ul>
-<li><a href="./study-day.html">Study day</a> date subtraction for <code>--DY</code></li>
-<li><a href="./partial-dates.html">Partial dates</a> impute year-only or year-month to a full date</li>
-</ul>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
 </div>
-<div class="topic-group">
-<div class="topic-cat">
-<p>Combining Data</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>partial_ym <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">DTC_YM  =</span> <span class="fu">c</span>(<span class="st">"2024-02"</span>, <span class="st">"2024-03"</span>, <span class="st">"2025-12"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>partial_ym <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">START =</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(DTC_YM, <span class="st">"-01"</span>)),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">MID   =</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(DTC_YM, <span class="st">"-15"</span>)),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">END   =</span> (<span class="fu">ceiling_date</span>(<span class="fu">ymd</span>(<span class="fu">paste0</span>(DTC_YM, <span class="st">"-01"</span>)), <span class="st">"month"</span>) <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.Date</span>()</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID  DTC_YM      START        MID        END
+1 STD-001-0001 2024-02 2024-02-01 2024-02-15 2024-02-29
+2 STD-001-0001 2024-03 2024-03-01 2024-03-15 2024-03-31
+3 STD-001-0002 2025-12 2025-12-01 2025-12-15 2025-12-31</code></pre>
 </div>
-<ul>
-<li><a href="./joins.html">Joins</a> combining tables</li>
-<li><a href="./bind-rows.html">Bind rows</a> stack tables on top of each other</li>
-</ul>
 </div>
-<div class="topic-group">
-<div class="topic-cat">
-<p>Derivations</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><code>DTC_YM</code></th>
+<th>first</th>
+<th>mid (day 15)</th>
+<th>last</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2024-02</td>
+<td>2024-02-01</td>
+<td>2024-02-15</td>
+<td>2024-02-29</td>
+</tr>
+<tr class="even">
+<td>2024-03</td>
+<td>2024-03-01</td>
+<td>2024-03-15</td>
+<td>2024-03-31</td>
+</tr>
+<tr class="odd">
+<td>2025-12</td>
+<td>2025-12-01</td>
+<td>2025-12-15</td>
+<td>2025-12-31</td>
+</tr>
+</tbody>
+</table>
+<p>First day matches SAS <code>INTNX('month', ..., 0, 'beginning')</code> on a real date in that month. Last day matches <code>INTNX(..., 'end')</code>. Day 15 is a common mid-month convention; some protocols use other mid rules. Pick one and keep it consistent.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<ul>
-<li><a href="./seq.html">Sequence numbers</a> <code>--SEQ</code> within a subject</li>
-<li><a href="./lobxfl.html">Last observation before exposure</a> <code>--LOBXFL</code> flags</li>
-</ul>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Month end is not bare <code>ceiling_date</code>
 </div>
 </div>
+<div class="callout-body-container callout-body">
+<p><code>ceiling_date(start, "month")</code> is the first day of the <em>next</em> month. Last day of the current month is that value minus one day.</p>
+</div>
+</div>
+</section>
+<section id="year-only-to-first-mid-last" class="level2">
+<h2 class="anchored" data-anchor-id="year-only-to-first-mid-last">Year-only to first, mid, last</h2>
+<p>Year-only strings are easier: fixed calendar anchors.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>partial_y <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">DTC_Y   =</span> <span class="fu">c</span>(<span class="st">"2024"</span>, <span class="st">"2025"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>partial_y <span class="sc">|&gt;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">START =</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(DTC_Y, <span class="st">"-01-01"</span>)),</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">MID   =</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(DTC_Y, <span class="st">"-06-30"</span>)),</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">END   =</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(DTC_Y, <span class="st">"-12-31"</span>))</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID DTC_Y      START        MID        END
+1 STD-001-0001  2024 2024-01-01 2024-06-30 2024-12-31
+2 STD-001-0002  2025 2025-01-01 2025-06-30 2025-12-31</code></pre>
+</div>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><code>DTC_Y</code></th>
+<th>first</th>
+<th>mid (30 Jun)</th>
+<th>last</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2024</td>
+<td>2024-01-01</td>
+<td>2024-06-30</td>
+<td>2024-12-31</td>
+</tr>
+<tr class="even">
+<td>2025</td>
+<td>2025-01-01</td>
+<td>2025-06-30</td>
+<td>2025-12-31</td>
+</tr>
+</tbody>
+</table>
+<p>30 June is a common mid-year convention (half-year boundary). Some conventions use 1 July or day 183. Document the choice the same way you document day 15 for months.</p>
+<p>SAS analogs: <code>INTNX('year', ..., 0, 'beginning')</code> / <code>'end'</code>, or a fixed mid date constructed from the year.</p>
+</section>
+<section id="choosing-first-vs-last-vs-mid" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-first-vs-last-vs-mid">Choosing first vs last vs mid</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Typical choice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Conservative "earliest possible" onset</td>
+<td>first of period</td>
+</tr>
+<tr class="even">
+<td>Conservative "latest possible"</td>
+<td>last of period</td>
+</tr>
+<tr class="odd">
+<td>Neutral / midpoint rule in SAP</td>
+<td>mid (day 15 / 30 Jun or protocol rule)</td>
+</tr>
+</tbody>
+</table>
+<p>Do not invent a mid rule in production code. Read the SAP or derivation specification. When CDISC date imputation flags apply, set <code>--DTF</code> to show which parts were imputed (for example <code>D</code> when day was imputed, <code>M</code> when month and day were imputed). Exact flag codes follow the standard and the study metadata.</p>
+<p>Missing or unusable partial strings stay missing after failed parses. Do not silently coerce blank <code>--DTC</code> to period start.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

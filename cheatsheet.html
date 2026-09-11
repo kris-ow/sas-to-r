@@ -363,6 +363,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#dates" id="toc-dates" class="nav-link" data-scroll-target="#dates">Dates</a>
   <ul class="collapse">
   <li><a href="#study-day" id="toc-study-day" class="nav-link" data-scroll-target="#study-day">Study day</a></li>
+  <li><a href="#partial-dates" id="toc-partial-dates" class="nav-link" data-scroll-target="#partial-dates">Partial dates</a></li>
   </ul></li>
   <li><a href="#combining-data" id="toc-combining-data" class="nav-link" data-scroll-target="#combining-data">Combining Data</a>
   <ul class="collapse">
@@ -663,28 +664,66 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Three traps: raw subtraction is not <code>--DY</code>. On the reference date the raw diff is 0; <code>--DY</code> is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.</p>
 </section>
+<section id="partial-dates" class="level3">
+<h3 class="anchored" data-anchor-id="partial-dates"><a href="./partial-dates.html">Partial dates</a></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># year-only "2025" -&gt; first / mid / last day of year</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(year_txt, <span class="st">"-01-01"</span>))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(year_txt, <span class="st">"-06-30"</span>))   <span class="co"># common mid-year convention</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(year_txt, <span class="st">"-12-31"</span>))</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># year-month "2024-04" -&gt; first / mid / last day of month</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-15"</span>))        <span class="co"># common mid-month convention</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>(<span class="fu">ceiling_date</span>(<span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>)), <span class="st">"month"</span>) <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">as.Date</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>R (after parsing the known part)</th>
+<th>SAS idea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>first day of month/year</td>
+<td>impute to period start (<code>INTNX</code> beginning)</td>
+</tr>
+<tr class="even">
+<td>mid day (often 15 / 30 Jun)</td>
+<td>sponsor mid-point rule</td>
+</tr>
+<tr class="odd">
+<td>last day of month/year</td>
+<td>impute to period end (<code>INTNX</code> end)</td>
+</tr>
+</tbody>
+</table>
+<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Keep an imputation flag (<code>--DTF</code>) when the standard requires it.</p>
+</section>
 </section>
 <section id="combining-data" class="level2">
 <h2 class="anchored" data-anchor-id="combining-data">Combining Data</h2>
 <section id="joins" class="level3">
 <h3 class="anchored" data-anchor-id="joins"><a href="./joins.html">Joins</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the six joins ------------------------------------------------------</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># rows matching on BOTH sides</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of dm, annotated from ae   &lt;- the usual one</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of ae (just swap the args instead)</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># everything from either side</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># in dm, NOT in ae               &lt;- "who is missing?"</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">semi_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># filter dm to matches, add no columns</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- keys ---------------------------------------------------------------</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span> <span class="ot">=</span> <span class="st">"SUBJID"</span>))   <span class="co"># different names, left first</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(lb, visits, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span>, <span class="st">"visit"</span>)) <span class="co"># both keys must match</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># --- state what you expect; the join aborts if the data disagrees -------</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co"># "one-to-one" | "one-to-many" | "many-to-one" | "many-to-many"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the six joins ------------------------------------------------------</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># rows matching on BOTH sides</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of dm, annotated from ae   &lt;- the usual one</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of ae (just swap the args instead)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># everything from either side</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># in dm, NOT in ae               &lt;- "who is missing?"</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">semi_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># filter dm to matches, add no columns</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- keys ---------------------------------------------------------------</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span> <span class="ot">=</span> <span class="st">"SUBJID"</span>))   <span class="co"># different names, left first</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(lb, visits, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span>, <span class="st">"visit"</span>)) <span class="co"># both keys must match</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># --- state what you expect; the join aborts if the data disagrees -------</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co"># "one-to-one" | "one-to-many" | "many-to-one" | "many-to-many"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -730,14 +769,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="bind-rows" class="level3">
 <h3 class="anchored" data-anchor-id="bind-rows"><a href="./bind-rows.html">Bind rows</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(ae_site_a, ae_site_b)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">SITEA =</span> ae_site_a, <span class="at">SITEB =</span> ae_site_b),</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"SITE"</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(ae_site_a, ae_site_b)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">SITEA =</span> ae_site_a, <span class="at">SITEB =</span> ae_site_b),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"SITE"</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -771,13 +810,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="derivations">Derivations</h2>
 <section id="sequence-numbers" class="level3">
 <h3 class="anchored" data-anchor-id="sequence-numbers"><a href="./seq.html">Sequence numbers</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span>  <span class="co"># order first</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span>              <span class="co"># --SEQ, XPT-shaped</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span>  <span class="co"># order first</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span>              <span class="co"># --SEQ, XPT-shaped</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -808,19 +847,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="last-observation-before-exposure" class="level3">
 <h3 class="anchored" data-anchor-id="last-observation-before-exposure"><a href="./lobxfl.html">Last observation before exposure</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> tu <span class="sc">|&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(TUDTC), <span class="sc">!</span><span class="fu">is.na</span>(RFSTDTC), TUDTC <span class="sc">&lt;=</span> RFSTDTC) <span class="sc">|&gt;</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, TULNKID) <span class="sc">|&gt;</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(TUDTC, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, TULNKID, TUDTC) <span class="sc">|&gt;</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="st">"Y"</span>)</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"TULNKID"</span>, <span class="st">"TUDTC"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="fu">coalesce</span>(TULOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> tu <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(TUDTC), <span class="sc">!</span><span class="fu">is.na</span>(RFSTDTC), TUDTC <span class="sc">&lt;=</span> RFSTDTC) <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, TULNKID) <span class="sc">|&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(TUDTC, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, TULNKID, TUDTC) <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="st">"Y"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"TULNKID"</span>, <span class="st">"TUDTC"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="fu">coalesce</span>(TULOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">

@@ -25,7 +25,7 @@
     "href": "cheatsheet.html#dates",
     "title": "Cheat sheet",
     "section": "Dates",
-    "text": "Dates\n\nStudy day\nlibrary(dplyr)\n\n# CDISC --DY has no day 0. The reference date is day 1, not day 0.\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n\n# same rule, no branch:\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\ndate - rfstdt\ndate minus date (raw, includes day 0)\n\n\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n--DY (no day 0)\n\n\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\nthe same --DY rule, compact\n\n\n\nThree traps: raw subtraction is not --DY. On the reference date the raw diff is 0; --DY is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0."
+    "text": "Dates\n\nStudy day\nlibrary(dplyr)\n\n# CDISC --DY has no day 0. The reference date is day 1, not day 0.\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n\n# same rule, no branch:\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\ndate - rfstdt\ndate minus date (raw, includes day 0)\n\n\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n--DY (no day 0)\n\n\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\nthe same --DY rule, compact\n\n\n\nThree traps: raw subtraction is not --DY. On the reference date the raw diff is 0; --DY is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.\n\n\nPartial dates\nlibrary(dplyr)\nlibrary(lubridate)\n\n# year-only \"2025\" -&gt; first / mid / last day of year\nymd(paste0(year_txt, \"-01-01\"))\nymd(paste0(year_txt, \"-06-30\"))   # common mid-year convention\nymd(paste0(year_txt, \"-12-31\"))\n\n# year-month \"2024-04\" -&gt; first / mid / last day of month\nymd(paste0(ym_txt, \"-01\"))\nymd(paste0(ym_txt, \"-15\"))        # common mid-month convention\n(ceiling_date(ymd(paste0(ym_txt, \"-01\")), \"month\") - days(1)) |&gt; as.Date()\n\n\n\nR (after parsing the known part)\nSAS idea\n\n\n\n\nfirst day of month/year\nimpute to period start (INTNX beginning)\n\n\nmid day (often 15 / 30 Jun)\nsponsor mid-point rule\n\n\nlast day of month/year\nimpute to period end (INTNX end)\n\n\n\nTraps: document the mid rule (15 vs true midpoint). ceiling_date(..., \"month\") alone is next month start, not month end. Missing completely stays missing. Keep an imputation flag (--DTF) when the standard requires it."
   },
   {
     "objectID": "cheatsheet.html#combining-data",
@@ -231,11 +231,46 @@
     "text": "Mark the source table\n\nbind_rows(\n  list(SITEA = ae_site_a, SITEB = ae_site_b),\n  .id = \"SITE\"\n)\n\n   SITE      USUBJID   AETERM    AESEV   AEREL\n1 SITEA STD-001-0001   NAUSEA     MILD    &lt;NA&gt;\n2 SITEA STD-001-0002 HEADACHE MODERATE    &lt;NA&gt;\n3 SITEB STD-001-0003  FATIGUE     MILD RELATED\n\n\n.id adds a column with the list names. Useful when you need to know which input row came from.\n\n\n\n\n\n\nImportantMatch by name, not position\n\n\n\nbind_rows() does not line up column 1 with column 1. Rename first when the same concept has different names. When the same name has different types, fix the type before stacking.\n\n\nFor side-by-side combines on keys, use joins (see Joins), not bind_rows()."
   },
   {
+    "objectID": "partial-dates.html",
+    "href": "partial-dates.html",
+    "title": "Partial dates",
+    "section": "",
+    "text": "SAS: partial --DTC / character dates; impute with INTNX beginning/end or a fixed mid day\nClinical data often arrive as incomplete ISO-like strings: year only (2025) or year-month (2024-04). Derivation rules usually push these to the first, middle, or last day of the known period. Month bounds matter most for year-month; year-only is the same idea at year scale.\nAlways follow the study imputation convention and record how far you imputed (for example CDISC --DTF) when required. Examples below use generic STD-001-* subjects and one explicit mid rule."
+  },
+  {
+    "objectID": "partial-dates.html#quick-reference",
+    "href": "partial-dates.html#quick-reference",
+    "title": "Partial dates",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\nlibrary(lubridate)\n\n# year-only \"2025\" -&gt; first / mid / last day of year\nymd(paste0(year_txt, \"-01-01\"))\nymd(paste0(year_txt, \"-06-30\"))   # common mid-year convention\nymd(paste0(year_txt, \"-12-31\"))\n\n# year-month \"2024-04\" -&gt; first / mid / last day of month\nymd(paste0(ym_txt, \"-01\"))\nymd(paste0(ym_txt, \"-15\"))        # common mid-month convention\n(ceiling_date(ymd(paste0(ym_txt, \"-01\")), \"month\") - days(1)) |&gt; as.Date()\n\n\n\nR (after parsing the known part)\nSAS idea\n\n\n\n\nfirst day of month/year\nimpute to period start (INTNX beginning)\n\n\nmid day (often 15 / 30 Jun)\nsponsor mid-point rule\n\n\nlast day of month/year\nimpute to period end (INTNX end)\n\n\n\nTraps: document the mid rule (15 vs true midpoint). ceiling_date(..., \"month\") alone is next month start, not month end. Missing completely stays missing. Keep an imputation flag (--DTF) when the standard requires it.\nWorked examples below."
+  },
+  {
+    "objectID": "partial-dates.html#year-month-to-first-mid-last",
+    "href": "partial-dates.html#year-month-to-first-mid-last",
+    "title": "Partial dates",
+    "section": "Year-month to first, mid, last",
+    "text": "Year-month to first, mid, last\nThree partial year-month values, including February in a leap year.\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlibrary(lubridate)\n\n\nAttaching package: 'lubridate'\n\n\nThe following objects are masked from 'package:base':\n\n    date, intersect, setdiff, union\n\npartial_ym &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0001\", \"STD-001-0002\"),\n  DTC_YM  = c(\"2024-02\", \"2024-03\", \"2025-12\")\n)\n\npartial_ym |&gt;\n  mutate(\n    START = ymd(paste0(DTC_YM, \"-01\")),\n    MID   = ymd(paste0(DTC_YM, \"-15\")),\n    END   = (ceiling_date(ymd(paste0(DTC_YM, \"-01\")), \"month\") - days(1)) |&gt;\n      as.Date()\n  )\n\n       USUBJID  DTC_YM      START        MID        END\n1 STD-001-0001 2024-02 2024-02-01 2024-02-15 2024-02-29\n2 STD-001-0001 2024-03 2024-03-01 2024-03-15 2024-03-31\n3 STD-001-0002 2025-12 2025-12-01 2025-12-15 2025-12-31\n\n\n\n\n\nDTC_YM\nfirst\nmid (day 15)\nlast\n\n\n\n\n2024-02\n2024-02-01\n2024-02-15\n2024-02-29\n\n\n2024-03\n2024-03-01\n2024-03-15\n2024-03-31\n\n\n2025-12\n2025-12-01\n2025-12-15\n2025-12-31\n\n\n\nFirst day matches SAS INTNX('month', ..., 0, 'beginning') on a real date in that month. Last day matches INTNX(..., 'end'). Day 15 is a common mid-month convention; some protocols use other mid rules. Pick one and keep it consistent.\n\n\n\n\n\n\nImportantMonth end is not bare ceiling_date\n\n\n\nceiling_date(start, \"month\") is the first day of the next month. Last day of the current month is that value minus one day."
+  },
+  {
+    "objectID": "partial-dates.html#year-only-to-first-mid-last",
+    "href": "partial-dates.html#year-only-to-first-mid-last",
+    "title": "Partial dates",
+    "section": "Year-only to first, mid, last",
+    "text": "Year-only to first, mid, last\nYear-only strings are easier: fixed calendar anchors.\n\npartial_y &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0002\"),\n  DTC_Y   = c(\"2024\", \"2025\")\n)\n\npartial_y |&gt;\n  mutate(\n    START = ymd(paste0(DTC_Y, \"-01-01\")),\n    MID   = ymd(paste0(DTC_Y, \"-06-30\")),\n    END   = ymd(paste0(DTC_Y, \"-12-31\"))\n  )\n\n       USUBJID DTC_Y      START        MID        END\n1 STD-001-0001  2024 2024-01-01 2024-06-30 2024-12-31\n2 STD-001-0002  2025 2025-01-01 2025-06-30 2025-12-31\n\n\n\n\n\nDTC_Y\nfirst\nmid (30 Jun)\nlast\n\n\n\n\n2024\n2024-01-01\n2024-06-30\n2024-12-31\n\n\n2025\n2025-01-01\n2025-06-30\n2025-12-31\n\n\n\n30 June is a common mid-year convention (half-year boundary). Some conventions use 1 July or day 183. Document the choice the same way you document day 15 for months.\nSAS analogs: INTNX('year', ..., 0, 'beginning') / 'end', or a fixed mid date constructed from the year."
+  },
+  {
+    "objectID": "partial-dates.html#choosing-first-vs-last-vs-mid",
+    "href": "partial-dates.html#choosing-first-vs-last-vs-mid",
+    "title": "Partial dates",
+    "section": "Choosing first vs last vs mid",
+    "text": "Choosing first vs last vs mid\n\n\n\n\n\n\n\nSituation\nTypical choice\n\n\n\n\nConservative \"earliest possible\" onset\nfirst of period\n\n\nConservative \"latest possible\"\nlast of period\n\n\nNeutral / midpoint rule in SAP\nmid (day 15 / 30 Jun or protocol rule)\n\n\n\nDo not invent a mid rule in production code. Read the SAP or derivation specification. When CDISC date imputation flags apply, set --DTF to show which parts were imputed (for example D when day was imputed, M when month and day were imputed). Exact flag codes follow the standard and the study metadata.\nMissing or unusable partial strings stay missing after failed parses. Do not silently coerce blank --DTC to period start."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Topics",
     "section": "",
-    "text": "Basics\n\n\nMutate create or change columns\nSelect and rename keep, drop, and rename columns\nFilter keep rows that match a condition\nIf else and case when conditional column values\nCoalesce prefer one value, fall back to another\n\n\n\n\nText\n\n\nSubstrings extract part of a character value\n\n\n\n\nDates\n\n\nStudy day date subtraction for --DY\n\n\n\n\nCombining Data\n\n\nJoins combining tables\nBind rows stack tables on top of each other\n\n\n\n\nDerivations\n\n\nSequence numbers --SEQ within a subject\nLast observation before exposure --LOBXFL flags"
+    "text": "Basics\n\n\nMutate create or change columns\nSelect and rename keep, drop, and rename columns\nFilter keep rows that match a condition\nIf else and case when conditional column values\nCoalesce prefer one value, fall back to another\n\n\n\n\nText\n\n\nSubstrings extract part of a character value\n\n\n\n\nDates\n\n\nStudy day date subtraction for --DY\nPartial dates impute year-only or year-month to a full date\n\n\n\n\nCombining Data\n\n\nJoins combining tables\nBind rows stack tables on top of each other\n\n\n\n\nDerivations\n\n\nSequence numbers --SEQ within a subject\nLast observation before exposure --LOBXFL flags"
   },
   {
     "objectID": "seq.html",
