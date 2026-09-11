@@ -32,7 +32,7 @@
     "href": "cheatsheet.html#combining-data",
     "title": "Cheat sheet",
     "section": "Combining Data",
-    "text": "Combining Data\n\nJoins\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for."
+    "text": "Combining Data\n\nJoins\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for.\n\n\nBind rows\nlibrary(dplyr)\n\nbind_rows(ae_site_a, ae_site_b)\n\nbind_rows(\n  list(SITEA = ae_site_a, SITEB = ae_site_b),\n  .id = \"SITE\"\n)\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\nbind_rows(a, b)\nset a b; (stack; align names with rename= if needed)\n\n\nbind_rows(..., .id = \"SRC\")\nadd a source variable before set\n\n\nbind_rows() by column name\nPROC SQL OUTER UNION CORR\n\n\n\nTrap: bind_rows() matches columns by name, not position. A type clash on the same name (character vs numeric) errors or coerces; fix types before stacking."
   },
   {
     "objectID": "cheatsheet.html#derivations",
@@ -203,11 +203,39 @@
     "text": "Several conditions\n\nvs |&gt;\n  filter(PARAMCD == \"SYSBP\", !is.na(AVAL))\n\n       USUBJID PARAMCD AVAL\n1 STD-001-0001   SYSBP  120\n\n\nCommas in filter() mean AND. Use | for OR.\n\n\n\n\n\n\nImportantNA in the condition drops the row\n\n\n\nfilter(AVAL &gt; 100) drops rows where AVAL is NA, because NA &gt; 100 is not TRUE. Keep missing values on purpose with is.na(AVAL) | AVAL &gt; 100 when that is the rule."
   },
   {
+    "objectID": "bind-rows.html",
+    "href": "bind-rows.html",
+    "title": "Bind rows",
+    "section": "",
+    "text": "SAS: SET with several datasets; PROC SQL UNION / OUTER UNION CORR\ndplyr::bind_rows() stacks tables vertically. Columns are matched by name. Columns present in only one table are filled with NA in the other rows."
+  },
+  {
+    "objectID": "bind-rows.html#quick-reference",
+    "href": "bind-rows.html#quick-reference",
+    "title": "Bind rows",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\nbind_rows(ae_site_a, ae_site_b)\n\nbind_rows(\n  list(SITEA = ae_site_a, SITEB = ae_site_b),\n  .id = \"SITE\"\n)\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\nbind_rows(a, b)\nset a b; (stack; align names with rename= if needed)\n\n\nbind_rows(..., .id = \"SRC\")\nadd a source variable before set\n\n\nbind_rows() by column name\nPROC SQL OUTER UNION CORR\n\n\n\nTrap: bind_rows() matches columns by name, not position. A type clash on the same name (character vs numeric) errors or coerces; fix types before stacking.\nWorked examples below."
+  },
+  {
+    "objectID": "bind-rows.html#stack-two-tables",
+    "href": "bind-rows.html#stack-two-tables",
+    "title": "Bind rows",
+    "section": "Stack two tables",
+    "text": "Stack two tables\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nae_site_a &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0002\"),\n  AETERM = c(\"NAUSEA\", \"HEADACHE\"),\n  AESEV = c(\"MILD\", \"MODERATE\")\n)\n\nae_site_b &lt;- data.frame(\n  USUBJID = c(\"STD-001-0003\"),\n  AETERM = c(\"FATIGUE\"),\n  AESEV = c(\"MILD\"),\n  AEREL = c(\"RELATED\")\n)\n\nbind_rows(ae_site_a, ae_site_b)\n\n       USUBJID   AETERM    AESEV   AEREL\n1 STD-001-0001   NAUSEA     MILD    &lt;NA&gt;\n2 STD-001-0002 HEADACHE MODERATE    &lt;NA&gt;\n3 STD-001-0003  FATIGUE     MILD RELATED\n\n\nAEREL is NA for site A rows. SAS set ae_site_a ae_site_b; is the usual analogue when variable names already match."
+  },
+  {
+    "objectID": "bind-rows.html#mark-the-source-table",
+    "href": "bind-rows.html#mark-the-source-table",
+    "title": "Bind rows",
+    "section": "Mark the source table",
+    "text": "Mark the source table\n\nbind_rows(\n  list(SITEA = ae_site_a, SITEB = ae_site_b),\n  .id = \"SITE\"\n)\n\n   SITE      USUBJID   AETERM    AESEV   AEREL\n1 SITEA STD-001-0001   NAUSEA     MILD    &lt;NA&gt;\n2 SITEA STD-001-0002 HEADACHE MODERATE    &lt;NA&gt;\n3 SITEB STD-001-0003  FATIGUE     MILD RELATED\n\n\n.id adds a column with the list names. Useful when you need to know which input row came from.\n\n\n\n\n\n\nImportantMatch by name, not position\n\n\n\nbind_rows() does not line up column 1 with column 1. Rename first when the same concept has different names. When the same name has different types, fix the type before stacking.\n\n\nFor side-by-side combines on keys, use joins (see Joins), not bind_rows()."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Topics",
     "section": "",
-    "text": "Basics\n\n\nMutate create or change columns\nSelect and rename keep, drop, and rename columns\nFilter keep rows that match a condition\nIf else and case when conditional column values\nCoalesce prefer one value, fall back to another\n\n\n\n\nText\n\n\nSubstrings extract part of a character value\n\n\n\n\nDates\n\n\nStudy day date subtraction for --DY\n\n\n\n\nCombining Data\n\n\nJoins combining tables\n\n\n\n\nDerivations\n\n\nSequence numbers --SEQ within a subject\nLast observation before exposure --LOBXFL flags"
+    "text": "Basics\n\n\nMutate create or change columns\nSelect and rename keep, drop, and rename columns\nFilter keep rows that match a condition\nIf else and case when conditional column values\nCoalesce prefer one value, fall back to another\n\n\n\n\nText\n\n\nSubstrings extract part of a character value\n\n\n\n\nDates\n\n\nStudy day date subtraction for --DY\n\n\n\n\nCombining Data\n\n\nJoins combining tables\nBind rows stack tables on top of each other\n\n\n\n\nDerivations\n\n\nSequence numbers --SEQ within a subject\nLast observation before exposure --LOBXFL flags"
   },
   {
     "objectID": "seq.html",
