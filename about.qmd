@@ -3,8 +3,12 @@ title: "About"
 toc: false
 ---
 
-A practical reference for SAS programmers writing R. Each topic is one SAS task
-shown in R: the call, the output, and where the two languages do not line up.
+SAS to R maps common SAS programming tasks to R: the call, the result, and
+places where the two languages diverge.
 
-Search for a SAS name (`MERGE`, `PROC TRANSPOSE`) or pick a topic from Home.
-The [cheat sheet](cheatsheet.qmd) is code only.
+[Home](index.qmd) lists topics by group. Search matches SAS or R names.
+
+The [cheat sheet](cheatsheet.qmd) is one page of short SAS-to-R code pairs.
+For more detail, open a topic page.
+
+This site is not affiliated with SAS Institute Inc.
