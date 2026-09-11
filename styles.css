@@ -533,6 +533,8 @@ body.quarto-dark .navbar .theme-switch-light {
   letter-spacing: -0.02em;
   color: var(--fg-heading);
   display: inline-block;
+  max-width: 100%;
+  overflow-wrap: break-word;
   border-bottom: 2px solid var(--accent);
   padding-bottom: 0.2rem;
   margin-bottom: 0.85rem;
@@ -590,6 +592,11 @@ body.quarto-dark .navbar .theme-switch-light {
   margin: 0;
 }
 
+.topic-index li {
+  padding: 0.22rem 0;
+  overflow-wrap: break-word;
+}
+
 .topic-index li a {
   color: var(--link);
   font-weight: 500;
@@ -598,6 +605,10 @@ body.quarto-dark .navbar .theme-switch-light {
 
 .topic-index li a:hover {
   color: var(--link-hover);
+}
+
+.topic-index :not(pre) > code {
+  white-space: nowrap;
 }
 
 #quarto-document-content > ul {
@@ -650,6 +661,7 @@ a:hover {
   font-size: 0.88em;
   background: var(--bg-raised);
   color: var(--inline-code);
+  overflow-wrap: anywhere;
 }
 
 pre, pre code,
@@ -663,6 +675,38 @@ div.sourceCode {
   border-left: 3px solid var(--accent);
   background-color: var(--code-bg);
   margin-bottom: 1.25rem;
+  max-width: 100%;
+}
+
+/* Wrap source (matches code-overflow: wrap). Leave room for the copy
+   button so it is not clipped and does not sit on the first tokens. */
+pre.sourceCode,
+pre.code-overflow-wrap,
+pre.code-overflow-wrap > code,
+div.sourceCode pre,
+div.sourceCode pre code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+div.sourceCode pre,
+pre.code-with-copy,
+pre.sourceCode.code-with-copy {
+  padding-right: 2.5rem;
+}
+
+.code-copy-outer-scaffold {
+  max-width: 100%;
+}
+
+/* Printed output keeps its columns; scroll inside the block. */
+.cell-output pre,
+.cell-output-stdout pre,
+.cell-output-stderr pre,
+pre:not(.sourceCode) {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 pre.sourceCode,
@@ -699,6 +743,8 @@ pre code {
   padding: 0.55rem 0.85rem;
   margin-bottom: 1.5rem;
   color: var(--fg-muted);
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .sas-equiv strong {
@@ -709,6 +755,8 @@ pre code {
 .sas-equiv code {
   color: var(--fg-heading);
   background: transparent;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* ----- tables, callouts, toc ----- */
@@ -731,6 +779,8 @@ div.callout {
   font-size: 0.95rem;
   border-color: var(--border);
   background: var(--bg-raised);
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 div.callout-important {
@@ -938,15 +988,70 @@ div.callout-important.callout.callout-style-default > .callout-header {
   }
 }
 
-/* Narrow / mobile: hamburger + brand on the first row, search on a
-   full-width row under them. Quarto detaches the input at 992px; the
-   trigger has to look like the desktop prompt, not a 40px sliver. */
+/* Narrow / mobile: hamburger + brand + Light|Dark on the first row,
+   search on a full-width row under them. Quarto detaches the input at
+   992px; the trigger has to look like the desktop prompt, not a 40px
+   sliver. Improve this block rather than a new layout language. */
 @media (max-width: 991.98px) {
+  /* Two-row bar is taller than Quarto's 64px pad. Sticky keeps it on
+     screen and sizes with the wrap, so content is not covered. */
+  #quarto-header,
+  #quarto-header.headroom,
+  #quarto-header.headroom--pinned,
+  #quarto-header.headroom--unpinned,
+  #quarto-header.headroom--top,
+  #quarto-header.headroom--not-top,
+  header.headroom,
+  header.headroom--pinned,
+  header.headroom--unpinned,
+  header.headroom--top,
+  header.headroom--not-top {
+    position: sticky !important;
+  }
+
+  body.nav-fixed {
+    padding-top: 0 !important;
+  }
+
+  /* Quarto keeps minmax(500px) on the article column until 768px, which
+     overflows at tablet-narrow (~768) next to the TOC track. Same 1fr
+     column as the phone breakpoint, and hide the side TOC with it. */
+  body .page-columns,
+  body.fullcontent:not(.floating):not(.docked) .page-columns,
+  body.slimcontent:not(.floating):not(.docked) .page-columns,
+  body:not(.floating):not(.docked) .page-columns.toc-left,
+  body:not(.floating):not(.docked) .page-columns.toc-left .page-columns,
+  #quarto-content.page-columns {
+    grid-template-columns:
+      [screen-start] 0.75rem
+      [screen-start-inset page-start page-start-inset body-start-outset body-start body-content-start]
+      minmax(0, 1fr)
+      [body-content-end body-end body-end-outset page-end-inset page-end screen-end-inset]
+      0.75rem
+      [screen-end] !important;
+  }
+
+  #quarto-content,
+  #quarto-document-content,
+  main.content {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  #quarto-margin-sidebar,
+  #quarto-sidebar-toc-left {
+    display: none !important;
+  }
+
+  .navbar {
+    min-height: 0;
+  }
+
   .navbar .navbar-container.container-fluid {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 0.5rem;
+    column-gap: 0.4rem;
     row-gap: 0.45rem;
   }
 
@@ -956,7 +1061,33 @@ div.callout-important.callout.callout-style-default > .callout-header {
     width: 36px;
     height: 36px;
     padding: 0.2rem;
-    border: 1px solid var(--border);
+    margin-right: 0;
+    border: 1px solid var(--border) !important;
+    border-radius: 2px;
+    background: transparent;
+  }
+
+  .navbar .navbar-toggler:focus,
+  .navbar .navbar-toggler:focus-visible {
+    box-shadow: 0 0 0 1px var(--accent);
+    outline: none;
+  }
+
+  /* Paint the glyph from --fg-heading so it stays visible in both
+     Paper and Slate (Quarto leaves data-bs-theme=dark on the nav). */
+  .navbar .navbar-toggler-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    background-image: none !important;
+    background-color: var(--fg-heading);
+    -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='black' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='black' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
   }
 
   .navbar .navbar-brand-container {
@@ -968,10 +1099,38 @@ div.callout-important.callout.callout-style-default > .callout-header {
     margin-right: 0 !important;
   }
 
+  .navbar-brand,
+  .navbar .navbar-title {
+    font-size: 1.05rem;
+  }
+
+  /* Light | Dark stay on row 1, separately clickable, no width change
+     between themes (both labels always paint). */
   .navbar .quarto-navbar-tools {
     order: 3 !important;
     flex: 0 0 auto;
+    flex-shrink: 0;
     margin-left: auto;
+    margin-right: 0;
+  }
+
+  .navbar .quarto-color-scheme-toggle.quarto-navigation-tool,
+  .navbar .quarto-color-scheme-toggle,
+  .navbar .theme-split {
+    padding: 0 !important;
+    column-gap: 0.3em;
+    min-height: 36px;
+    flex-wrap: nowrap;
+  }
+
+  .navbar .theme-switch-btn {
+    min-height: 36px;
+    padding: 0.35rem 0.32rem;
+    font-size: 0.82rem;
+  }
+
+  .navbar .theme-switch-sep {
+    font-size: 0.82rem;
   }
 
   .navbar #quarto-search,
@@ -989,6 +1148,12 @@ div.callout-important.callout.callout-style-default > .callout-header {
   .navbar .navbar-collapse {
     order: 5;
     flex: 1 0 100%;
+    margin-top: 0.15rem;
+  }
+
+  .navbar .navbar-collapse .nav-link {
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
   }
 
   .navbar #quarto-search .aa-Autocomplete,
@@ -996,6 +1161,14 @@ div.callout-important.callout.callout-style-default > .callout-header {
     display: block !important;
     width: 100% !important;
     min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .navbar #quarto-search .aa-Form,
+  .navbar .aa-Autocomplete .aa-Form {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
   }
 
   .navbar #quarto-search .aa-DetachedSearchButton {
@@ -1005,6 +1178,62 @@ div.callout-important.callout.callout-style-default > .callout-header {
     min-height: 44px;
     justify-content: flex-start;
     padding: 0 0.75rem !important;
+  }
+
+  #title-block-header .title {
+    font-size: 1.55rem;
+  }
+
+  .topic-index ul {
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+
+  .topic-index li {
+    padding: 0.38rem 0;
+  }
+
+  .topic-index li a {
+    display: inline;
+    padding: 0.12rem 0;
+  }
+
+  /* Tables scroll inside the column; the page does not. */
+  #quarto-document-content table.table,
+  #quarto-document-content .table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #quarto-document-content table.table th,
+  #quarto-document-content table.table td,
+  #quarto-document-content .table th,
+  #quarto-document-content .table td {
+    white-space: nowrap;
+  }
+
+  .sas-equiv {
+    padding: 0.5rem 0.7rem;
+  }
+
+  div.callout.callout-style-default .callout-body,
+  div.callout.callout-style-default > div.callout-header {
+    overflow-wrap: anywhere;
+  }
+
+  .nav-footer,
+  .nav-footer-center,
+  .nav-footer-center p {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  /* Fallback if Quarto injects a floating cycle control. */
+  .quarto-color-scheme-toggle.top-right {
+    display: none !important;
   }
 }
 
