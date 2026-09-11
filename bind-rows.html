@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Cheat sheet – SAS to R</title>
+<title>Bind rows – SAS to R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -119,15 +119,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="Cheat sheet – SAS to R">
-<meta property="og:description" content="Every topic, code only">
+<meta property="og:title" content="Bind rows – SAS to R">
+<meta property="og:description" content="Stack tables on top of each other">
 <meta property="og:image" content="https://kris-ow.github.io/sas-to-r/assets/og.png">
 <meta property="og:site_name" content="SAS to R">
 <meta property="og:image:height" content="630">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
-<meta name="twitter:title" content="Cheat sheet – SAS to R">
-<meta name="twitter:description" content="Every topic, code only">
+<meta name="twitter:title" content="Bind rows – SAS to R">
+<meta name="twitter:description" content="Stack tables on top of each other">
 <meta name="twitter:image" content="https://kris-ow.github.io/sas-to-r/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./cheatsheet.html" aria-current="page"> 
+    <a class="nav-link" href="./cheatsheet.html"> 
 <span class="menu-text">Cheat sheet</span></a>
   </li>  
   <li class="nav-item">
@@ -348,32 +348,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#basics" id="toc-basics" class="nav-link active" data-scroll-target="#basics">Basics</a>
-  <ul class="collapse">
-  <li><a href="#mutate" id="toc-mutate" class="nav-link" data-scroll-target="#mutate">Mutate</a></li>
-  <li><a href="#select-and-rename" id="toc-select-and-rename" class="nav-link" data-scroll-target="#select-and-rename">Select and rename</a></li>
-  <li><a href="#filter" id="toc-filter" class="nav-link" data-scroll-target="#filter">Filter</a></li>
-  <li><a href="#if-else-and-case-when" id="toc-if-else-and-case-when" class="nav-link" data-scroll-target="#if-else-and-case-when">If else and case when</a></li>
-  <li><a href="#coalesce" id="toc-coalesce" class="nav-link" data-scroll-target="#coalesce">Coalesce</a></li>
-  </ul></li>
-  <li><a href="#text" id="toc-text" class="nav-link" data-scroll-target="#text">Text</a>
-  <ul class="collapse">
-  <li><a href="#substrings" id="toc-substrings" class="nav-link" data-scroll-target="#substrings">Substrings</a></li>
-  </ul></li>
-  <li><a href="#dates" id="toc-dates" class="nav-link" data-scroll-target="#dates">Dates</a>
-  <ul class="collapse">
-  <li><a href="#study-day" id="toc-study-day" class="nav-link" data-scroll-target="#study-day">Study day</a></li>
-  </ul></li>
-  <li><a href="#combining-data" id="toc-combining-data" class="nav-link" data-scroll-target="#combining-data">Combining Data</a>
-  <ul class="collapse">
-  <li><a href="#joins" id="toc-joins" class="nav-link" data-scroll-target="#joins">Joins</a></li>
-  <li><a href="#bind-rows" id="toc-bind-rows" class="nav-link" data-scroll-target="#bind-rows">Bind rows</a></li>
-  </ul></li>
-  <li><a href="#derivations" id="toc-derivations" class="nav-link" data-scroll-target="#derivations">Derivations</a>
-  <ul class="collapse">
-  <li><a href="#sequence-numbers" id="toc-sequence-numbers" class="nav-link" data-scroll-target="#sequence-numbers">Sequence numbers</a></li>
-  <li><a href="#last-observation-before-exposure" id="toc-last-observation-before-exposure" class="nav-link" data-scroll-target="#last-observation-before-exposure">Last observation before exposure</a></li>
-  </ul></li>
+  <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
+  <li><a href="#stack-two-tables" id="toc-stack-two-tables" class="nav-link" data-scroll-target="#stack-two-tables">Stack two tables</a></li>
+  <li><a href="#mark-the-source-table" id="toc-mark-the-source-table" class="nav-link" data-scroll-target="#mark-the-source-table">Mark the source table</a></li>
   </ul>
 </nav>
     </div>
@@ -383,8 +360,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Cheat sheet</h1>
-<p class="subtitle lead">Every topic, code only</p>
+<h1 class="title">Bind rows</h1>
+<p class="subtitle lead">Stack tables on top of each other</p>
 </div>
 
 
@@ -401,343 +378,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This page is short SAS-to-R code pairs from each topic. Open the topic page for more detail.</p>
-<section id="basics" class="level2">
-<h2 class="anchored" data-anchor-id="basics">Basics</h2>
-<section id="mutate" class="level3">
-<h3 class="anchored" data-anchor-id="mutate"><a href="./mutate.html">Mutate</a></h3>
+<div class="sas-equiv">
+<p><strong>SAS:</strong> <code>SET</code> with several datasets; <code>PROC SQL</code> <code>UNION</code> / <code>OUTER UNION CORR</code></p>
+</div>
+<p><code>dplyr::bind_rows()</code> stacks tables vertically. Columns are matched by name. Columns present in only one table are filled with <code>NA</code> in the other rows.</p>
+<section id="quick-reference" class="level2">
+<h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">AVAL =</span> VALUE,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">AVALC =</span> <span class="fu">as.character</span>(VALUE)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>mutate(NEW = expr)</code></td>
-<td>DATA step <code>new = expr;</code></td>
-</tr>
-<tr class="even">
-<td><code>mutate(VAR = expr)</code></td>
-<td>overwrite existing variable</td>
-</tr>
-<tr class="odd">
-<td>several columns in one <code>mutate()</code></td>
-<td>several assignments in one DATA step</td>
-</tr>
-</tbody>
-</table>
-<p>Trap: <code>mutate()</code> returns a new table; assign it or pipe onward. It does not change the input object in place unless you overwrite the name.</p>
-</section>
-<section id="select-and-rename" class="level3">
-<h3 class="anchored" data-anchor-id="select-and-rename"><a href="./select-rename.html">Select and rename</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(USUBJID, AVAL, AVALC)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>TEMP)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">AVAL =</span> VALUE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>select(a, b)</code></td>
-<td><code>KEEP a b;</code> (keep listed)</td>
-</tr>
-<tr class="even">
-<td><code>select(-a)</code></td>
-<td><code>DROP a;</code></td>
-</tr>
-<tr class="odd">
-<td><code>rename(new = old)</code></td>
-<td><code>RENAME old = new;</code> (note name order)</td>
-</tr>
-</tbody>
-</table>
-<p>Trap: SAS <code>RENAME old=new</code> puts the old name first. <code>dplyr::rename(new = old)</code> puts the new name first.</p>
-</section>
-<section id="filter" class="level3">
-<h3 class="anchored" data-anchor-id="filter"><a href="./filter.html">Filter</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PARAMCD <span class="sc">==</span> <span class="st">"SYSBP"</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PARAMCD <span class="sc">==</span> <span class="st">"SYSBP"</span>, <span class="sc">!</span><span class="fu">is.na</span>(AVAL))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>filter(cond)</code></td>
-<td><code>where cond;</code> or subsetting <code>if cond;</code></td>
-</tr>
-<tr class="even">
-<td><code>filter(a, b)</code></td>
-<td><code>where a and b;</code> (both must be true)</td>
-</tr>
-<tr class="odd">
-<td><code>filter(a \| b)</code></td>
-<td><code>where a or b;</code></td>
-</tr>
-</tbody>
-</table>
-<p>Trap: <code>filter()</code> keeps rows where the condition is <code>TRUE</code>. Rows with <code>NA</code> in the condition are dropped. SAS <code>where</code> also treats missing as not true for most comparisons.</p>
-</section>
-<section id="if-else-and-case-when" class="level3">
-<h3 class="anchored" data-anchor-id="if-else-and-case-when"><a href="./if-else-case-when.html">If else and case when</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">AGEGR1 =</span> <span class="fu">if_else</span>(AGE <span class="sc">&lt;</span> <span class="dv">65</span>L, <span class="st">"&lt;65"</span>, <span class="st">"&gt;=65"</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">AESEVN =</span> <span class="fu">case_when</span>(</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MILD"</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MODERATE"</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"SEVERE"</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_integer_</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>if_else(cond, true, false)</code></td>
-<td><code>IFN</code> / <code>IFC</code>, or <code>if then ... else</code></td>
-</tr>
-<tr class="even">
-<td><code>case_when(cond ~ val, ...)</code></td>
-<td><code>SELECT</code> / nested <code>IF-THEN-ELSE</code></td>
-</tr>
-<tr class="odd">
-<td><code>case_when(..., TRUE ~ other)</code></td>
-<td>OTHERWISE / final else</td>
-</tr>
-</tbody>
-</table>
-<p>Trap: <code>dplyr::if_else()</code> is stricter on types than base <code>ifelse()</code>. Prefer <code>if_else()</code> in dplyr pipelines. <code>case_when()</code> stops at the first true condition.</p>
-</section>
-<section id="coalesce" class="level3">
-<h3 class="anchored" data-anchor-id="coalesce"><a href="./coalesce.html">Coalesce</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coalesce</span>(x, y)                    <span class="co"># first non-NA argument; later args are fallbacks</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">coalesce</span>(<span class="fu">na_if</span>(spy, <span class="st">""</span>), coded)   <span class="co"># specify, then coded. blanks are not NA</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">na_if</span>(x, <span class="st">""</span>)                      <span class="co"># "" -&gt; NA so coalesce will skip it</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">na_if</span>(x, <span class="st">"NA"</span>)                    <span class="co"># the literal string "NA" is not missing either</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>dplyr::coalesce()</code></td>
-<td><code>COALESCE</code> (numeric), <code>coalescec</code> (character)</td>
-</tr>
-<tr class="even">
-<td><code>na_if(x, "")</code></td>
-<td>SAS already treats blank as missing</td>
-</tr>
-<tr class="odd">
-<td><code>if_else(cond, a, b)</code></td>
-<td><code>IFN</code> / <code>IFC</code></td>
-</tr>
-</tbody>
-</table>
-<p>Three traps: <code>coalesce()</code> skips <code>NA</code> only, not <code>""</code>. A specify field of <code>""</code> therefore beats the coded value. Convert blanks with <code>na_if()</code> first, then prefer specify over coded: <code>coalesce(na_if(spy, ""), coded)</code>.</p>
-</section>
-</section>
-<section id="text" class="level2">
-<h2 class="anchored" data-anchor-id="text">Text</h2>
-<section id="substrings" class="level3">
-<h3 class="anchored" data-anchor-id="substrings"><a href="./substr.html">Substrings</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SAS: SUBSTR(string, start, length)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># R:   substr(string, start, stop)     stop is an end position, not a length</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">substr</span>(usubjid, <span class="dv">5</span>, <span class="dv">3</span>)              <span class="co"># ""  (stop &lt; start: empty range)</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">substr</span>(usubjid, <span class="dv">5</span>, <span class="dv">7</span>)              <span class="co"># positions 5 through 7</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">substr</span>(usubjid, <span class="dv">5</span>, <span class="dv">5</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">-</span> <span class="dv">1</span>)      <span class="co"># SAS length 3, written as start+len-1</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">substring</span>(usubjid, <span class="dv">5</span>, <span class="dv">7</span>)           <span class="co"># same idea; arguments recycle; can assign</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># stringr::str_sub() also takes end positions, not a length</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>substr(x, start, stop)</code></td>
-<td><code>SUBSTR(x, start, length)</code></td>
-</tr>
-<tr class="even">
-<td><code>substring(x, start, stop)</code></td>
-<td><code>SUBSTR</code> with recycled bounds</td>
-</tr>
-<tr class="odd">
-<td><code>stringr::str_sub(x, start, end)</code></td>
-<td><code>SUBSTR</code> (end, not length)</td>
-</tr>
-</tbody>
-</table>
-<p>Three traps: the third argument is a stop position, not a length. <code>substr(x, 5, 3)</code> is not "three characters from 5"; it is the empty range 5-to-3. Write <code>start+len-1</code>, or count the end position. <code>substring()</code> and <code>str_sub()</code> use end positions too.</p>
-</section>
-</section>
-<section id="dates" class="level2">
-<h2 class="anchored" data-anchor-id="dates">Dates</h2>
-<section id="study-day" class="level3">
-<h3 class="anchored" data-anchor-id="study-day"><a href="./study-day.html">Study day</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># CDISC --DY has no day 0. The reference date is day 1, not day 0.</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(date <span class="sc">&lt;</span> rfstdt, date <span class="sc">-</span> rfstdt, date <span class="sc">-</span> rfstdt <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># same rule, no branch:</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(date <span class="sc">-</span> rfstdt) <span class="sc">+</span> <span class="fu">as.integer</span>(date <span class="sc">&gt;=</span> rfstdt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>date - rfstdt</code></td>
-<td>date minus date (raw, includes day 0)</td>
-</tr>
-<tr class="even">
-<td><code>if_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)</code></td>
-<td><code>--DY</code> (no day 0)</td>
-</tr>
-<tr class="odd">
-<td><code>as.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)</code></td>
-<td>the same <code>--DY</code> rule, compact</td>
-</tr>
-</tbody>
-</table>
-<p>Three traps: raw subtraction is not <code>--DY</code>. On the reference date the raw diff is 0; <code>--DY</code> is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.</p>
-</section>
-</section>
-<section id="combining-data" class="level2">
-<h2 class="anchored" data-anchor-id="combining-data">Combining Data</h2>
-<section id="joins" class="level3">
-<h3 class="anchored" data-anchor-id="joins"><a href="./joins.html">Joins</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the six joins ------------------------------------------------------</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># rows matching on BOTH sides</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of dm, annotated from ae   &lt;- the usual one</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">right_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># all of ae (just swap the args instead)</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># everything from either side</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># in dm, NOT in ae               &lt;- "who is missing?"</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">semi_join</span>( dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>)   <span class="co"># filter dm to matches, add no columns</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- keys ---------------------------------------------------------------</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span> <span class="ot">=</span> <span class="st">"SUBJID"</span>))   <span class="co"># different names, left first</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(lb, visits, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subjid"</span>, <span class="st">"visit"</span>)) <span class="co"># both keys must match</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># --- state what you expect; the join aborts if the data disagrees -------</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(dm, ae, <span class="at">by =</span> <span class="st">"subjid"</span>, <span class="at">relationship =</span> <span class="st">"one-to-many"</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co"># "one-to-one" | "one-to-many" | "many-to-one" | "many-to-many"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS <code>DATA</code> step</th>
-<th>SQL</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>inner_join()</code></td>
-<td><code>if a and b;</code></td>
-<td><code>INNER JOIN</code></td>
-</tr>
-<tr class="even">
-<td><code>left_join()</code></td>
-<td><code>if a;</code></td>
-<td><code>LEFT JOIN</code></td>
-</tr>
-<tr class="odd">
-<td><code>right_join()</code></td>
-<td><code>if b;</code></td>
-<td><code>RIGHT JOIN</code></td>
-</tr>
-<tr class="even">
-<td><code>full_join()</code></td>
-<td>no subsetting <code>if</code></td>
-<td><code>FULL JOIN</code></td>
-</tr>
-<tr class="odd">
-<td><code>anti_join()</code></td>
-<td><code>if a and not b;</code></td>
-<td><code>WHERE ... NOT IN</code></td>
-</tr>
-<tr class="even">
-<td><code>semi_join()</code></td>
-<td><code>if a and b;</code> then dedupe</td>
-<td><code>WHERE EXISTS</code></td>
-</tr>
-</tbody>
-</table>
-<p>Three traps: <code>NA</code> after a join means "no match", not "missing value". <code>inner_join()</code> throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what <code>relationship =</code> is for.</p>
-</section>
-<section id="bind-rows" class="level3">
-<h3 class="anchored" data-anchor-id="bind-rows"><a href="./bind-rows.html">Bind rows</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(ae_site_a, ae_site_b)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">SITEA =</span> ae_site_a, <span class="at">SITEB =</span> ae_site_b),</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"SITE"</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(ae_site_a, ae_site_b)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">SITEA =</span> ae_site_a, <span class="at">SITEB =</span> ae_site_b),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"SITE"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -765,92 +419,80 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p>Trap: <code>bind_rows()</code> matches columns by name, not position. A type clash on the same name (character vs numeric) errors or coerces; fix types before stacking.</p>
+<p>Worked examples below.</p>
 </section>
+<section id="stack-two-tables" class="level2">
+<h2 class="anchored" data-anchor-id="stack-two-tables">Stack two tables</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ae_site_a <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">AETERM =</span> <span class="fu">c</span>(<span class="st">"NAUSEA"</span>, <span class="st">"HEADACHE"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">AESEV =</span> <span class="fu">c</span>(<span class="st">"MILD"</span>, <span class="st">"MODERATE"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>ae_site_b <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0003"</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">AETERM =</span> <span class="fu">c</span>(<span class="st">"FATIGUE"</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">AESEV =</span> <span class="fu">c</span>(<span class="st">"MILD"</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">AEREL =</span> <span class="fu">c</span>(<span class="st">"RELATED"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(ae_site_a, ae_site_b)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID   AETERM    AESEV   AEREL
+1 STD-001-0001   NAUSEA     MILD    &lt;NA&gt;
+2 STD-001-0002 HEADACHE MODERATE    &lt;NA&gt;
+3 STD-001-0003  FATIGUE     MILD RELATED</code></pre>
+</div>
+</div>
+<p><code>AEREL</code> is <code>NA</code> for site A rows. SAS <code>set ae_site_a ae_site_b;</code> is the usual analogue when variable names already match.</p>
 </section>
-<section id="derivations" class="level2">
-<h2 class="anchored" data-anchor-id="derivations">Derivations</h2>
-<section id="sequence-numbers" class="level3">
-<h3 class="anchored" data-anchor-id="sequence-numbers"><a href="./seq.html">Sequence numbers</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span>  <span class="co"># order first</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span>              <span class="co"># --SEQ, XPT-shaped</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>arrange(...)</code> then <code>row_number()</code></td>
-<td><code>PROC SORT</code> then <code>_N_</code> within <code>BY</code></td>
-</tr>
-<tr class="even">
-<td><code>group_by(USUBJID)</code></td>
-<td><code>BY USUBJID</code></td>
-</tr>
-<tr class="odd">
-<td><code>as.double(row_number())</code></td>
-<td>SAS numeric is always double</td>
-</tr>
-</tbody>
-</table>
-<p>Three traps: <code>row_number()</code> follows the current row order, so skip <code>arrange()</code> and <code>--SEQ</code> is whatever the last PROC left behind. Equal dates need tie-breakers in <code>arrange()</code>. Integer <code>SEQ</code> is not how SAS XPT stores it; use <code>as.double()</code>.</p>
-</section>
-<section id="last-observation-before-exposure" class="level3">
-<h3 class="anchored" data-anchor-id="last-observation-before-exposure"><a href="./lobxfl.html">Last observation before exposure</a></h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> tu <span class="sc">|&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(TUDTC), <span class="sc">!</span><span class="fu">is.na</span>(RFSTDTC), TUDTC <span class="sc">&lt;=</span> RFSTDTC) <span class="sc">|&gt;</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, TULNKID) <span class="sc">|&gt;</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(TUDTC, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, TULNKID, TUDTC) <span class="sc">|&gt;</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="st">"Y"</span>)</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"TULNKID"</span>, <span class="st">"TUDTC"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="fu">coalesce</span>(TULOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>filter(TUDTC &lt;= RFSTDTC)</code></td>
-<td>subset on or before <code>RFSTDTC</code></td>
-</tr>
-<tr class="even">
-<td><code>slice_max(TUDTC, n = 1, with_ties = TRUE)</code></td>
-<td>last date in that subset</td>
-</tr>
-<tr class="odd">
-<td><code>left_join(...)</code> then <code>coalesce(..., "")</code></td>
-<td>merge a <code>"Y"</code> flag; blank otherwise</td>
-</tr>
-</tbody>
-</table>
-<p>Three traps: group by the entity (<code>TULNKID</code>), not only the subject. An empty qualifying set stays blank, not <code>"Y"</code> and not <code>NA</code>. <code>with_ties = TRUE</code> flags every row that shares the last date; <code>distinct()</code> on the flag keys so the join does not multiply rows. SDTM wants <code>""</code>, not <code>NA</code>.</p>
+<section id="mark-the-source-table" class="level2">
+<h2 class="anchored" data-anchor-id="mark-the-source-table">Mark the source table</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">SITEA =</span> ae_site_a, <span class="at">SITEB =</span> ae_site_b),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"SITE"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   SITE      USUBJID   AETERM    AESEV   AEREL
+1 SITEA STD-001-0001   NAUSEA     MILD    &lt;NA&gt;
+2 SITEA STD-001-0002 HEADACHE MODERATE    &lt;NA&gt;
+3 SITEB STD-001-0003  FATIGUE     MILD RELATED</code></pre>
+</div>
+</div>
+<p><code>.id</code> adds a column with the list names. Useful when you need to know which input row came from.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Match by name, not position
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>bind_rows()</code> does not line up column 1 with column 1. Rename first when the same concept has different names. When the same name has different types, fix the type before stacking.</p>
+</div>
+</div>
+<p>For side-by-side combines on keys, use joins (see Joins), not <code>bind_rows()</code>.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
