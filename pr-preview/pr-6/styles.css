@@ -1097,7 +1097,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
 
   .navbar .navbar-brand-container {
     order: 2;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: max-content;
     max-width: none !important;
     margin-left: 0 !important;
@@ -1115,8 +1115,19 @@ div.callout-important.callout.callout-style-default > .callout-header {
     order: 3 !important;
     flex: 0 0 auto;
     flex-shrink: 0;
-    margin-left: auto;
+    margin-left: 0.35rem;
     margin-right: 0;
+  }
+
+  /* Tablet-narrow has room: send Light|Dark to the right edge. */
+  @media (min-width: 480px) {
+    .navbar .navbar-brand-container {
+      flex: 1 1 auto;
+    }
+
+    .navbar .quarto-navbar-tools {
+      margin-left: auto;
+    }
   }
 
   .navbar .quarto-color-scheme-toggle.quarto-navigation-tool,
@@ -1130,12 +1141,13 @@ div.callout-important.callout.callout-style-default > .callout-header {
 
   .navbar .theme-switch-btn {
     min-height: 36px;
-    padding: 0.35rem 0.32rem;
-    font-size: 0.82rem;
+    padding: 0.35rem 0.18rem;
+    font-size: 0.8rem;
   }
 
   .navbar .theme-switch-sep {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
+    padding: 0 0.05rem;
   }
 
   .navbar #quarto-search,
