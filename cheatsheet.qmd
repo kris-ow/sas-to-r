@@ -46,6 +46,10 @@ page for more detail.
 
 {{< include _quickref/joins.md >}}
 
+### [Bind rows](bind-rows.qmd)
+
+{{< include _quickref/bind-rows.md >}}
+
 ## Derivations
 
 ### [Sequence numbers](seq.qmd)

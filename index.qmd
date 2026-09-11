@@ -41,6 +41,7 @@ Combining Data
 :::
 
 - [Joins](joins.qmd) combining tables
+- [Bind rows](bind-rows.qmd) stack tables on top of each other
 :::
 
 ::: {.topic-group}
