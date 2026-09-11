@@ -1198,21 +1198,20 @@ div.callout-important.callout.callout-style-default > .callout-header {
     padding: 0.12rem 0;
   }
 
-  /* Tables scroll inside the column; the page does not. */
+  /* Tables stay tables. Cells wrap so two-column cheat sheet rows
+     stay readable; long tokens can still break inside a cell. */
   #quarto-document-content table.table,
   #quarto-document-content .table {
-    display: block;
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   #quarto-document-content table.table th,
   #quarto-document-content table.table td,
   #quarto-document-content .table th,
   #quarto-document-content .table td {
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .sas-equiv {
