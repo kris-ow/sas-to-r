@@ -6,26 +6,52 @@ subtitle: "Every topic, code only"
 This page is short SAS-to-R code pairs from each topic. Open the topic
 page for more detail.
 
-## [Joins](joins.qmd)
+## Basics
 
-{{< include _quickref/joins.md >}}
+### [Mutate](mutate.qmd)
 
-## [Coalesce](coalesce.qmd)
+{{< include _quickref/mutate.md >}}
+
+### [Select and rename](select-rename.qmd)
+
+{{< include _quickref/select-rename.md >}}
+
+### [Filter](filter.qmd)
+
+{{< include _quickref/filter.md >}}
+
+### [If else and case when](if-else-case-when.qmd)
+
+{{< include _quickref/if-else-case-when.md >}}
+
+### [Coalesce](coalesce.qmd)
 
 {{< include _quickref/coalesce.md >}}
 
-## [Substrings](substr.qmd)
+## Text
+
+### [Substrings](substr.qmd)
 
 {{< include _quickref/substr.md >}}
 
-## [Study day](study-day.qmd)
+## Dates
+
+### [Study day](study-day.qmd)
 
 {{< include _quickref/study-day.md >}}
 
-## [Sequence numbers](seq.qmd)
+## Combining Data
+
+### [Joins](joins.qmd)
+
+{{< include _quickref/joins.md >}}
+
+## Derivations
+
+### [Sequence numbers](seq.qmd)
 
 {{< include _quickref/seq.md >}}
 
-## [Last observation before exposure](lobxfl.qmd)
+### [Last observation before exposure](lobxfl.qmd)
 
 {{< include _quickref/lobxfl.md >}}

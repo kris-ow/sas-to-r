@@ -1,0 +1,70 @@
+---
+title: "If else and case when"
+subtitle: "Conditional column values"
+---
+
+::: {.sas-equiv}
+**SAS:** `IF-THEN-ELSE`, `IFN` / `IFC`, `SELECT`
+:::
+
+Use `if_else()` for one condition and two results. Use `case_when()` for several
+branches.
+
+## Quick reference
+
+{{< include _quickref/if-else-case-when.md >}}
+
+Worked examples below.
+
+## Two-way: `if_else()`
+
+```{r}
+#| label: ifelse
+library(dplyr)
+
+dm <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002", "STD-001-0003"),
+  AGE = c(54L, 70L, NA_integer_)
+)
+
+dm |>
+  mutate(AGEGR1 = if_else(AGE < 65L, "<65", ">=65"))
+```
+
+When `AGE` is `NA`, `if_else()` returns `NA` for that row (unless you set
+`missing=`).
+
+SAS `ifc(age < 65, "<65", ">=65")` is the same idea for character results.
+
+## Multi-way: `case_when()`
+
+```{r}
+#| label: casewhen
+ae <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002", "STD-001-0003", "STD-001-0004"),
+  AESEV = c("MILD", "MODERATE", "SEVERE", NA_character_)
+)
+
+ae |>
+  mutate(
+    AESEVN = case_when(
+      AESEV == "MILD" ~ 1L,
+      AESEV == "MODERATE" ~ 2L,
+      AESEV == "SEVERE" ~ 3L,
+      TRUE ~ NA_integer_
+    )
+  )
+```
+
+The first matching condition wins. End with `TRUE ~ ...` as the catch-all
+(SAS OTHERWISE).
+
+::: {.callout-important}
+## Prefer `if_else()` over base `ifelse()` in dplyr
+
+`if_else()` checks that true and false values share a type. Base `ifelse()` is
+looser and often surprises with factors and dates.
+:::
+
+For "first non-missing of several columns," use `coalesce()` (see Coalesce), not
+`case_when()`.
