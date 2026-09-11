@@ -19,7 +19,7 @@ body.quarto-light {
   --inline-code: #14685e;
   --amber: #b07d1a;
   --border: #d4cfc3;
-  --grid: rgba(28, 32, 28, 0.055);
+  --grid: rgba(28, 32, 28, 0.012);
   --code-bg: #e8e4d8;
   --input-bg: #faf8f3;
   --overlay: rgba(243, 240, 232, 0.82);
@@ -43,7 +43,7 @@ body.quarto-dark {
   --inline-code: #c8e36a;
   --amber: #e6b84d;
   --border: #2c3a4c;
-  --grid: rgba(190, 215, 225, 0.055);
+  --grid: rgba(190, 215, 225, 0.012);
   --code-bg: #141c28;
   --input-bg: #121820;
   --overlay: rgba(26, 35, 48, 0.82);
@@ -55,16 +55,19 @@ body.quarto-dark {
 
 html {
   background-color: var(--bg);
+  scrollbar-gutter: stable;
 }
 
 body {
   background-color: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans) !important;
+  line-height: 1.5;
+  letter-spacing: 0;
 }
 
 /* Grid as a fixed overlay so it is not eaten by attachment/stacking bugs.
-   ~5.5% reads as quiet graph paper on 1px lines; 3% disappears in screenshots. */
+   Same 1.2% treatment in both palettes: present if you look, not at a glance. */
 body::before {
   content: "";
   position: fixed;
@@ -95,6 +98,9 @@ main.content,
   background: transparent !important;
   border-bottom: 1px solid var(--border);
   box-shadow: none;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  min-height: 3.75rem;
 }
 
 .navbar-brand {
@@ -122,6 +128,9 @@ main.content,
 .navbar .nav-link {
   font-family: var(--font-mono);
   font-size: 0.85rem;
+  line-height: 1.25;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
   color: var(--fg-muted) !important;
 }
 
@@ -139,35 +148,80 @@ main.content,
   display: flex;
   align-items: center;
   flex: 0 0 auto;
+  flex-shrink: 0;
 }
 
-.navbar .quarto-color-scheme-toggle,
-.navbar .quarto-navigation-tool {
-  font-family: var(--font-mono);
+/* Segmented Light | Dark. Both labels always paint so the control
+   (and the navbar) keep the same width in either mode. Solid fill,
+   36px hit target, no ghost/translucent Bootstrap button. */
+.navbar .quarto-color-scheme-toggle.quarto-navigation-tool,
+.navbar .quarto-color-scheme-toggle {
+  display: inline-flex !important;
+  align-items: stretch;
+  justify-content: stretch;
+  box-sizing: border-box;
+  height: 36px;
+  min-height: 36px;
+  width: 10.25rem;
+  min-width: 10.25rem;
+  padding: 0 !important;
+  margin: 0;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
   color: var(--fg-muted) !important;
   text-decoration: none !important;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  padding: 0.15rem 0.45rem;
-  line-height: 1.2;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .navbar .quarto-color-scheme-toggle:hover,
-.navbar .quarto-navigation-tool:hover {
-  color: var(--accent) !important;
-  border-color: var(--accent);
+.navbar .quarto-color-scheme-toggle:focus {
+  border-color: var(--accent) !important;
+  color: var(--fg-muted) !important;
+  background: var(--input-bg) !important;
 }
 
+.navbar .quarto-color-scheme-toggle i.bi {
+  display: none !important;
+}
+
+.navbar .quarto-color-scheme-toggle::before,
 .navbar .quarto-color-scheme-toggle::after {
-  content: "Light";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 50%;
+  height: 100%;
+  margin: 0;
+  padding: 0 0.55rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
-  margin-left: 0.35rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
 }
 
-body.quarto-dark .navbar .quarto-color-scheme-toggle::after {
+.navbar .quarto-color-scheme-toggle::before {
+  content: "Light";
+}
+
+.navbar .quarto-color-scheme-toggle::after {
   content: "Dark";
+}
+
+body.quarto-light .navbar .quarto-color-scheme-toggle::before,
+body.quarto-dark .navbar .quarto-color-scheme-toggle::after {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+body.quarto-light .navbar .quarto-color-scheme-toggle::after,
+body.quarto-dark .navbar .quarto-color-scheme-toggle::before {
+  background: transparent;
+  color: var(--fg-muted);
 }
 
 .navbar .nav-link.active,
@@ -310,6 +364,8 @@ body.quarto-dark .navbar .quarto-color-scheme-toggle::after {
 #title-block-header .title {
   font-family: var(--font-mono);
   font-weight: 600;
+  font-size: 2rem;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--fg-heading);
   display: inline-block;
@@ -375,6 +431,7 @@ h2, h3, h4 {
 
 h2 {
   font-size: 1.2rem;
+  line-height: 1.3;
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.3rem;
 }
@@ -522,7 +579,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
   border: 1px solid var(--accent) !important;
   border-radius: 2px !important;
   box-shadow: none !important;
-  min-height: 2.1rem;
+  min-height: 36px;
 }
 
 #quarto-search .aa-Form:focus-within,
@@ -697,6 +754,10 @@ div.callout-important.callout.callout-style-default > .callout-header {
   .navbar .navbar-toggler {
     order: 1;
     flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0.2rem;
+    border: 1px solid var(--border);
   }
 
   .navbar .navbar-brand-container {
@@ -712,10 +773,6 @@ div.callout-important.callout.callout-style-default > .callout-header {
     order: 3 !important;
     flex: 0 0 auto;
     margin-left: auto;
-  }
-
-  .navbar .quarto-color-scheme-toggle::after {
-    display: none;
   }
 
   .navbar #quarto-search,
