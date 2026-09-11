@@ -1,22 +1,56 @@
-/* SAS to R: retro-terminal x modern. Restraint over CRT nostalgia.
-   Palette and type live here so the look holds even if Bootstrap vars slip.
-   IBM Plex is loaded from the document head in _quarto.yml. */
+/* SAS to R: one layout, two palettes.
+   Light = Paper terminal (warm paper, teal). Dark = Slate IDE (slate,
+   green accent, cyan links). Quarto swaps Bootstrap sheets and sets
+   .quarto-light / .quarto-dark on body; tokens here follow that class
+   so the chrome stays in sync. IBM Plex is loaded from _quarto.yml. */
 
-:root {
-  --bg: #0b0f0c;
-  --bg-raised: #121814;
-  --bg-chrome: #0e1511;
-  --fg: #d7e6d9;
-  --fg-heading: #e8f3ea;
-  --fg-muted: #7f9483;
-  --accent: #3ecf8e;
-  --accent-2: #c8e36a;
-  --amber: #e6b84d;
-  --border: #243028;
-  --grid: rgba(62, 207, 142, 0.045);
+:root,
+body.quarto-light {
+  --bg: #f3f0e8;
+  --bg-raised: #eae6dc;
+  --bg-chrome: #f3f0e8;
+  --fg: #1e2a26;
+  --fg-heading: #15201c;
+  --fg-muted: #7a7f78;
+  --accent: #1b8a7c;
+  --accent-2: #14685e;
+  --link: #1b8a7c;
+  --link-hover: #14685e;
+  --inline-code: #14685e;
+  --amber: #b07d1a;
+  --border: #d4cfc3;
+  --grid: rgba(30, 42, 38, 0.028);
+  --code-bg: #e8e4d8;
+  --input-bg: #faf8f3;
+  --overlay: rgba(243, 240, 232, 0.82);
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --caret-blink: 1.05s;
+  color-scheme: light;
+}
+
+body.quarto-dark {
+  --bg: #1a2330;
+  --bg-raised: #222c3c;
+  --bg-chrome: #161e2a;
+  --fg: #c5d0dc;
+  --fg-heading: #e6edf4;
+  --fg-muted: #7d8b99;
+  --accent: #3ecf8e;
+  --accent-2: #c8e36a;
+  --link: #5ec8e8;
+  --link-hover: #8ad9f0;
+  --inline-code: #c8e36a;
+  --amber: #e6b84d;
+  --border: #2c3a4c;
+  --grid: rgba(180, 205, 225, 0.03);
+  --code-bg: #141c28;
+  --input-bg: #121820;
+  --overlay: rgba(26, 35, 48, 0.82);
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --caret-blink: 1.05s;
+  color-scheme: dark;
 }
 
 html {
@@ -69,6 +103,7 @@ body {
 .navbar .nav-link {
   font-family: var(--font-mono);
   font-size: 0.85rem;
+  color: var(--fg-muted) !important;
 }
 
 .navbar .navbar-brand-container {
@@ -79,6 +114,41 @@ body {
 
 .navbar .quarto-navbar-tools:empty {
   display: none;
+}
+
+.navbar .quarto-navbar-tools {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.navbar .quarto-color-scheme-toggle,
+.navbar .quarto-navigation-tool {
+  font-family: var(--font-mono);
+  color: var(--fg-muted) !important;
+  text-decoration: none !important;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 0.15rem 0.45rem;
+  line-height: 1.2;
+}
+
+.navbar .quarto-color-scheme-toggle:hover,
+.navbar .quarto-navigation-tool:hover {
+  color: var(--accent) !important;
+  border-color: var(--accent);
+}
+
+.navbar .quarto-color-scheme-toggle::after {
+  content: "Light";
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.35rem;
+}
+
+body.quarto-dark .navbar .quarto-color-scheme-toggle::after {
+  content: "Dark";
 }
 
 .navbar .nav-link.active,
@@ -145,6 +215,12 @@ body {
   .navbar #quarto-search .aa-InputWrapper {
     flex: 1 1 auto;
     min-width: 0;
+  }
+
+  .navbar .quarto-navbar-tools {
+    order: 4 !important;
+    flex: 0 0 auto;
+    margin-left: 0.5rem;
   }
 }
 
@@ -223,7 +299,42 @@ body {
   margin-bottom: 0.4rem;
 }
 
-/* Home is a topic index, not an article. Keep the list tight and mono. */
+/* Home is a topic index, not an article. Category labels are quiet
+   uppercase chrome; links keep the accent/link token. */
+.topic-index .topic-group {
+  margin: 0 0 1.35rem;
+}
+
+.topic-index .topic-cat,
+.topic-index .topic-cat p {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin: 0 0 0.4rem;
+}
+
+.topic-index ul {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  line-height: 1.8;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.topic-index li a {
+  color: var(--link);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.topic-index li a:hover {
+  color: var(--link-hover);
+}
+
 #quarto-document-content > ul {
   font-family: var(--font-mono);
   font-size: 1.02rem;
@@ -250,41 +361,46 @@ h2 {
 }
 
 a {
+  color: var(--link);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
 }
 
 a:hover {
-  color: var(--accent-2);
+  color: var(--link-hover);
 }
 
 /* ----- code ----- */
 
-code {
+/* Inline code only. Highlighted tokens live in pre code span.* from
+   Quarto/Pandoc skylighting (atom-one light/dark). Do not set a single
+   color on pre code or the blocks flatten to grey. */
+:not(pre) > code {
   font-family: var(--font-mono);
   font-size: 0.88em;
   background: var(--bg-raised);
-  color: var(--accent-2);
+  color: var(--inline-code);
 }
 
 pre, pre code,
 div.sourceCode, div.sourceCode pre {
   font-family: var(--font-mono);
   font-size: 0.82rem;
-  background-color: var(--bg-chrome);
 }
 
 div.sourceCode {
   border: 1px solid var(--border);
-  border-left: 2px solid var(--accent);
-  background-color: var(--bg-chrome);
+  border-left: 3px solid var(--accent);
+  background-color: var(--code-bg);
 }
 
-pre.sourceCode {
-  background-color: transparent;
+pre.sourceCode,
+div.sourceCode pre,
+div.sourceCode pre code,
+pre code {
+  background-color: transparent !important;
 }
 
-/* Keep long console output from stretching the page. */
 pre code {
   font-size: 0.82rem;
 }
@@ -347,7 +463,7 @@ div.callout-important {
 }
 
 div.callout-important.callout.callout-style-default > .callout-header {
-  background-color: rgba(230, 184, 77, 0.12);
+  background-color: color-mix(in srgb, var(--amber) 14%, transparent);
 }
 
 #TOC a {
@@ -383,7 +499,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
 
 #quarto-search .aa-Form,
 .aa-DetachedFormContainer .aa-Form {
-  background: var(--bg) !important;
+  background: var(--input-bg) !important;
   border: 1px solid var(--accent) !important;
   border-radius: 2px !important;
   box-shadow: none !important;
@@ -465,7 +581,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
 
 /* Overlay (type: overlay) as a terminal command surface. */
 .aa-DetachedOverlay {
-  background: rgba(11, 15, 12, 0.82) !important;
+  background: var(--overlay) !important;
 }
 
 .aa-DetachedContainer,
@@ -498,12 +614,12 @@ div.callout-important.callout.callout-style-default > .callout-header {
 
 .aa-Item[aria-selected="true"],
 .aa-Item:hover {
-  background: rgba(62, 207, 142, 0.1) !important;
+  background: color-mix(in srgb, var(--accent) 12%, transparent) !important;
 }
 
 .aa-Item .aa-ItemContentTitle,
 .aa-Item .search-result-title {
-  color: var(--accent) !important;
+  color: var(--link) !important;
   font-family: var(--font-mono);
 }
 
@@ -552,10 +668,20 @@ div.callout-important.callout.callout-style-default > .callout-header {
     margin-right: 0 !important;
   }
 
+  .navbar .quarto-navbar-tools {
+    order: 3 !important;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .navbar .quarto-color-scheme-toggle::after {
+    display: none;
+  }
+
   .navbar #quarto-search,
   .navbar #quarto-search.type-textbox,
   .navbar #quarto-search.type-overlay {
-    order: 3 !important;
+    order: 4 !important;
     flex: 1 0 100%;
     width: 100% !important;
     min-width: 0 !important;
@@ -565,7 +691,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
   }
 
   .navbar .navbar-collapse {
-    order: 4;
+    order: 5;
     flex: 1 0 100%;
   }
 
@@ -597,7 +723,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
   gap: 0.35rem;
   min-height: 44px;
   padding: 0 0.75rem !important;
-  background: var(--bg) !important;
+  background: var(--input-bg) !important;
   border: 1px solid var(--accent) !important;
   border-radius: 2px !important;
   box-shadow: none !important;

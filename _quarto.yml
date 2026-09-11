@@ -29,13 +29,18 @@ format:
     # straight quotes to curly ones and -- to an en dash at render time, so an
     # all-ASCII source still publishes non-keyboard characters. See README.
     from: markdown-smart
-    theme: [darkly, theme.scss]
+    theme:
+      light: [cosmo, theme-light.scss]
+      dark: [darkly, theme-dark.scss]
+    respect-user-color-scheme: true
     css: styles.css
     toc: true
     toc-depth: 3
     code-copy: true
     code-overflow: wrap
-    highlight-style: atom-one-dark
+    # Adaptive atom-one: light tokens on paper, dark tokens on slate.
+    # Do not flatten code to a single grey; keep skylighting colors.
+    highlight-style: atom-one
     include-in-header:
       - text: |
           <link rel="preconnect" href="https://fonts.googleapis.com">

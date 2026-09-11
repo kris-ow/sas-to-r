@@ -1,52 +1,52 @@
 /*-- scss:defaults --*/
 
-/* Phosphor-on-charcoal palette. Darkly is the Bootstrap base; these
-   variables shift it off the stock green-on-gray look. */
+/* Slate IDE: dark slate, green accent, cyan links. Shared layout lives
+   in styles.css; these variables only shift Bootstrap's dark base. */
 $primary: #3ecf8e;
-$body-bg: #0b0f0c;
-$body-color: #d7e6d9;
-$link-color: #3ecf8e;
-$link-hover-color: #c8e36a;
+$body-bg: #1a2330;
+$body-color: #c5d0dc;
+$link-color: #5ec8e8;
+$link-hover-color: #8ad9f0;
 $font-family-sans-serif: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
 $font-family-monospace: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 $headings-font-family: $font-family-monospace;
 $headings-font-weight: 600;
-$headings-color: #e8f3ea;
+$headings-color: #e6edf4;
 
-$navbar-bg: #0e1511;
-$navbar-fg: #d7e6d9;
+$navbar-bg: #161e2a;
+$navbar-fg: #c5d0dc;
 $navbar-hl: #3ecf8e;
 $navbar-font-family: $font-family-monospace;
 
 $sidebar-bg: transparent;
-$sidebar-fg: #d7e6d9;
+$sidebar-fg: #c5d0dc;
 $sidebar-hl: #3ecf8e;
 
-$toc-color: #d7e6d9;
+$toc-color: #c5d0dc;
 $toc-active-border: #3ecf8e;
 $toc-active-color: #3ecf8e;
-$toc-inactive-color: #7f9483;
+$toc-inactive-color: #7d8b99;
 
-$code-bg: #1a2420;
-$code-color: #e8f3ea;
-$code-block-bg: #0e1511;
+$code-bg: #222c3c;
+$code-color: #c8e36a;
+$code-block-bg: #141c28;
 $code-block-border-left: #3ecf8e;
 $code-block-font-size: 0.85em;
 
-$input-bg: #0b0f0c;
-$input-color: #d7e6d9;
+$input-bg: #121820;
+$input-color: #c5d0dc;
 $input-border-color: #3ecf8e;
 $input-focus-border-color: #3ecf8e;
-$input-placeholder-color: #7f9483;
+$input-placeholder-color: #7d8b99;
 
-$border-color: #243028;
-$light-bg-subtle: #121814;
+$border-color: #2c3a4c;
+$light-bg-subtle: #222c3c;
 $table-striped-bg: rgba(62, 207, 142, 0.04);
 $table-hover-bg: rgba(62, 207, 142, 0.07);
-$table-border-color: #243028;
+$table-border-color: #2c3a4c;
 
 $footer-bg: transparent;
-$footer-fg: #7f9483;
+$footer-fg: #7d8b99;
 $footer-font-size: 0.8em;
 
 $callout-border-width: 0.15rem;

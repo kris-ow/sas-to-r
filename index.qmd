@@ -4,9 +4,40 @@ pagetitle: "SAS to R"
 toc: false
 ---
 
-- [Joins](joins.qmd): combining tables
-- [Coalesce](coalesce.qmd): prefer one value, fall back to another
-- [Substrings](substr.qmd): extract part of a character value
-- [Study day](study-day.qmd): date subtraction for --DY
-- [Sequence numbers](seq.qmd): --SEQ within a subject
-- [Last observation before exposure](lobxfl.qmd): --LOBXFL flags
+::: {.topic-index}
+
+::: {.topic-group}
+::: {.topic-cat}
+Text
+:::
+
+- [Substrings](substr.qmd) extract part of a character value
+:::
+
+::: {.topic-group}
+::: {.topic-cat}
+Dates
+:::
+
+- [Study day](study-day.qmd) date subtraction for `--DY`
+:::
+
+::: {.topic-group}
+::: {.topic-cat}
+Tables
+:::
+
+- [Joins](joins.qmd) combining tables
+- [Coalesce](coalesce.qmd) prefer one value, fall back to another
+:::
+
+::: {.topic-group}
+::: {.topic-cat}
+Derivations
+:::
+
+- [Sequence numbers](seq.qmd) `--SEQ` within a subject
+- [Last observation before exposure](lobxfl.qmd) `--LOBXFL` flags
+:::
+
+:::

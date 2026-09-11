@@ -8,7 +8,7 @@ set -uo pipefail
 
 hits=$(grep -rPno "[^\x00-\x7F]" \
   --include="*.qmd" --include="*.md" --include="*.yml" --include="*.yaml" \
-  --include="*.css" --include="*.R" \
+  --include="*.css" --include="*.scss" --include="*.R" \
   --exclude-dir=_site --exclude-dir=_freeze --exclude-dir=.quarto --exclude-dir=.git \
   . || true)
 
