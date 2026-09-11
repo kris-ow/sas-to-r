@@ -19,7 +19,7 @@ body.quarto-light {
   --inline-code: #14685e;
   --amber: #b07d1a;
   --border: #d4cfc3;
-  --grid: rgba(30, 42, 38, 0.028);
+  --grid: rgba(28, 32, 28, 0.055);
   --code-bg: #e8e4d8;
   --input-bg: #faf8f3;
   --overlay: rgba(243, 240, 232, 0.82);
@@ -43,7 +43,7 @@ body.quarto-dark {
   --inline-code: #c8e36a;
   --amber: #e6b84d;
   --border: #2c3a4c;
-  --grid: rgba(180, 205, 225, 0.03);
+  --grid: rgba(190, 215, 225, 0.055);
   --code-bg: #141c28;
   --input-bg: #121820;
   --overlay: rgba(26, 35, 48, 0.82);
@@ -59,13 +59,32 @@ html {
 
 body {
   background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+/* Grid as a fixed overlay so it is not eaten by attachment/stacking bugs.
+   ~5.5% reads as quiet graph paper on 1px lines; 3% disappears in screenshots. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background-image:
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   background-size: 28px 28px;
-  background-attachment: fixed;
-  color: var(--fg);
-  font-family: var(--font-sans);
+}
+
+#quarto-header,
+.navbar,
+#quarto-content,
+.quarto-container,
+main.content,
+#quarto-document-content,
+.nav-footer {
+  background-color: transparent !important;
 }
 
 /* ----- chrome: navbar, sidebar, footer ----- */
@@ -73,7 +92,7 @@ body {
 .navbar {
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  background: var(--bg-chrome) !important;
+  background: transparent !important;
   border-bottom: 1px solid var(--border);
   box-shadow: none;
 }
@@ -612,9 +631,30 @@ div.callout-important.callout.callout-style-default > .callout-header {
   color: var(--fg) !important;
 }
 
-.aa-Item[aria-selected="true"],
-.aa-Item:hover {
-  background: color-mix(in srgb, var(--accent) 12%, transparent) !important;
+#quarto-search-results li.aa-Item[aria-selected="false"] .search-item,
+.aa-DetachedOverlay li.aa-Item[aria-selected="false"] .search-item {
+  background-color: transparent !important;
+  color: var(--fg) !important;
+}
+
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-section,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-text,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-title-container,
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item .search-result-text-container,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-section,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-text,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-title-container,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item .search-result-text-container {
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg-chrome)) !important;
+  color: var(--fg-heading) !important;
+}
+
+#quarto-search-results li.aa-Item[aria-selected="true"] .search-item mark.search-match,
+.aa-DetachedOverlay li.aa-Item[aria-selected="true"] .search-item mark.search-match {
+  color: var(--accent-2) !important;
+  background: transparent !important;
 }
 
 .aa-Item .aa-ItemContentTitle,
