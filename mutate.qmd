@@ -1,0 +1,70 @@
+---
+title: "Mutate"
+subtitle: "Create or change columns"
+---
+
+::: {.sas-equiv}
+**SAS:** DATA step assignment (`new = ...;`, overwrite existing)
+:::
+
+`dplyr::mutate()` adds or replaces columns. One call can set several columns.
+The result is a new data frame; the input is unchanged unless you overwrite it.
+
+## Quick reference
+
+{{< include _quickref/mutate.md >}}
+
+Worked examples below.
+
+## Add a column
+
+```{r}
+#| label: add
+library(dplyr)
+
+dm <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002"),
+  AGE = c(54L, 61L)
+)
+
+dm |>
+  mutate(AGEU = "YEARS")
+```
+
+SAS:
+
+```sas
+ageu = "YEARS";
+```
+
+## Overwrite a column
+
+```{r}
+#| label: overwrite
+dm |>
+  mutate(AGE = AGE + 1L)
+```
+
+Same name on the left replaces the column. Order matters when later columns
+use earlier ones in the same `mutate()`.
+
+## Several columns
+
+```{r}
+#| label: several
+dm |>
+  mutate(
+    AGEU = "YEARS",
+    AGEGR1 = if_else(AGE < 65L, "<65", ">=65")
+  )
+```
+
+One `mutate()` is one DATA step block of assignments. Prefer that over chained
+one-column `mutate()` calls when the columns belong together.
+
+::: {.callout-important}
+## Not in place
+
+`mutate(dm, ...)` alone does nothing lasting. Use `dm <- dm |> mutate(...)` or
+keep piping into the next verb.
+:::

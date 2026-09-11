@@ -1,0 +1,52 @@
+---
+title: "Filter"
+subtitle: "Keep rows that match a condition"
+---
+
+::: {.sas-equiv}
+**SAS:** `WHERE`, subsetting `IF`
+:::
+
+`dplyr::filter()` keeps rows for which the condition is `TRUE`.
+
+## Quick reference
+
+{{< include _quickref/filter.md >}}
+
+Worked examples below.
+
+## One condition
+
+```{r}
+#| label: one
+library(dplyr)
+
+vs <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0001", "STD-001-0002"),
+  PARAMCD = c("SYSBP", "DIABP", "SYSBP"),
+  AVAL = c(120, 80, NA_real_)
+)
+
+vs |>
+  filter(PARAMCD == "SYSBP")
+```
+
+SAS: `where paramcd = "SYSBP";`
+
+## Several conditions
+
+```{r}
+#| label: several
+vs |>
+  filter(PARAMCD == "SYSBP", !is.na(AVAL))
+```
+
+Commas in `filter()` mean AND. Use `|` for OR.
+
+::: {.callout-important}
+## `NA` in the condition drops the row
+
+`filter(AVAL > 100)` drops rows where `AVAL` is `NA`, because `NA > 100` is not
+`TRUE`. Keep missing values on purpose with `is.na(AVAL) | AVAL > 100` when that
+is the rule.
+:::

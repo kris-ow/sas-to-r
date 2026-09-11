@@ -1,0 +1,65 @@
+---
+title: "Bind rows"
+subtitle: "Stack tables on top of each other"
+---
+
+::: {.sas-equiv}
+**SAS:** `SET` with several datasets; `PROC SQL` `UNION` / `OUTER UNION CORR`
+:::
+
+`dplyr::bind_rows()` stacks tables vertically. Columns are matched by name.
+Columns present in only one table are filled with `NA` in the other rows.
+
+## Quick reference
+
+{{< include _quickref/bind-rows.md >}}
+
+Worked examples below.
+
+## Stack two tables
+
+```{r}
+#| label: stack
+library(dplyr)
+
+ae_site_a <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002"),
+  AETERM = c("NAUSEA", "HEADACHE"),
+  AESEV = c("MILD", "MODERATE")
+)
+
+ae_site_b <- data.frame(
+  USUBJID = c("STD-001-0003"),
+  AETERM = c("FATIGUE"),
+  AESEV = c("MILD"),
+  AEREL = c("RELATED")
+)
+
+bind_rows(ae_site_a, ae_site_b)
+```
+
+`AEREL` is `NA` for site A rows. SAS `set ae_site_a ae_site_b;` is the usual
+analogue when variable names already match.
+
+## Mark the source table
+
+```{r}
+#| label: id
+bind_rows(
+  list(SITEA = ae_site_a, SITEB = ae_site_b),
+  .id = "SITE"
+)
+```
+
+`.id` adds a column with the list names. Useful when you need to know which
+input row came from.
+
+::: {.callout-important}
+## Match by name, not position
+
+`bind_rows()` does not line up column 1 with column 1. Rename first when the
+same concept has different names. When the same name has different types,
+fix the type before stacking.
+:::
+
+For side-by-side combines on keys, use joins (see Joins), not `bind_rows()`.

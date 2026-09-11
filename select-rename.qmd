@@ -1,0 +1,63 @@
+---
+title: "Select and rename"
+subtitle: "Keep, drop, and rename columns"
+---
+
+::: {.sas-equiv}
+**SAS:** `KEEP`, `DROP`, `RENAME`
+:::
+
+`select()` chooses columns. `rename()` changes names without dropping others.
+
+## Quick reference
+
+{{< include _quickref/select-rename.md >}}
+
+Worked examples below.
+
+## Keep listed columns
+
+```{r}
+#| label: keep
+library(dplyr)
+
+ae <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0001"),
+  AETERM = c("NAUSEA", "HEADACHE"),
+  AESEV = c("MILD", "MODERATE"),
+  TEMP = c(1L, 2L)
+)
+
+ae |>
+  select(USUBJID, AETERM, AESEV)
+```
+
+SAS: `keep usubjid aeterm aesev;`
+
+## Drop columns
+
+```{r}
+#| label: drop
+ae |>
+  select(-TEMP)
+```
+
+SAS: `drop temp;`
+
+## Rename
+
+```{r}
+#| label: rename
+ae |>
+  rename(AEDECOD = AETERM)
+```
+
+::: {.callout-important}
+## Name order differs from SAS
+
+SAS: `rename aeterm = aedecod;` (old = new).  
+R: `rename(AEDECOD = AETERM)` (new = old).
+:::
+
+`select(AEDECOD = AETERM, everything())` can rename and keep the rest in one
+step. Plain `rename()` is clearer when you only change names.

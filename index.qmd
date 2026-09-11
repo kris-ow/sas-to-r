@@ -9,6 +9,18 @@ toc: false
 
 ::: {.topic-group}
 ::: {.topic-cat}
+Basics
+:::
+
+- [Mutate](mutate.qmd) create or change columns
+- [Select and rename](select-rename.qmd) keep, drop, and rename columns
+- [Filter](filter.qmd) keep rows that match a condition
+- [If else and case when](if-else-case-when.qmd) conditional column values
+- [Coalesce](coalesce.qmd) prefer one value, fall back to another
+:::
+
+::: {.topic-group}
+::: {.topic-cat}
 Text
 :::
 
@@ -25,11 +37,11 @@ Dates
 
 ::: {.topic-group}
 ::: {.topic-cat}
-Tables
+Combining Data
 :::
 
 - [Joins](joins.qmd) combining tables
-- [Coalesce](coalesce.qmd) prefer one value, fall back to another
+- [Bind rows](bind-rows.qmd) stack tables on top of each other
 :::
 
 ::: {.topic-group}
