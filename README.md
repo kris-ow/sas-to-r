@@ -22,8 +22,9 @@ navbar and search chrome stay the same; only the color tokens change.
 
 The site follows `prefers-color-scheme` on first visit
 (`respect-user-color-scheme: true` in `_quarto.yml`). A Light | Dark control in
-the navbar overrides that and Quarto stores the choice in localStorage. Both
-modes compile from the same Cosmo Bootstrap base so toggling does not reflow
+the navbar overrides that and Quarto stores the choice in localStorage. The
+navbar stays on screen (`navbar.pinned: true`); it does not autohide on scroll.
+Both modes compile from the same Cosmo Bootstrap base so toggling does not reflow
 the page. Palette tokens live in `styles.css` under `body.quarto-light` /
 `body.quarto-dark`. Bootstrap color variables for each mode are in
 `theme-light.scss` and `theme-dark.scss`.

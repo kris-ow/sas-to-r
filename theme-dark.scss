@@ -6,6 +6,18 @@
 $primary: #3ecf8e;
 $body-bg: #1a2330;
 $body-color: #c5d0dc;
+$emphasis-color: #e6edf4;
+$emphasis-color-rgb: 230, 237, 244;
+$pre-color: #c5d0dc;
+$mark-color: #c5d0dc;
+$mark-bg: #3d4a2a;
+$kbd-color: #c5d0dc;
+$table-color: #c5d0dc;
+$caption-color: #7d8b99;
+$body-secondary-color: #7d8b99;
+$body-tertiary-color: #7d8b99;
+$light-text-emphasis: #e6edf4;
+$dark-text-emphasis: #e6edf4;
 $link-color: #5ec8e8;
 $link-hover-color: #8ad9f0;
 $font-family-sans-serif: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
@@ -78,12 +90,38 @@ $callout-border-width: 0.15rem;
 
 /*-- scss:rules --*/
 
+/* Cosmo is a light Bootswatch. Its compiled :root still uses
+   [data-bs-theme=light] tokens (emphasis #000, pre #000) even when
+   this file is the dark sheet. Reset those here so the dark CSS
+   file itself is readable before styles.css runs. */
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+  --bs-emphasis-color: #e6edf4;
+  --bs-emphasis-color-rgb: 230, 237, 244;
+  --bs-body-color: #c5d0dc;
+  --bs-heading-color: #e6edf4;
+  --bs-secondary-color: #7d8b99;
+  --bs-tertiary-color: #7d8b99;
+}
+
+pre {
+  color: $pre-color;
+}
+
+.text-body-emphasis,
+.text-dark,
+.text-black {
+  color: $headings-color !important;
+}
+
 html {
   font-size: 16px;
 }
 
 body {
   letter-spacing: 0;
+  color: $body-color;
 }
 
 h1, h2, h3, h4, h5, h6,

@@ -66,6 +66,73 @@ body {
   letter-spacing: 0;
 }
 
+/* Cosmo is a light Bootswatch. Compiling dark colors on top of it still
+   leaves light-theme defaults: --bs-emphasis-color #000, pre { color:#000 }
+   on #222c3c (knitr/console blocks), .text-body-emphasis, .text-dark.
+   That is the black-on-slate bug. Do not color pre code span.* or
+   highlighting flattens. */
+body.quarto-dark {
+  --bs-body-color: var(--fg);
+  --bs-emphasis-color: #e6edf4;
+  --bs-emphasis-color-rgb: 230, 237, 244;
+  --bs-heading-color: var(--fg-heading);
+  --bs-secondary-color: var(--fg-muted);
+  --bs-tertiary-color: var(--fg-muted);
+  --bs-code-color: var(--inline-code);
+  color: var(--fg);
+}
+
+body.quarto-dark caption,
+body.quarto-dark figcaption,
+body.quarto-dark .table,
+body.quarto-dark .callout,
+body.quarto-dark .callout-header,
+body.quarto-dark .callout-body,
+body.quarto-dark .callout-title,
+body.quarto-dark .cell-output,
+body.quarto-dark .cell-output-stdout,
+body.quarto-dark .nav-footer,
+body.quarto-dark .text-body,
+body.quarto-dark .description,
+body.quarto-dark .quarto-title-meta,
+body.quarto-dark .quarto-title-meta-contents {
+  color: var(--fg);
+}
+
+body.quarto-dark h1,
+body.quarto-dark h2,
+body.quarto-dark h3,
+body.quarto-dark h4,
+body.quarto-dark h5,
+body.quarto-dark h6 {
+  color: var(--fg-heading);
+}
+
+body.quarto-dark pre {
+  color: var(--fg);
+}
+
+body.quarto-dark pre code {
+  color: inherit;
+}
+
+body.quarto-dark .text-body-emphasis,
+body.quarto-dark .text-dark,
+body.quarto-dark .text-black {
+  color: var(--fg-heading) !important;
+}
+
+body.quarto-dark .text-muted,
+body.quarto-dark .text-secondary,
+body.quarto-dark .text-body-secondary,
+body.quarto-dark .text-body-tertiary {
+  color: var(--fg-muted) !important;
+}
+
+body.quarto-dark .nav-footer a {
+  color: var(--link);
+}
+
 /* Grid as a fixed overlay so it is not eaten by attachment/stacking bugs.
    Same 1.2% treatment in both palettes: present if you look, not at a glance. */
 body::before {
@@ -80,14 +147,39 @@ body::before {
   background-size: 28px 28px;
 }
 
-#quarto-header,
-.navbar,
 #quarto-content,
 .quarto-container,
 main.content,
 #quarto-document-content,
 .nav-footer {
   background-color: transparent !important;
+}
+
+/* Keep the bar on screen. Quarto still marks the header as headroom /
+   fixed-top; navbar.pinned stops loading headroom.js, and these rules
+   cancel the leftover translateY(-100%) hide. Opaque so content cannot
+   show through while scrolling. */
+#quarto-header,
+#quarto-header.headroom,
+#quarto-header.headroom--pinned,
+#quarto-header.headroom--unpinned,
+#quarto-header.headroom--top,
+#quarto-header.headroom--not-top,
+header.headroom,
+header.headroom--pinned,
+header.headroom--unpinned,
+header.headroom--top,
+header.headroom--not-top {
+  background-color: var(--bg) !important;
+  transform: none !important;
+  transition: none !important;
+  will-change: auto;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1030;
 }
 
 /* ----- chrome: navbar, sidebar, footer ----- */
@@ -151,37 +243,37 @@ main.content,
   flex-shrink: 0;
 }
 
-/* Segmented Light | Dark. Both labels always paint so the control
-   (and the navbar) keep the same width in either mode. Solid fill,
-   36px hit target, no ghost/translucent Bootstrap button. */
+/* Light | Dark as secondary nav text. Same size/weight/color as Cheat
+   sheet / About. Both labels always paint so width does not change. */
 .navbar .quarto-color-scheme-toggle.quarto-navigation-tool,
 .navbar .quarto-color-scheme-toggle {
   display: inline-flex !important;
-  align-items: stretch;
-  justify-content: stretch;
+  align-items: center;
+  justify-content: flex-start;
   box-sizing: border-box;
-  height: 36px;
-  min-height: 36px;
-  width: 10.25rem;
-  min-width: 10.25rem;
-  padding: 0 !important;
+  height: auto;
+  min-height: 0;
+  width: auto;
+  min-width: 0;
+  padding: 0.4rem 0.15rem !important;
   margin: 0;
-  background: var(--input-bg) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 2px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0;
   box-shadow: none !important;
   opacity: 1 !important;
   color: var(--fg-muted) !important;
   text-decoration: none !important;
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .navbar .quarto-color-scheme-toggle:hover,
 .navbar .quarto-color-scheme-toggle:focus {
-  border-color: var(--accent) !important;
+  border: none !important;
+  background: transparent !important;
   color: var(--fg-muted) !important;
-  background: var(--input-bg) !important;
 }
 
 .navbar .quarto-color-scheme-toggle i.bi {
@@ -190,18 +282,17 @@ main.content,
 
 .navbar .quarto-color-scheme-toggle::before,
 .navbar .quarto-color-scheme-toggle::after {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1 1 50%;
-  height: 100%;
+  display: inline;
+  flex: 0 0 auto;
+  height: auto;
   margin: 0;
-  padding: 0 0.55rem;
+  padding: 0;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  line-height: 1;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+  background: transparent;
 }
 
 .navbar .quarto-color-scheme-toggle::before {
@@ -209,13 +300,13 @@ main.content,
 }
 
 .navbar .quarto-color-scheme-toggle::after {
-  content: "Dark";
+  content: " | Dark";
 }
 
 body.quarto-light .navbar .quarto-color-scheme-toggle::before,
 body.quarto-dark .navbar .quarto-color-scheme-toggle::after {
-  background: var(--accent);
-  color: var(--bg);
+  background: transparent;
+  color: var(--fg);
 }
 
 body.quarto-light .navbar .quarto-color-scheme-toggle::after,
@@ -526,6 +617,7 @@ pre code {
 .table > :not(caption) > * > * {
   background-color: transparent;
   border-bottom-color: var(--border);
+  color: var(--fg);
 }
 
 div.callout {
