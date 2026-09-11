@@ -1,0 +1,464 @@
+[
+  {
+    "objectID": "cheatsheet.html",
+    "href": "cheatsheet.html",
+    "title": "Cheat sheet",
+    "section": "",
+    "text": "This page is short SAS-to-R code pairs from each topic. Open the topic page for more detail."
+  },
+  {
+    "objectID": "cheatsheet.html#basics",
+    "href": "cheatsheet.html#basics",
+    "title": "Cheat sheet",
+    "section": "Basics",
+    "text": "Basics\n\nMutate\nlibrary(dplyr)\n\ndf |&gt;\n  mutate(\n    AVAL = VALUE,\n    AVALC = as.character(VALUE)\n  )\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\nmutate(NEW = expr)\nDATA step new = expr;\n\n\nmutate(VAR = expr)\noverwrite existing variable\n\n\nseveral columns in one mutate()\nseveral assignments in one DATA step\n\n\n\nTrap: mutate() returns a new table; assign it or pipe onward. It does not change the input object in place unless you overwrite the name.\n\n\nSelect and rename\nlibrary(dplyr)\n\ndf |&gt;\n  select(USUBJID, AVAL, AVALC)\n\ndf |&gt;\n  select(-TEMP)\n\ndf |&gt;\n  rename(AVAL = VALUE)\n\n\n\nR\nSAS\n\n\n\n\nselect(a, b)\nKEEP a b; (keep listed)\n\n\nselect(-a)\nDROP a;\n\n\nrename(new = old)\nRENAME old = new; (note name order)\n\n\n\nTrap: SAS RENAME old=new puts the old name first. dplyr::rename(new = old) puts the new name first.\n\n\nFilter\nlibrary(dplyr)\n\ndf |&gt;\n  filter(PARAMCD == \"SYSBP\")\n\ndf |&gt;\n  filter(PARAMCD == \"SYSBP\", !is.na(AVAL))\n\n\n\nR\nSAS\n\n\n\n\nfilter(cond)\nwhere cond; or subsetting if cond;\n\n\nfilter(a, b)\nwhere a and b; (both must be true)\n\n\nfilter(a \\| b)\nwhere a or b;\n\n\n\nTrap: filter() keeps rows where the condition is TRUE. Rows with NA in the condition are dropped. SAS where also treats missing as not true for most comparisons.\n\n\nIf else and case when\nlibrary(dplyr)\n\ndf |&gt;\n  mutate(\n    AGEGR1 = if_else(AGE &lt; 65L, \"&lt;65\", \"&gt;=65\")\n  )\n\ndf |&gt;\n  mutate(\n    AESEVN = case_when(\n      AESEV == \"MILD\" ~ 1L,\n      AESEV == \"MODERATE\" ~ 2L,\n      AESEV == \"SEVERE\" ~ 3L,\n      TRUE ~ NA_integer_\n    )\n  )\n\n\n\nR\nSAS\n\n\n\n\nif_else(cond, true, false)\nIFN / IFC, or if then ... else\n\n\ncase_when(cond ~ val, ...)\nSELECT / nested IF-THEN-ELSE\n\n\ncase_when(..., TRUE ~ other)\nOTHERWISE / final else\n\n\n\nTrap: dplyr::if_else() is stricter on types than base ifelse(). Prefer if_else() in dplyr pipelines. case_when() stops at the first true condition.\n\n\nCoalesce\nlibrary(dplyr)\n\ncoalesce(x, y)                    # first non-NA argument; later args are fallbacks\ncoalesce(na_if(spy, \"\"), coded)   # specify, then coded. blanks are not NA\n\nna_if(x, \"\")                      # \"\" -&gt; NA so coalesce will skip it\nna_if(x, \"NA\")                    # the literal string \"NA\" is not missing either\n\n\n\nR\nSAS\n\n\n\n\ndplyr::coalesce()\nCOALESCE (numeric), coalescec (character)\n\n\nna_if(x, \"\")\nSAS already treats blank as missing\n\n\nif_else(cond, a, b)\nIFN / IFC\n\n\n\nThree traps: coalesce() skips NA only, not \"\". A specify field of \"\" therefore beats the coded value. Convert blanks with na_if() first, then prefer specify over coded: coalesce(na_if(spy, \"\"), coded)."
+  },
+  {
+    "objectID": "cheatsheet.html#text",
+    "href": "cheatsheet.html#text",
+    "title": "Cheat sheet",
+    "section": "Text",
+    "text": "Text\n\nSubstrings\n# SAS: SUBSTR(string, start, length)\n# R:   substr(string, start, stop)     stop is an end position, not a length\n\nsubstr(usubjid, 5, 3)              # \"\"  (stop &lt; start: empty range)\nsubstr(usubjid, 5, 7)              # positions 5 through 7\nsubstr(usubjid, 5, 5 + 3 - 1)      # SAS length 3, written as start+len-1\n\nsubstring(usubjid, 5, 7)           # same idea; arguments recycle; can assign\n# stringr::str_sub() also takes end positions, not a length\n\n\n\nR\nSAS\n\n\n\n\nsubstr(x, start, stop)\nSUBSTR(x, start, length)\n\n\nsubstring(x, start, stop)\nSUBSTR with recycled bounds\n\n\nstringr::str_sub(x, start, end)\nSUBSTR (end, not length)\n\n\n\nThree traps: the third argument is a stop position, not a length. substr(x, 5, 3) is not \"three characters from 5\"; it is the empty range 5-to-3. Write start+len-1, or count the end position. substring() and str_sub() use end positions too."
+  },
+  {
+    "objectID": "cheatsheet.html#dates",
+    "href": "cheatsheet.html#dates",
+    "title": "Cheat sheet",
+    "section": "Dates",
+    "text": "Dates\n\nStudy day\nlibrary(dplyr)\n\n# CDISC --DY has no day 0. The reference date is day 1, not day 0.\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n\n# same rule, no branch:\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\ndate - rfstdt\ndate minus date (raw, includes day 0)\n\n\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n--DY (no day 0)\n\n\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\nthe same --DY rule, compact\n\n\n\nThree traps: raw subtraction is not --DY. On the reference date the raw diff is 0; --DY is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0."
+  },
+  {
+    "objectID": "cheatsheet.html#combining-data",
+    "href": "cheatsheet.html#combining-data",
+    "title": "Cheat sheet",
+    "section": "Combining Data",
+    "text": "Combining Data\n\nJoins\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for."
+  },
+  {
+    "objectID": "cheatsheet.html#derivations",
+    "href": "cheatsheet.html#derivations",
+    "title": "Cheat sheet",
+    "section": "Derivations",
+    "text": "Derivations\n\nSequence numbers\nlibrary(dplyr)\n\ndf |&gt;\n  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |&gt;  # order first\n  group_by(USUBJID) |&gt;\n  mutate(SEQ = as.double(row_number())) |&gt;              # --SEQ, XPT-shaped\n  ungroup()\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\narrange(...) then row_number()\nPROC SORT then _N_ within BY\n\n\ngroup_by(USUBJID)\nBY USUBJID\n\n\nas.double(row_number())\nSAS numeric is always double\n\n\n\nThree traps: row_number() follows the current row order, so skip arrange() and --SEQ is whatever the last PROC left behind. Equal dates need tie-breakers in arrange(). Integer SEQ is not how SAS XPT stores it; use as.double().\n\n\nLast observation before exposure\nlibrary(dplyr)\n\nlast_before &lt;- tu |&gt;\n  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC &lt;= RFSTDTC) |&gt;\n  group_by(USUBJID, TULNKID) |&gt;\n  slice_max(TUDTC, n = 1, with_ties = TRUE) |&gt;\n  ungroup() |&gt;\n  distinct(USUBJID, TULNKID, TUDTC) |&gt;\n  mutate(TULOBXFL = \"Y\")\n\ntu |&gt;\n  left_join(last_before, by = c(\"USUBJID\", \"TULNKID\", \"TUDTC\")) |&gt;\n  mutate(TULOBXFL = coalesce(TULOBXFL, \"\"))\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\nfilter(TUDTC &lt;= RFSTDTC)\nsubset on or before RFSTDTC\n\n\nslice_max(TUDTC, n = 1, with_ties = TRUE)\nlast date in that subset\n\n\nleft_join(...) then coalesce(..., \"\")\nmerge a \"Y\" flag; blank otherwise\n\n\n\nThree traps: group by the entity (TULNKID), not only the subject. An empty qualifying set stays blank, not \"Y\" and not NA. with_ties = TRUE flags every row that shares the last date; distinct() on the flag keys so the join does not multiply rows. SDTM wants \"\", not NA."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "SAS to R maps common SAS programming tasks to R: the call, the result, and places where the two languages diverge.\nHome lists topics by group. Search matches SAS or R names.\nThe cheat sheet is one page of short SAS-to-R code pairs. For more detail, open a topic page.\nThis site is not affiliated with SAS Institute Inc."
+  },
+  {
+    "objectID": "substr.html",
+    "href": "substr.html",
+    "title": "Substrings",
+    "section": "",
+    "text": "SAS: SUBSTR(string, start, length), SUBSTRN\nSAS SUBSTR takes a length. R substr() takes a stop position. The three-argument shape is the same; the last argument is not. A SAS length passed as stop can return \"\" with no error."
+  },
+  {
+    "objectID": "substr.html#quick-reference",
+    "href": "substr.html#quick-reference",
+    "title": "Substrings",
+    "section": "Quick reference",
+    "text": "Quick reference\n# SAS: SUBSTR(string, start, length)\n# R:   substr(string, start, stop)     stop is an end position, not a length\n\nsubstr(usubjid, 5, 3)              # \"\"  (stop &lt; start: empty range)\nsubstr(usubjid, 5, 7)              # positions 5 through 7\nsubstr(usubjid, 5, 5 + 3 - 1)      # SAS length 3, written as start+len-1\n\nsubstring(usubjid, 5, 7)           # same idea; arguments recycle; can assign\n# stringr::str_sub() also takes end positions, not a length\n\n\n\nR\nSAS\n\n\n\n\nsubstr(x, start, stop)\nSUBSTR(x, start, length)\n\n\nsubstring(x, start, stop)\nSUBSTR with recycled bounds\n\n\nstringr::str_sub(x, start, end)\nSUBSTR (end, not length)\n\n\n\nThree traps: the third argument is a stop position, not a length. substr(x, 5, 3) is not \"three characters from 5\"; it is the empty range 5-to-3. Write start+len-1, or count the end position. substring() and str_sub() use end positions too.\nWorked examples below."
+  },
+  {
+    "objectID": "substr.html#the-example-values",
+    "href": "substr.html#the-example-values",
+    "title": "Substrings",
+    "section": "The example values",
+    "text": "The example values\nUSUBJID values of the form study-site-subject, and visit codes of the form CYCnDn.\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\ndm &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0002\", \"STD-002-0001\"),\n  VISIT   = c(\"CYC1D1\", \"CYC2D1\", \"CYC1D8\")\n)\n\ndm\n\n       USUBJID  VISIT\n1 STD-001-0001 CYC1D1\n2 STD-001-0002 CYC2D1\n3 STD-002-0001 CYC1D8\n\n\nSTD-001-0001 is 12 characters. Positions 5-7 are the site, 001. CYC1D1: cycle at position 4, day from position 6."
+  },
+  {
+    "objectID": "substr.html#the-empty-range-mistake",
+    "href": "substr.html#the-empty-range-mistake",
+    "title": "Substrings",
+    "section": "The empty-range mistake",
+    "text": "The empty-range mistake\nSAS SUBSTR(usubjid, 5, 3) means start at 5, length 3: the site.\nsite = substr(usubjid, 5, 3);\nR substr(usubjid, 5, 3) means start at 5, stop at 3. Stop is before start, so the range is empty:\n\nsubstr(dm$USUBJID, 5, 3)\n\n[1] \"\" \"\" \"\"\n\n\nThree empty strings. No warning.\nUse the end position, or write the SAS length as start + len - 1:\n\nsubstr(dm$USUBJID, 5, 7)\n\n[1] \"001\" \"001\" \"002\"\n\nsubstr(dm$USUBJID, 5, 5 + 3 - 1)\n\n[1] \"001\" \"001\" \"002\"\n\n\n\n\n\n\n\n\nImportantThe third argument is a stop position, not a length\n\n\n\nsubstr(x, start, stop) keeps characters from start through stop inclusive. A SAS length with stop &lt; start returns \"\" on every row. Count the end position, or write start + len - 1."
+  },
+  {
+    "objectID": "substr.html#visit-codes-cyc1d1",
+    "href": "substr.html#visit-codes-cyc1d1",
+    "title": "Substrings",
+    "section": "Visit codes: CYC1D1",
+    "text": "Visit codes: CYC1D1\nCycle is one character at position 4. Day starts at position 6 and continues to the end of the string, so CYC1D8 and CYC1D15 both work with nchar().\n\ndm |&gt;\n  mutate(\n    CYCLE = substr(VISIT, 4, 4),\n    DAY   = substr(VISIT, 6, nchar(VISIT))\n  )\n\n       USUBJID  VISIT CYCLE DAY\n1 STD-001-0001 CYC1D1     1   1\n2 STD-001-0002 CYC2D1     2   1\n3 STD-002-0001 CYC1D8     1   8\n\n\nSAS for the cycle is SUBSTR(visit, 4, 1). In R that is substr(visit, 4, 4), not substr(visit, 4, 1)."
+  },
+  {
+    "objectID": "substr.html#substring-and-str_sub",
+    "href": "substr.html#substring-and-str_sub",
+    "title": "Substrings",
+    "section": "substring() and str_sub()",
+    "text": "substring() and str_sub()\nBase R substring() uses the same start-and-stop model as substr(). Arguments recycle when lengths differ. Assignment is supported (substring(x, 5, 7) &lt;- \"000\"). For extraction, substr() is sufficient.\nstringr::str_sub() also takes end positions, not a length. str_sub(x, 5, 7) matches substr(x, 5, 7). Negative indices count from the end. It is not SAS SUBSTR(x, 5, 3). For a length API, compute the stop position."
+  },
+  {
+    "objectID": "lobxfl.html",
+    "href": "lobxfl.html",
+    "title": "Last observation before exposure",
+    "section": "",
+    "text": "SAS: last on or before RFSTDTC, --LOBXFL\n--LOBXFL is \"Y\" on the last record on or before the reference start, per entity, and blank otherwise. Build the flag table from qualifying rows, then join it back. Do not flag in place with a running last.."
+  },
+  {
+    "objectID": "lobxfl.html#quick-reference",
+    "href": "lobxfl.html#quick-reference",
+    "title": "Last observation before exposure",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\nlast_before &lt;- tu |&gt;\n  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC &lt;= RFSTDTC) |&gt;\n  group_by(USUBJID, TULNKID) |&gt;\n  slice_max(TUDTC, n = 1, with_ties = TRUE) |&gt;\n  ungroup() |&gt;\n  distinct(USUBJID, TULNKID, TUDTC) |&gt;\n  mutate(TULOBXFL = \"Y\")\n\ntu |&gt;\n  left_join(last_before, by = c(\"USUBJID\", \"TULNKID\", \"TUDTC\")) |&gt;\n  mutate(TULOBXFL = coalesce(TULOBXFL, \"\"))\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\nfilter(TUDTC &lt;= RFSTDTC)\nsubset on or before RFSTDTC\n\n\nslice_max(TUDTC, n = 1, with_ties = TRUE)\nlast date in that subset\n\n\nleft_join(...) then coalesce(..., \"\")\nmerge a \"Y\" flag; blank otherwise\n\n\n\nThree traps: group by the entity (TULNKID), not only the subject. An empty qualifying set stays blank, not \"Y\" and not NA. with_ties = TRUE flags every row that shares the last date; distinct() on the flag keys so the join does not multiply rows. SDTM wants \"\", not NA.\nWorked examples below."
+  },
+  {
+    "objectID": "lobxfl.html#the-example-table",
+    "href": "lobxfl.html#the-example-table",
+    "title": "Last observation before exposure",
+    "section": "The example table",
+    "text": "The example table\nTwo subjects, two lesions. RFSTDTC is on the row.\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\ntu &lt;- data.frame(\n  USUBJID = c(\n    \"STD-001-0001\", \"STD-001-0001\", \"STD-001-0001\",\n    \"STD-001-0001\", \"STD-001-0001\", \"STD-001-0001\",\n    \"STD-001-0002\", \"STD-001-0002\"\n  ),\n  TULNKID = c(\"T01\", \"T01\", \"T01\", \"T02\", \"T02\", \"T02\", \"T01\", \"T01\"),\n  TUDTC   = as.Date(c(\n    \"2025-05-20\",\n    \"2025-06-03\",\n    \"2025-06-17\",\n    \"2025-05-20\",\n    \"2025-05-20\",\n    \"2025-06-17\",\n    \"2025-06-20\",\n    \"2025-06-27\"\n  )),\n  RFSTDTC = as.Date(c(\n    \"2025-06-03\", \"2025-06-03\", \"2025-06-03\",\n    \"2025-06-03\", \"2025-06-03\", \"2025-06-03\",\n    \"2025-06-10\", \"2025-06-10\"\n  )),\n  TUSTRESC = c(\"CR\", \"CR\", \"SD\", \"CR\", \"NE\", \"PD\", \"PR\", \"PR\")\n)\n\ntu\n\n       USUBJID TULNKID      TUDTC    RFSTDTC TUSTRESC\n1 STD-001-0001     T01 2025-05-20 2025-06-03       CR\n2 STD-001-0001     T01 2025-06-03 2025-06-03       CR\n3 STD-001-0001     T01 2025-06-17 2025-06-03       SD\n4 STD-001-0001     T02 2025-05-20 2025-06-03       CR\n5 STD-001-0001     T02 2025-05-20 2025-06-03       NE\n6 STD-001-0001     T02 2025-06-17 2025-06-03       PD\n7 STD-001-0002     T01 2025-06-20 2025-06-10       PR\n8 STD-001-0002     T01 2025-06-27 2025-06-10       PR\n\n\n\nSTD-001-0001 T01: last on or before 2025-06-03 is 2025-06-03 (on the reference date)\nSTD-001-0001 T02: two rows share 2025-05-20; the later visit is after start, so both of those rows are last\nSTD-001-0002 T01: both dates are after 2025-06-10; nothing qualifies"
+  },
+  {
+    "objectID": "lobxfl.html#filter-slice_max-join-a-y",
+    "href": "lobxfl.html#filter-slice_max-join-a-y",
+    "title": "Last observation before exposure",
+    "section": "Filter, slice_max(), join a \"Y\"",
+    "text": "Filter, slice_max(), join a \"Y\"\nKeep rows with TUDTC &lt;= RFSTDTC. Per USUBJID and TULNKID, take the latest TUDTC. Distinct the keys so a tied date does not multiply rows on the join. Flag \"Y\", join back, fill the rest with \"\".\n\nlast_before &lt;- tu |&gt;\n  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC &lt;= RFSTDTC) |&gt;\n  group_by(USUBJID, TULNKID) |&gt;\n  slice_max(TUDTC, n = 1, with_ties = TRUE) |&gt;\n  ungroup() |&gt;\n  distinct(USUBJID, TULNKID, TUDTC) |&gt;\n  mutate(TULOBXFL = \"Y\")\n\nlast_before\n\n# A tibble: 2 × 4\n  USUBJID      TULNKID TUDTC      TULOBXFL\n  &lt;chr&gt;        &lt;chr&gt;   &lt;date&gt;     &lt;chr&gt;   \n1 STD-001-0001 T01     2025-06-03 Y       \n2 STD-001-0001 T02     2025-05-20 Y       \n\ntu |&gt;\n  left_join(last_before, by = c(\"USUBJID\", \"TULNKID\", \"TUDTC\")) |&gt;\n  mutate(TULOBXFL = coalesce(TULOBXFL, \"\"))\n\n       USUBJID TULNKID      TUDTC    RFSTDTC TUSTRESC TULOBXFL\n1 STD-001-0001     T01 2025-05-20 2025-06-03       CR         \n2 STD-001-0001     T01 2025-06-03 2025-06-03       CR        Y\n3 STD-001-0001     T01 2025-06-17 2025-06-03       SD         \n4 STD-001-0001     T02 2025-05-20 2025-06-03       CR        Y\n5 STD-001-0001     T02 2025-05-20 2025-06-03       NE        Y\n6 STD-001-0001     T02 2025-06-17 2025-06-03       PD         \n7 STD-001-0002     T01 2025-06-20 2025-06-10       PR         \n8 STD-001-0002     T01 2025-06-27 2025-06-10       PR         \n\n\nSTD-001-0001 T01 on 2025-06-03 is \"Y\". Both STD-001-0001 T02 rows on 2025-05-20 are \"Y\" (with_ties = TRUE). Post-baseline rows are blank. STD-001-0002 is blank on both rows.\n\n\n\n\n\n\nImportantBlank is \"\", not NA\n\n\n\nSDTM --LOBXFL is \"Y\" or blank. A left join puts NA on unmatched rows. waldo and a SAS XPT compare treat NA versus \"\" as a difference on every unflagged row. coalesce(TULOBXFL, \"\") is required for that compare."
+  },
+  {
+    "objectID": "lobxfl.html#group-by-the-entity",
+    "href": "lobxfl.html#group-by-the-entity",
+    "title": "Last observation before exposure",
+    "section": "Group by the entity",
+    "text": "Group by the entity\nTULNKID is the lesion. Last-before-exposure is per lesion, not per subject. group_by(USUBJID) alone selects one date for the subject and can flag the wrong T02 row, or miss it. Put the IG entity (TULNKID, RSGRPID, or a record identifier) in group_by()."
+  },
+  {
+    "objectID": "lobxfl.html#empty-qualifying-set-stays-blank",
+    "href": "lobxfl.html#empty-qualifying-set-stays-blank",
+    "title": "Last observation before exposure",
+    "section": "Empty qualifying set stays blank",
+    "text": "Empty qualifying set stays blank\nSTD-001-0002 has no row with TUDTC &lt;= RFSTDTC. last_before has no keys for that subject. The left join matches nothing; coalesce(..., \"\") leaves both rows blank. Do not assign \"Y\" to the earliest post-baseline record."
+  },
+  {
+    "objectID": "lobxfl.html#with_ties-true",
+    "href": "lobxfl.html#with_ties-true",
+    "title": "Last observation before exposure",
+    "section": "with_ties = TRUE",
+    "text": "with_ties = TRUE\nslice_max(..., with_ties = TRUE) keeps every row that shares the maximum date. When two records on the same entity fall on the last qualifying day, both get \"Y\".\ndistinct(USUBJID, TULNKID, TUDTC) makes the right-hand table unique on the join keys, so those two left rows each match once. Without distinct(), a two-row tie on the right cartesian-joins against two left rows with the same keys.\nwith_ties = FALSE keeps one row and does not specify which. If the IG requires exactly one flag per entity on a tied date, pass a tie-breaker to slice_max() (a sequence or a datetime)."
+  },
+  {
+    "objectID": "mutate.html",
+    "href": "mutate.html",
+    "title": "Mutate",
+    "section": "",
+    "text": "SAS: DATA step assignment (new = ...;, overwrite existing)\ndplyr::mutate() adds or replaces columns. One call can set several columns. The result is a new data frame; the input is unchanged unless you overwrite it."
+  },
+  {
+    "objectID": "mutate.html#quick-reference",
+    "href": "mutate.html#quick-reference",
+    "title": "Mutate",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\ndf |&gt;\n  mutate(\n    AVAL = VALUE,\n    AVALC = as.character(VALUE)\n  )\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\nmutate(NEW = expr)\nDATA step new = expr;\n\n\nmutate(VAR = expr)\noverwrite existing variable\n\n\nseveral columns in one mutate()\nseveral assignments in one DATA step\n\n\n\nTrap: mutate() returns a new table; assign it or pipe onward. It does not change the input object in place unless you overwrite the name.\nWorked examples below."
+  },
+  {
+    "objectID": "mutate.html#add-a-column",
+    "href": "mutate.html#add-a-column",
+    "title": "Mutate",
+    "section": "Add a column",
+    "text": "Add a column\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\ndm &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0002\"),\n  AGE = c(54L, 61L)\n)\n\ndm |&gt;\n  mutate(AGEU = \"YEARS\")\n\n       USUBJID AGE  AGEU\n1 STD-001-0001  54 YEARS\n2 STD-001-0002  61 YEARS\n\n\nSAS:\nageu = \"YEARS\";"
+  },
+  {
+    "objectID": "mutate.html#overwrite-a-column",
+    "href": "mutate.html#overwrite-a-column",
+    "title": "Mutate",
+    "section": "Overwrite a column",
+    "text": "Overwrite a column\n\ndm |&gt;\n  mutate(AGE = AGE + 1L)\n\n       USUBJID AGE\n1 STD-001-0001  55\n2 STD-001-0002  62\n\n\nSame name on the left replaces the column. Order matters when later columns use earlier ones in the same mutate()."
+  },
+  {
+    "objectID": "mutate.html#several-columns",
+    "href": "mutate.html#several-columns",
+    "title": "Mutate",
+    "section": "Several columns",
+    "text": "Several columns\n\ndm |&gt;\n  mutate(\n    AGEU = \"YEARS\",\n    AGEGR1 = if_else(AGE &lt; 65L, \"&lt;65\", \"&gt;=65\")\n  )\n\n       USUBJID AGE  AGEU AGEGR1\n1 STD-001-0001  54 YEARS    &lt;65\n2 STD-001-0002  61 YEARS    &lt;65\n\n\nOne mutate() is one DATA step block of assignments. Prefer that over chained one-column mutate() calls when the columns belong together.\n\n\n\n\n\n\nImportantNot in place\n\n\n\nmutate(dm, ...) alone does nothing lasting. Use dm &lt;- dm |&gt; mutate(...) or keep piping into the next verb."
+  },
+  {
+    "objectID": "filter.html",
+    "href": "filter.html",
+    "title": "Filter",
+    "section": "",
+    "text": "SAS: WHERE, subsetting IF\ndplyr::filter() keeps rows for which the condition is TRUE."
+  },
+  {
+    "objectID": "filter.html#quick-reference",
+    "href": "filter.html#quick-reference",
+    "title": "Filter",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\ndf |&gt;\n  filter(PARAMCD == \"SYSBP\")\n\ndf |&gt;\n  filter(PARAMCD == \"SYSBP\", !is.na(AVAL))\n\n\n\nR\nSAS\n\n\n\n\nfilter(cond)\nwhere cond; or subsetting if cond;\n\n\nfilter(a, b)\nwhere a and b; (both must be true)\n\n\nfilter(a \\| b)\nwhere a or b;\n\n\n\nTrap: filter() keeps rows where the condition is TRUE. Rows with NA in the condition are dropped. SAS where also treats missing as not true for most comparisons.\nWorked examples below."
+  },
+  {
+    "objectID": "filter.html#one-condition",
+    "href": "filter.html#one-condition",
+    "title": "Filter",
+    "section": "One condition",
+    "text": "One condition\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nvs &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0001\", \"STD-001-0002\"),\n  PARAMCD = c(\"SYSBP\", \"DIABP\", \"SYSBP\"),\n  AVAL = c(120, 80, NA_real_)\n)\n\nvs |&gt;\n  filter(PARAMCD == \"SYSBP\")\n\n       USUBJID PARAMCD AVAL\n1 STD-001-0001   SYSBP  120\n2 STD-001-0002   SYSBP   NA\n\n\nSAS: where paramcd = \"SYSBP\";"
+  },
+  {
+    "objectID": "filter.html#several-conditions",
+    "href": "filter.html#several-conditions",
+    "title": "Filter",
+    "section": "Several conditions",
+    "text": "Several conditions\n\nvs |&gt;\n  filter(PARAMCD == \"SYSBP\", !is.na(AVAL))\n\n       USUBJID PARAMCD AVAL\n1 STD-001-0001   SYSBP  120\n\n\nCommas in filter() mean AND. Use | for OR.\n\n\n\n\n\n\nImportantNA in the condition drops the row\n\n\n\nfilter(AVAL &gt; 100) drops rows where AVAL is NA, because NA &gt; 100 is not TRUE. Keep missing values on purpose with is.na(AVAL) | AVAL &gt; 100 when that is the rule."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Topics",
+    "section": "",
+    "text": "Basics\n\n\nMutate create or change columns\nSelect and rename keep, drop, and rename columns\nFilter keep rows that match a condition\nIf else and case when conditional column values\nCoalesce prefer one value, fall back to another\n\n\n\n\nText\n\n\nSubstrings extract part of a character value\n\n\n\n\nDates\n\n\nStudy day date subtraction for --DY\n\n\n\n\nCombining Data\n\n\nJoins combining tables\n\n\n\n\nDerivations\n\n\nSequence numbers --SEQ within a subject\nLast observation before exposure --LOBXFL flags"
+  },
+  {
+    "objectID": "seq.html",
+    "href": "seq.html",
+    "title": "Sequence numbers",
+    "section": "",
+    "text": "SAS: PROC SORT then _N_ within BY, --SEQ\n--SEQ is a within-subject row number after a defined order. In R: arrange(), then group_by(USUBJID), then row_number(). Without arrange(), the numbers follow the current row order, not the IG order."
+  },
+  {
+    "objectID": "seq.html#quick-reference",
+    "href": "seq.html#quick-reference",
+    "title": "Sequence numbers",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\ndf |&gt;\n  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |&gt;  # order first\n  group_by(USUBJID) |&gt;\n  mutate(SEQ = as.double(row_number())) |&gt;              # --SEQ, XPT-shaped\n  ungroup()\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\narrange(...) then row_number()\nPROC SORT then _N_ within BY\n\n\ngroup_by(USUBJID)\nBY USUBJID\n\n\nas.double(row_number())\nSAS numeric is always double\n\n\n\nThree traps: row_number() follows the current row order, so skip arrange() and --SEQ is whatever the last PROC left behind. Equal dates need tie-breakers in arrange(). Integer SEQ is not how SAS XPT stores it; use as.double().\nWorked examples below."
+  },
+  {
+    "objectID": "seq.html#the-example-table",
+    "href": "seq.html#the-example-table",
+    "title": "Sequence numbers",
+    "section": "The example table",
+    "text": "The example table\nTumor results in input order, which is not the TUSEQ order.\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\ntu &lt;- data.frame(\n  USUBJID  = c(\n    \"STD-001-0001\", \"STD-001-0001\", \"STD-001-0001\",\n    \"STD-001-0001\", \"STD-001-0002\"\n  ),\n  TUEVAL   = c(\n    \"INVESTIGATOR\", \"INVESTIGATOR\", \"INVESTIGATOR\",\n    \"INDEPENDENT ASSESSOR\", \"INVESTIGATOR\"\n  ),\n  TULNKID  = c(\"T01\", \"T01\", \"T02\", \"T01\", \"T01\"),\n  VISITNUM = c(3, 1, 1, 1, 2),\n  TUDY     = c(15, 1, 1, 1, 8),\n  TUSTRESC = c(\"SD\", \"CR\", \"CR\", \"CR\", \"PR\")\n)\n\ntu\n\n       USUBJID               TUEVAL TULNKID VISITNUM TUDY TUSTRESC\n1 STD-001-0001         INVESTIGATOR     T01        3   15       SD\n2 STD-001-0001         INVESTIGATOR     T01        1    1       CR\n3 STD-001-0001         INVESTIGATOR     T02        1    1       CR\n4 STD-001-0001 INDEPENDENT ASSESSOR     T01        1    1       CR\n5 STD-001-0002         INVESTIGATOR     T01        2    8       PR\n\n\nSTD-001-0001 has investigator lesions T01 and T02, and one independent-assessor row. VISITNUM 3 is the first input row. IG order: evaluator, lesion, visit, study day."
+  },
+  {
+    "objectID": "seq.html#wrong-row_number-without-arrange",
+    "href": "seq.html#wrong-row_number-without-arrange",
+    "title": "Sequence numbers",
+    "section": "Wrong: row_number() without arrange()",
+    "text": "Wrong: row_number() without arrange()\n\ntu |&gt;\n  group_by(USUBJID) |&gt;\n  mutate(TUSEQ = row_number()) |&gt;\n  ungroup()\n\n# A tibble: 5 × 7\n  USUBJID      TUEVAL               TULNKID VISITNUM  TUDY TUSTRESC TUSEQ\n  &lt;chr&gt;        &lt;chr&gt;                &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;int&gt;\n1 STD-001-0001 INVESTIGATOR         T01            3    15 SD           1\n2 STD-001-0001 INVESTIGATOR         T01            1     1 CR           2\n3 STD-001-0001 INVESTIGATOR         T02            1     1 CR           3\n4 STD-001-0001 INDEPENDENT ASSESSOR T01            1     1 CR           4\n5 STD-001-0002 INVESTIGATOR         T01            2     8 PR           1\n\n\nSTD-001-0001 is numbered 1 to 4 in file order. VISITNUM 3 is TUSEQ 1. Equivalent to _N_ without PROC SORT."
+  },
+  {
+    "objectID": "seq.html#right-arrange-then-number",
+    "href": "seq.html#right-arrange-then-number",
+    "title": "Sequence numbers",
+    "section": "Right: arrange(), then number",
+    "text": "Right: arrange(), then number\nproc sort data=tu;\n  by usubjid tueval tulnkid visitnum tudy;\nrun;\n\ndata tu;\n  set tu;\n  by usubjid;\n  if first.usubjid then tuseq = 0;\n  tuseq + 1;\nrun;\n\ntu |&gt;\n  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |&gt;\n  group_by(USUBJID) |&gt;\n  mutate(TUSEQ = as.double(row_number())) |&gt;\n  ungroup()\n\n# A tibble: 5 × 7\n  USUBJID      TUEVAL               TULNKID VISITNUM  TUDY TUSTRESC TUSEQ\n  &lt;chr&gt;        &lt;chr&gt;                &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;\n1 STD-001-0001 INDEPENDENT ASSESSOR T01            1     1 CR           1\n2 STD-001-0001 INVESTIGATOR         T01            1     1 CR           2\n3 STD-001-0001 INVESTIGATOR         T01            3    15 SD           3\n4 STD-001-0001 INVESTIGATOR         T02            1     1 CR           4\n5 STD-001-0002 INVESTIGATOR         T01            2     8 PR           1\n\n\nINDEPENDENT ASSESSOR sorts before INVESTIGATOR and is TUSEQ 1. Then investigator T01 visit 1, T01 visit 3, T02 visit 1. TULNKID precedes VISITNUM, so T01 visit 3 precedes T02 visit 1. STD-001-0002 restarts at 1.\n\n\n\n\n\n\nImportantrow_number() numbers the current order\n\n\n\nIt does not infer a clinical order. group_by(USUBJID) then row_number() uses the frame's current order. Sort first. Include every IG key in arrange(), including tie-breakers."
+  },
+  {
+    "objectID": "seq.html#tie-breakers",
+    "href": "seq.html#tie-breakers",
+    "title": "Sequence numbers",
+    "section": "Tie-breakers",
+    "text": "Tie-breakers\nTwo rows can share a study day. arrange(USUBJID, TUDY) alone leaves their relative order undefined. Add keys that make a row unique, in IG order: TUEVAL, TULNKID, VISITNUM, TUDY. If a tie remains, add a source sequence or a datetime."
+  },
+  {
+    "objectID": "seq.html#as.double-for-xpt",
+    "href": "seq.html#as.double-for-xpt",
+    "title": "Sequence numbers",
+    "section": "as.double() for XPT",
+    "text": "as.double() for XPT\nSAS numeric is double. row_number() returns integer. haven / xportr write that as integer unless it is cast. SDTM --SEQ in a SAS XPT is double:\n\ntu |&gt;\n  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |&gt;\n  group_by(USUBJID) |&gt;\n  mutate(TUSEQ = as.double(row_number())) |&gt;\n  ungroup() |&gt;\n  pull(TUSEQ) |&gt;\n  typeof()\n\n[1] \"double\"\n\n\ndouble. Cast before writing XPT so the type matches SAS."
+  },
+  {
+    "objectID": "joins.html",
+    "href": "joins.html",
+    "title": "Joins",
+    "section": "",
+    "text": "SAS: DATA step MERGE ... BY, PROC SQL INNER/LEFT/RIGHT/FULL JOIN, IN= flags, WHERE EXISTS\nR has six named join functions where SAS has one MERGE statement plus a set of conventions. Once you know which name maps to which IN= pattern, joins get shorter and much harder to get silently wrong."
+  },
+  {
+    "objectID": "joins.html#quick-reference",
+    "href": "joins.html#quick-reference",
+    "title": "Joins",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\n# --- the six joins ------------------------------------------------------\ninner_join(dm, ae, by = \"subjid\")   # rows matching on BOTH sides\nleft_join( dm, ae, by = \"subjid\")   # all of dm, annotated from ae   &lt;- the usual one\nright_join(dm, ae, by = \"subjid\")   # all of ae (just swap the args instead)\nfull_join( dm, ae, by = \"subjid\")   # everything from either side\nanti_join( dm, ae, by = \"subjid\")   # in dm, NOT in ae               &lt;- \"who is missing?\"\nsemi_join( dm, ae, by = \"subjid\")   # filter dm to matches, add no columns\n\n# --- keys ---------------------------------------------------------------\nleft_join(dm, ae, by = c(\"subjid\" = \"SUBJID\"))   # different names, left first\nleft_join(lb, visits, by = c(\"subjid\", \"visit\")) # both keys must match\n\n# --- state what you expect; the join aborts if the data disagrees -------\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n# \"one-to-one\" | \"one-to-many\" | \"many-to-one\" | \"many-to-many\"\n\n\n\nR\nSAS DATA step\nSQL\n\n\n\n\ninner_join()\nif a and b;\nINNER JOIN\n\n\nleft_join()\nif a;\nLEFT JOIN\n\n\nright_join()\nif b;\nRIGHT JOIN\n\n\nfull_join()\nno subsetting if\nFULL JOIN\n\n\nanti_join()\nif a and not b;\nWHERE ... NOT IN\n\n\nsemi_join()\nif a and b; then dedupe\nWHERE EXISTS\n\n\n\nThree traps: NA after a join means \"no match\", not \"missing value\". inner_join() throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what relationship = is for.\nThe rest of this page is the same material worked through slowly, with runnable examples and the output they produce. Skip it if the block above was what you came for."
+  },
+  {
+    "objectID": "joins.html#the-example-tables",
+    "href": "joins.html#the-example-tables",
+    "title": "Joins",
+    "section": "The example tables",
+    "text": "The example tables\nTwo small tables with deliberate mismatches, used throughout this page.\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\ndm &lt;- data.frame(\n  subjid = c(\"001\", \"002\", \"003\", \"004\", \"005\"),\n  sex    = c(\"M\", \"F\", \"F\", \"M\", \"M\"),\n  trt    = c(\"Placebo\", \"Active\", \"Active\", \"Placebo\", \"Active\")\n)\n\nae &lt;- data.frame(\n  subjid = c(\"001\", \"001\", \"002\", \"003\", \"006\"),\n  aeterm = c(\"Headache\", \"Nausea\", \"Rash\", \"Fatigue\", \"Dizziness\"),\n  sev    = c(\"Mild\", \"Moderate\", \"Severe\", \"Mild\", \"Mild\")\n)\n\ndm\n\n  subjid sex     trt\n1    001   M Placebo\n2    002   F  Active\n3    003   F  Active\n4    004   M Placebo\n5    005   M  Active\n\nae\n\n  subjid    aeterm      sev\n1    001  Headache     Mild\n2    001    Nausea Moderate\n3    002      Rash   Severe\n4    003   Fatigue     Mild\n5    006 Dizziness     Mild\n\n\nThe mismatches matter, because they are what the different joins disagree about:\n\nsubject 001 has two AEs, so this is one-to-many\nsubjects 004 and 005 are in dm with no AEs\nsubject 006 has an AE but is not in dm, a data error you want to catch"
+  },
+  {
+    "objectID": "joins.html#the-six-joins",
+    "href": "joins.html#the-six-joins",
+    "title": "Joins",
+    "section": "The six joins",
+    "text": "The six joins\n\ninner_join(): rows matching in both\nproc sql;\n  select * from dm inner join ae on dm.subjid = ae.subjid;\nquit;\n\n/* or, DATA step */\ndata out;\n  merge dm(in=a) ae(in=b);\n  by subjid;\n  if a and b;\nrun;\n\ninner_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n\n\nFour rows. Dropped: 004 and 005 (no AE), and 006 (not in dm). Note that the data error and the legitimately event-free subjects vanish together and without comment. That is exactly why inner_join() makes a poor default.\n\n\nleft_join(): keep everything on the left\ndata out;\n  merge dm(in=a) ae;\n  by subjid;\n  if a;\nrun;\n\nleft_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;\n6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;\n\n\nThis is the workhorse, because most real joins are \"start from my subject list and annotate it\". Six rows: 001 twice because it has two AEs, and 004/005 once each with NA in the AE columns.\n\n\n\n\n\n\nImportantNA from a join means \"no match\", not \"missing value\"\n\n\n\nR gives you the same NA for both, and only context tells you which you have. Here it means the subject had no adverse event. It does not mean the term was left blank on the CRF, and it does not that the AE extract failed to load. If that distinction matters downstream, record it explicitly with a flag column rather than relying on the NA.\n\n\n\n\nright_join(): keep everything on the right\n\nright_join(dm, ae, by = \"subjid\")\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\n\nIdentical to left_join(ae, dm, by = \"subjid\") apart from column order, and rare in practice, because swapping the arguments reads better than making the reader track a mirror image. Subject 006 shows up here with NA demographics.\n\n\nfull_join(): keep everything from both\ndata out;\n  merge dm ae;\n  by subjid;\nrun;\n\nfull_join(dm, ae, by = \"subjid\")\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    004    M Placebo      &lt;NA&gt;     &lt;NA&gt;\n6    005    M  Active      &lt;NA&gt;     &lt;NA&gt;\n7    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\n\nSeven rows: every subjid from either side. Useful when you are hunting data-quality problems and do not yet know which side they are on.\n\n\nanti_join(): left rows with no match on the right\ndata out;\n  merge dm(in=a) ae(in=b);\n  by subjid;\n  if a and not b;\nrun;\nThe QC workhorse. \"Who is missing?\" is one line in both directions:\n\n# Subjects with no adverse events at all\nanti_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt\n1    004   M Placebo\n2    005   M  Active\n\n# AE rows referencing a subject who is not in DM (a data error)\nanti_join(ae, dm, by = \"subjid\")\n\n  subjid    aeterm  sev\n1    006 Dizziness Mild\n\n\nRunning both directions after any join is a cheap habit that catches key problems before they reach an analysis dataset.\n\n\nsemi_join(): filter the left by existence on the right\nproc sql;\n  select * from dm where subjid in (select subjid from ae);\nquit;\n\nsemi_join(dm, ae, by = \"subjid\")\n\n  subjid sex     trt\n1    001   M Placebo\n2    002   F  Active\n3    003   F  Active\n\n\nThree rows, and only dm's columns. Nothing is merged in. Compare with inner_join(dm, ae), which returned four rows because 001 was duplicated by its two AEs. semi_join() filters; inner_join() filters and merges. When you only want to subset, semi_join() cannot change your row count behind your back."
+  },
+  {
+    "objectID": "joins.html#keys-that-are-named-differently",
+    "href": "joins.html#keys-that-are-named-differently",
+    "title": "Joins",
+    "section": "Keys that are named differently",
+    "text": "Keys that are named differently\nSAS forces you to rename before merging. R does not:\n\nae_upper &lt;- data.frame(\n  SUBJID = c(\"001\", \"002\", \"003\"),\n  aeterm = c(\"Headache\", \"Rash\", \"Fatigue\")\n)\n\nleft_join(dm, ae_upper, by = c(\"subjid\" = \"SUBJID\"))\n\n  subjid sex     trt   aeterm\n1    001   M Placebo Headache\n2    002   F  Active     Rash\n3    003   F  Active  Fatigue\n4    004   M Placebo     &lt;NA&gt;\n5    005   M  Active     &lt;NA&gt;\n\n\nLeft name first, right name second. The result keeps the left-hand name."
+  },
+  {
+    "objectID": "joins.html#joining-on-more-than-one-key",
+    "href": "joins.html#joining-on-more-than-one-key",
+    "title": "Joins",
+    "section": "Joining on more than one key",
+    "text": "Joining on more than one key\n\nlb &lt;- data.frame(\n  subjid = c(\"001\", \"001\", \"002\"),\n  visit  = c(\"Baseline\", \"Week 4\", \"Baseline\"),\n  alt    = c(22, 28, 31)\n)\n\nvisits &lt;- data.frame(\n  subjid     = c(\"001\", \"001\", \"002\"),\n  visit      = c(\"Baseline\", \"Week 4\", \"Baseline\"),\n  visit_date = as.Date(c(\"2025-01-10\", \"2025-02-07\", \"2025-01-12\"))\n)\n\nleft_join(lb, visits, by = c(\"subjid\", \"visit\"))\n\n  subjid    visit alt visit_date\n1    001 Baseline  22 2025-01-10\n2    001   Week 4  28 2025-02-07\n3    002 Baseline  31 2025-01-12\n\n\nA row matches only when both keys match, exactly like BY subjid visit."
+  },
+  {
+    "objectID": "joins.html#row-count-hygiene",
+    "href": "joins.html#row-count-hygiene",
+    "title": "Joins",
+    "section": "Row-count hygiene",
+    "text": "Row-count hygiene\nThe most common join bug in clinical data is a right-hand table with duplicate keys, which quietly multiplies your rows. In SAS you find out by reading the log. In R, state the shape you expect and let the join fail if the data disagrees:\n\nnrow(dm)\n\n[1] 5\n\nnrow(left_join(dm, ae, by = \"subjid\"))\n\n[1] 6\n\n\nSix rows from five subjects. Here that is correct, because one subject has two AEs, but you should have to say so:\n\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-many\")\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;\n6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;\n\n\nrelationship = (dplyr 1.1 and later) takes \"one-to-one\", \"one-to-many\", \"many-to-one\" or \"many-to-many\", and aborts when the data violates the claim:\n\nleft_join(dm, ae, by = \"subjid\", relationship = \"one-to-one\")\n\nError in `left_join()`:\n! Each row in `x` must match at most 1 row in `y`.\nℹ Row 1 of `x` matches multiple rows in `y`.\n\n\nThat error is the point. Get into the habit of declaring the relationship on every join. It turns a silent row explosion into a loud failure at the line that caused it."
+  },
+  {
+    "objectID": "joins.html#base-r-merge",
+    "href": "joins.html#base-r-merge",
+    "title": "Joins",
+    "section": "Base R: merge()",
+    "text": "Base R: merge()\nStill common in older code, and the closest single function to a DATA step MERGE:\n\nmerge(dm, ae, by = \"subjid\")                 # inner (the default)\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n\nmerge(dm, ae, by = \"subjid\", all.x = TRUE)   # left\n\n  subjid sex     trt   aeterm      sev\n1    001   M Placebo Headache     Mild\n2    001   M Placebo   Nausea Moderate\n3    002   F  Active     Rash   Severe\n4    003   F  Active  Fatigue     Mild\n5    004   M Placebo     &lt;NA&gt;     &lt;NA&gt;\n6    005   M  Active     &lt;NA&gt;     &lt;NA&gt;\n\nmerge(dm, ae, by = \"subjid\", all.y = TRUE)   # right\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\nmerge(dm, ae, by = \"subjid\", all = TRUE)     # full\n\n  subjid  sex     trt    aeterm      sev\n1    001    M Placebo  Headache     Mild\n2    001    M Placebo    Nausea Moderate\n3    002    F  Active      Rash   Severe\n4    003    F  Active   Fatigue     Mild\n5    004    M Placebo      &lt;NA&gt;     &lt;NA&gt;\n6    005    M  Active      &lt;NA&gt;     &lt;NA&gt;\n7    006 &lt;NA&gt;    &lt;NA&gt; Dizziness     Mild\n\n\nReadable enough, but there is no merge() equivalent of anti_join() or semi_join(), no relationship = check, and all.x = TRUE says less at a glance than left_join. Prefer dplyr for new work; recognise merge() when you inherit it."
+  },
+  {
+    "objectID": "if-else-case-when.html",
+    "href": "if-else-case-when.html",
+    "title": "If else and case when",
+    "section": "",
+    "text": "SAS: IF-THEN-ELSE, IFN / IFC, SELECT\nUse if_else() for one condition and two results. Use case_when() for several branches."
+  },
+  {
+    "objectID": "if-else-case-when.html#quick-reference",
+    "href": "if-else-case-when.html#quick-reference",
+    "title": "If else and case when",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\ndf |&gt;\n  mutate(\n    AGEGR1 = if_else(AGE &lt; 65L, \"&lt;65\", \"&gt;=65\")\n  )\n\ndf |&gt;\n  mutate(\n    AESEVN = case_when(\n      AESEV == \"MILD\" ~ 1L,\n      AESEV == \"MODERATE\" ~ 2L,\n      AESEV == \"SEVERE\" ~ 3L,\n      TRUE ~ NA_integer_\n    )\n  )\n\n\n\nR\nSAS\n\n\n\n\nif_else(cond, true, false)\nIFN / IFC, or if then ... else\n\n\ncase_when(cond ~ val, ...)\nSELECT / nested IF-THEN-ELSE\n\n\ncase_when(..., TRUE ~ other)\nOTHERWISE / final else\n\n\n\nTrap: dplyr::if_else() is stricter on types than base ifelse(). Prefer if_else() in dplyr pipelines. case_when() stops at the first true condition.\nWorked examples below."
+  },
+  {
+    "objectID": "if-else-case-when.html#two-way-if_else",
+    "href": "if-else-case-when.html#two-way-if_else",
+    "title": "If else and case when",
+    "section": "Two-way: if_else()",
+    "text": "Two-way: if_else()\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\ndm &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0002\", \"STD-001-0003\"),\n  AGE = c(54L, 70L, NA_integer_)\n)\n\ndm |&gt;\n  mutate(AGEGR1 = if_else(AGE &lt; 65L, \"&lt;65\", \"&gt;=65\"))\n\n       USUBJID AGE AGEGR1\n1 STD-001-0001  54    &lt;65\n2 STD-001-0002  70   &gt;=65\n3 STD-001-0003  NA   &lt;NA&gt;\n\n\nWhen AGE is NA, if_else() returns NA for that row (unless you set missing=).\nSAS ifc(age &lt; 65, \"&lt;65\", \"&gt;=65\") is the same idea for character results."
+  },
+  {
+    "objectID": "if-else-case-when.html#multi-way-case_when",
+    "href": "if-else-case-when.html#multi-way-case_when",
+    "title": "If else and case when",
+    "section": "Multi-way: case_when()",
+    "text": "Multi-way: case_when()\n\nae &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0002\", \"STD-001-0003\", \"STD-001-0004\"),\n  AESEV = c(\"MILD\", \"MODERATE\", \"SEVERE\", NA_character_)\n)\n\nae |&gt;\n  mutate(\n    AESEVN = case_when(\n      AESEV == \"MILD\" ~ 1L,\n      AESEV == \"MODERATE\" ~ 2L,\n      AESEV == \"SEVERE\" ~ 3L,\n      TRUE ~ NA_integer_\n    )\n  )\n\n       USUBJID    AESEV AESEVN\n1 STD-001-0001     MILD      1\n2 STD-001-0002 MODERATE      2\n3 STD-001-0003   SEVERE      3\n4 STD-001-0004     &lt;NA&gt;     NA\n\n\nThe first matching condition wins. End with TRUE ~ ... as the catch-all (SAS OTHERWISE).\n\n\n\n\n\n\nImportantPrefer if_else() over base ifelse() in dplyr\n\n\n\nif_else() checks that true and false values share a type. Base ifelse() is looser and often surprises with factors and dates.\n\n\nFor \"first non-missing of several columns,\" use coalesce() (see Coalesce), not case_when()."
+  },
+  {
+    "objectID": "coalesce.html",
+    "href": "coalesce.html",
+    "title": "Coalesce",
+    "section": "",
+    "text": "SAS: COALESCE, coalescec, IFN / IFC, specify-then-coded\nSAS COALESCE / coalescec skip missing values. dplyr::coalesce() skips NA only. Blank \"\" is a value, not missing."
+  },
+  {
+    "objectID": "coalesce.html#quick-reference",
+    "href": "coalesce.html#quick-reference",
+    "title": "Coalesce",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\ncoalesce(x, y)                    # first non-NA argument; later args are fallbacks\ncoalesce(na_if(spy, \"\"), coded)   # specify, then coded. blanks are not NA\n\nna_if(x, \"\")                      # \"\" -&gt; NA so coalesce will skip it\nna_if(x, \"NA\")                    # the literal string \"NA\" is not missing either\n\n\n\nR\nSAS\n\n\n\n\ndplyr::coalesce()\nCOALESCE (numeric), coalescec (character)\n\n\nna_if(x, \"\")\nSAS already treats blank as missing\n\n\nif_else(cond, a, b)\nIFN / IFC\n\n\n\nThree traps: coalesce() skips NA only, not \"\". A specify field of \"\" therefore beats the coded value. Convert blanks with na_if() first, then prefer specify over coded: coalesce(na_if(spy, \"\"), coded).\nWorked examples below."
+  },
+  {
+    "objectID": "coalesce.html#the-example-table",
+    "href": "coalesce.html#the-example-table",
+    "title": "Coalesce",
+    "section": "The example table",
+    "text": "The example table\nSpecify versus coded location. Four rows; four states of the specify field.\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\ncm &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0002\", \"STD-001-0003\", \"STD-001-0004\"),\n  LOCSPY  = c(\"Left deltoid\", \"\", NA, \"Right thigh, anterior\"),\n  LOC     = c(\"ARM\", \"ARM\", \"LEG\", \"THIGH\")\n)\n\ncm\n\n       USUBJID                LOCSPY   LOC\n1 STD-001-0001          Left deltoid   ARM\n2 STD-001-0002                         ARM\n3 STD-001-0003                  &lt;NA&gt;   LEG\n4 STD-001-0004 Right thigh, anterior THIGH\n\n\n\nSTD-001-0001: specify present; overrides ARM\nSTD-001-0002: specify is \"\"; use coded\nSTD-001-0003: specify is NA; use coded\nSTD-001-0004: specify present; overrides THIGH"
+  },
+  {
+    "objectID": "coalesce.html#coalesce-skips-na",
+    "href": "coalesce.html#coalesce-skips-na",
+    "title": "Coalesce",
+    "section": "coalesce() skips NA",
+    "text": "coalesce() skips NA\nloc = coalescec(locspy, loc);\n\ncm |&gt;\n  mutate(LOC_OUT = coalesce(LOCSPY, LOC))\n\n       USUBJID                LOCSPY   LOC               LOC_OUT\n1 STD-001-0001          Left deltoid   ARM          Left deltoid\n2 STD-001-0002                         ARM                      \n3 STD-001-0003                  &lt;NA&gt;   LEG                   LEG\n4 STD-001-0004 Right thigh, anterior THIGH Right thigh, anterior\n\n\nSTD-001-0003 is correct: NA is skipped, LEG is used. STD-001-0002 is not. \"\" is not NA, so coalesce() keeps it and does not use coded ARM.\n\n\n\n\n\n\nImportantcoalesce() does not treat \"\" as missing\n\n\n\nSAS character missing is blank. R character missing is NA. coalesce() follows R. A specify field of \"\" is present, so it overrides the coded term. Convert blanks with na_if(), then coalesce."
+  },
+  {
+    "objectID": "coalesce.html#the-fix-na_if-then-coalesce",
+    "href": "coalesce.html#the-fix-na_if-then-coalesce",
+    "title": "Coalesce",
+    "section": "The fix: na_if() then coalesce()",
+    "text": "The fix: na_if() then coalesce()\n\ncm |&gt;\n  mutate(LOC_OUT = coalesce(na_if(LOCSPY, \"\"), LOC))\n\n       USUBJID                LOCSPY   LOC               LOC_OUT\n1 STD-001-0001          Left deltoid   ARM          Left deltoid\n2 STD-001-0002                         ARM                   ARM\n3 STD-001-0003                  &lt;NA&gt;   LEG                   LEG\n4 STD-001-0004 Right thigh, anterior THIGH Right thigh, anterior\n\n\nSpecify is used when it has text. Coded is used when specify is \"\" or NA.\nSpecify-overrides-coded is coalesce(na_if(spy, \"\"), coded). Reversed arguments coalesce(coded, na_if(spy, \"\")) keep ARM on STD-001-0001 and drop the specify text."
+  },
+  {
+    "objectID": "coalesce.html#na_if-on-its-own",
+    "href": "coalesce.html#na_if-on-its-own",
+    "title": "Coalesce",
+    "section": "na_if() on its own",
+    "text": "na_if() on its own\n\nna_if(cm$LOCSPY, \"\")\n\n[1] \"Left deltoid\"          NA                      NA                     \n[4] \"Right thigh, anterior\"\n\n\n\"\" becomes NA. Other strings are unchanged. NA remains NA.\nThe characters \"NA\" are not missing. If an export stored that string, convert it with na_if(x, \"NA\"). That is separate from na_if(x, \"\")."
+  },
+  {
+    "objectID": "coalesce.html#ifn-ifc",
+    "href": "coalesce.html#ifn-ifc",
+    "title": "Coalesce",
+    "section": "IFN / IFC",
+    "text": "IFN / IFC\nSAS IFN (numeric) and IFC (character) are a condition and two (or three) results. That mapping is if_else(), not coalesce():\nloc = ifc(missing(locspy) or locspy = \"\", loc, locspy);\n\ncm |&gt;\n  mutate(\n    LOC_OUT = if_else(\n      is.na(na_if(LOCSPY, \"\")),\n      LOC,\n      LOCSPY\n    )\n  )\n\n       USUBJID                LOCSPY   LOC               LOC_OUT\n1 STD-001-0001          Left deltoid   ARM          Left deltoid\n2 STD-001-0002                         ARM                   ARM\n3 STD-001-0003                  &lt;NA&gt;   LEG                   LEG\n4 STD-001-0004 Right thigh, anterior THIGH Right thigh, anterior\n\n\nSame result as coalesce(na_if(LOCSPY, \"\"), LOC). Use coalesce() for first non-missing. Use if_else() when the rule is a named condition."
+  },
+  {
+    "objectID": "study-day.html",
+    "href": "study-day.html",
+    "title": "Study day",
+    "section": "",
+    "text": "SAS: date minus date, INTCK('day', ...), CDISC --DY\nCDISC --DY has no day 0. The reference start date is day 1. Dates before the reference stay negative and are not shifted. Raw subtraction is not --DY on or after the reference date."
+  },
+  {
+    "objectID": "study-day.html#quick-reference",
+    "href": "study-day.html#quick-reference",
+    "title": "Study day",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\n# CDISC --DY has no day 0. The reference date is day 1, not day 0.\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n\n# same rule, no branch:\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\n\n\n\n\n\n\n\nR\nSAS\n\n\n\n\ndate - rfstdt\ndate minus date (raw, includes day 0)\n\n\nif_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)\n--DY (no day 0)\n\n\nas.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)\nthe same --DY rule, compact\n\n\n\nThree traps: raw subtraction is not --DY. On the reference date the raw diff is 0; --DY is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.\nWorked examples below."
+  },
+  {
+    "objectID": "study-day.html#raw-diff-versus---dy",
+    "href": "study-day.html#raw-diff-versus---dy",
+    "title": "Study day",
+    "section": "Raw diff versus --DY",
+    "text": "Raw diff versus --DY\nFive lab dates around one reference start: two before, the reference date, two after.\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlb &lt;- data.frame(\n  USUBJID = c(\n    \"STD-001-0001\", \"STD-001-0001\", \"STD-001-0001\",\n    \"STD-001-0001\", \"STD-001-0001\"\n  ),\n  LBDT   = as.Date(c(\n    \"2025-06-01\", \"2025-06-02\", \"2025-06-03\",\n    \"2025-06-04\", \"2025-06-05\"\n  )),\n  RFSTDT = as.Date(\"2025-06-03\")\n)\n\nlb |&gt;\n  mutate(\n    RAW  = as.integer(LBDT - RFSTDT),\n    LBDY = if_else(\n      LBDT &lt; RFSTDT,\n      as.integer(LBDT - RFSTDT),\n      as.integer(LBDT - RFSTDT) + 1L\n    )\n  )\n\n       USUBJID       LBDT     RFSTDT RAW LBDY\n1 STD-001-0001 2025-06-01 2025-06-03  -2   -2\n2 STD-001-0001 2025-06-02 2025-06-03  -1   -1\n3 STD-001-0001 2025-06-03 2025-06-03   0    1\n4 STD-001-0001 2025-06-04 2025-06-03   1    2\n5 STD-001-0001 2025-06-05 2025-06-03   2    3\n\n\n\n\n\nLBDT vs RFSTDT\nraw\nLBDY\n\n\n\n\ntwo days before\n-2\n-2\n\n\none day before\n-1\n-1\n\n\non the reference date\n0\n1\n\n\none day after\n1\n2\n\n\ntwo days after\n2\n3\n\n\n\nThe day before and the day after the reference are not symmetric. SAS date arithmetic returns the raw column. --DY is the LBDY column.\n\n\n\n\n\n\nImportantThere is no day 0\n\n\n\ndate - rfstdt on the reference date is 0. --DY on that date is 1. Every date on or after the reference is shifted by +1. Dates before the reference remain a negative offset. The raw diff labels the first treatment day as 0 and offsets every later day by one."
+  },
+  {
+    "objectID": "study-day.html#compact-form",
+    "href": "study-day.html#compact-form",
+    "title": "Study day",
+    "section": "Compact form",
+    "text": "Compact form\nAdd 1 when date &gt;= rfstdt, otherwise add 0:\n\nlb |&gt;\n  mutate(\n    LBDY = as.integer(LBDT - RFSTDT) + as.integer(LBDT &gt;= RFSTDT)\n  )\n\n       USUBJID       LBDT     RFSTDT LBDY\n1 STD-001-0001 2025-06-01 2025-06-03   -2\n2 STD-001-0001 2025-06-02 2025-06-03   -1\n3 STD-001-0001 2025-06-03 2025-06-03    1\n4 STD-001-0001 2025-06-04 2025-06-03    2\n5 STD-001-0001 2025-06-05 2025-06-03    3\n\n\nas.integer(TRUE) is 1. as.integer(FALSE) is 0. Same values as if_else(). date - rfstdt is a difftime; as.integer() converts it before the +1."
+  },
+  {
+    "objectID": "study-day.html#a-subject-table",
+    "href": "study-day.html#a-subject-table",
+    "title": "Study day",
+    "section": "A subject table",
+    "text": "A subject table\nTwo subjects. STD-001-0002 starts on 2025-06-10 and has one lab on that day. Missing LBDT remains missing.\n\nlb2 &lt;- data.frame(\n  USUBJID = c(\n    \"STD-001-0001\", \"STD-001-0001\", \"STD-001-0001\",\n    \"STD-001-0002\", \"STD-001-0002\"\n  ),\n  LBDT = as.Date(c(\n    \"2025-06-02\", \"2025-06-03\", \"2025-06-04\",\n    \"2025-06-10\", NA\n  )),\n  RFSTDT = as.Date(c(\n    \"2025-06-03\", \"2025-06-03\", \"2025-06-03\",\n    \"2025-06-10\", \"2025-06-10\"\n  ))\n)\n\nlb2 |&gt;\n  mutate(\n    LBDY = as.integer(LBDT - RFSTDT) + as.integer(LBDT &gt;= RFSTDT)\n  )\n\n       USUBJID       LBDT     RFSTDT LBDY\n1 STD-001-0001 2025-06-02 2025-06-03   -1\n2 STD-001-0001 2025-06-03 2025-06-03    1\n3 STD-001-0001 2025-06-04 2025-06-03    2\n4 STD-001-0002 2025-06-10 2025-06-10    1\n5 STD-001-0002       &lt;NA&gt; 2025-06-10   NA\n\n\nSTD-001-0001 study days: -1, 1, 2. STD-001-0002: 1, then NA. Do not replace missing dates with 0. CDISC leaves --DY missing when either date is missing.\nINTCK('day', rfstdt, date) in SAS is the raw interval, not --DY. Apply the same +1 on and after the reference date."
+  },
+  {
+    "objectID": "select-rename.html",
+    "href": "select-rename.html",
+    "title": "Select and rename",
+    "section": "",
+    "text": "SAS: KEEP, DROP, RENAME\nselect() chooses columns. rename() changes names without dropping others."
+  },
+  {
+    "objectID": "select-rename.html#quick-reference",
+    "href": "select-rename.html#quick-reference",
+    "title": "Select and rename",
+    "section": "Quick reference",
+    "text": "Quick reference\nlibrary(dplyr)\n\ndf |&gt;\n  select(USUBJID, AVAL, AVALC)\n\ndf |&gt;\n  select(-TEMP)\n\ndf |&gt;\n  rename(AVAL = VALUE)\n\n\n\nR\nSAS\n\n\n\n\nselect(a, b)\nKEEP a b; (keep listed)\n\n\nselect(-a)\nDROP a;\n\n\nrename(new = old)\nRENAME old = new; (note name order)\n\n\n\nTrap: SAS RENAME old=new puts the old name first. dplyr::rename(new = old) puts the new name first.\nWorked examples below."
+  },
+  {
+    "objectID": "select-rename.html#keep-listed-columns",
+    "href": "select-rename.html#keep-listed-columns",
+    "title": "Select and rename",
+    "section": "Keep listed columns",
+    "text": "Keep listed columns\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nae &lt;- data.frame(\n  USUBJID = c(\"STD-001-0001\", \"STD-001-0001\"),\n  AETERM = c(\"NAUSEA\", \"HEADACHE\"),\n  AESEV = c(\"MILD\", \"MODERATE\"),\n  TEMP = c(1L, 2L)\n)\n\nae |&gt;\n  select(USUBJID, AETERM, AESEV)\n\n       USUBJID   AETERM    AESEV\n1 STD-001-0001   NAUSEA     MILD\n2 STD-001-0001 HEADACHE MODERATE\n\n\nSAS: keep usubjid aeterm aesev;"
+  },
+  {
+    "objectID": "select-rename.html#drop-columns",
+    "href": "select-rename.html#drop-columns",
+    "title": "Select and rename",
+    "section": "Drop columns",
+    "text": "Drop columns\n\nae |&gt;\n  select(-TEMP)\n\n       USUBJID   AETERM    AESEV\n1 STD-001-0001   NAUSEA     MILD\n2 STD-001-0001 HEADACHE MODERATE\n\n\nSAS: drop temp;"
+  },
+  {
+    "objectID": "select-rename.html#rename",
+    "href": "select-rename.html#rename",
+    "title": "Select and rename",
+    "section": "Rename",
+    "text": "Rename\n\nae |&gt;\n  rename(AEDECOD = AETERM)\n\n       USUBJID  AEDECOD    AESEV TEMP\n1 STD-001-0001   NAUSEA     MILD    1\n2 STD-001-0001 HEADACHE MODERATE    2\n\n\n\n\n\n\n\n\nImportantName order differs from SAS\n\n\n\nSAS: rename aeterm = aedecod; (old = new).\nR: rename(AEDECOD = AETERM) (new = old).\n\n\nselect(AEDECOD = AETERM, everything()) can rename and keep the rest in one step. Plain rename() is clearer when you only change names."
+  }
+]
