@@ -519,47 +519,90 @@ div.callout-important.callout.callout-style-default > .callout-header {
   padding: 0;
 }
 
-.navbar #quarto-search.type-overlay,
-.navbar #quarto-search .aa-DetachedSearchButton {
-  width: auto;
+@media (min-width: 992px) {
+  .navbar #quarto-search.type-overlay,
+  .navbar #quarto-search .aa-DetachedSearchButton {
+    width: auto;
+  }
 }
 
+/* Narrow / mobile: hamburger + brand on the first row, search on a
+   full-width row under them. Quarto detaches the input at 992px; the
+   trigger has to look like the desktop prompt, not a 40px sliver. */
 @media (max-width: 991.98px) {
+  .navbar .navbar-container.container-fluid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.5rem;
+    row-gap: 0.45rem;
+  }
+
+  .navbar .navbar-toggler {
+    order: 1;
+    flex: 0 0 auto;
+  }
+
+  .navbar .navbar-brand-container {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: max-content;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
   .navbar #quarto-search,
   .navbar #quarto-search.type-textbox,
   .navbar #quarto-search.type-overlay {
-    width: auto !important;
-    min-width: 2.75rem;
-    margin-left: auto;
-    flex-shrink: 0;
+    order: 3 !important;
+    flex: 1 0 100%;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
-  /* Quarto overlay Autocomplete is 40px and our placeholder node is empty,
-     which collapsed the trigger to an empty bordered sliver. */
+  .navbar .navbar-collapse {
+    order: 4;
+    flex: 1 0 100%;
+  }
+
   .navbar #quarto-search .aa-Autocomplete,
   .navbar #quarto-search.type-overlay .aa-Autocomplete {
-    width: auto !important;
-    min-width: 2.75rem;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .navbar #quarto-search .aa-DetachedSearchButton {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px;
+    justify-content: flex-start;
+    padding: 0 0.75rem !important;
   }
 }
 
-/* Detached / mobile trigger: same prompt language as the desktop input.
+/* Detached trigger: same prompt language as the desktop input.
    Draw > _ on the button itself. The placeholder span is empty (no
    placeholder text) so Algolia may hide it; pseudo-elements on that
    span then never paint. */
 .aa-DetachedSearchButton {
   display: inline-flex !important;
   align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  min-width: 2.75rem;
-  min-height: 2.1rem;
-  padding: 0 0.55rem !important;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0 0.75rem !important;
   background: var(--bg) !important;
   border: 1px solid var(--accent) !important;
   border-radius: 2px !important;
   box-shadow: none !important;
   font-family: var(--font-mono) !important;
+  font-size: 1rem !important;
   color: var(--fg-muted) !important;
 }
 
@@ -568,7 +611,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
   color: var(--accent);
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .aa-DetachedSearchButton::after {
@@ -576,7 +619,7 @@ div.callout-important.callout.callout-style-default > .callout-header {
   color: var(--accent);
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   line-height: 1;
   animation: caret-blink var(--caret-blink) step-end infinite;
 }
