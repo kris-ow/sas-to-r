@@ -661,7 +661,7 @@ a:hover {
   font-size: 0.88em;
   background: var(--bg-raised);
   color: var(--inline-code);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 pre, pre code,
@@ -1038,6 +1038,11 @@ div.callout-important.callout.callout-style-default > .callout-header {
     max-width: 100%;
   }
 
+  #quarto-document-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   #quarto-margin-sidebar,
   #quarto-sidebar-toc-left {
     display: none !important;
@@ -1198,8 +1203,9 @@ div.callout-important.callout.callout-style-default > .callout-header {
     padding: 0.12rem 0;
   }
 
-  /* Tables stay tables. Cells wrap so two-column cheat sheet rows
-     stay readable; long tokens can still break inside a cell. */
+  /* Tables stay tables. Text wraps at spaces; inline code stays one
+     token. If a wide mapping still will not fit, the article scrolls
+     under the navbar instead of stretching the page. */
   #quarto-document-content table.table,
   #quarto-document-content .table {
     width: 100%;
@@ -1211,7 +1217,13 @@ div.callout-important.callout.callout-style-default > .callout-header {
   #quarto-document-content .table th,
   #quarto-document-content .table td {
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  #quarto-document-content table.table code,
+  #quarto-document-content .table code {
+    white-space: nowrap;
   }
 
   .sas-equiv {
