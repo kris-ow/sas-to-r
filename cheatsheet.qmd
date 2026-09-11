@@ -12,3 +12,23 @@ Follow a heading through to its full page when the short version is not enough.
 ## [Joins](joins.qmd)
 
 {{< include _quickref/joins.md >}}
+
+## [Coalesce](coalesce.qmd)
+
+{{< include _quickref/coalesce.md >}}
+
+## [Substrings](substr.qmd)
+
+{{< include _quickref/substr.md >}}
+
+## [Study day](study-day.qmd)
+
+{{< include _quickref/study-day.md >}}
+
+## [Sequence numbers](seq.qmd)
+
+{{< include _quickref/seq.md >}}
+
+## [Last observation before exposure](lobxfl.qmd)
+
+{{< include _quickref/lobxfl.md >}}

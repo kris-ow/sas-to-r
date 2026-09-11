@@ -1,41 +1,43 @@
 ---
-title: "SAS to R"
+title: "Topics"
+pagetitle: "SAS to R"
+toc: false
 ---
 
-A practical reference for SAS programmers writing R.
+::: {.topic-index}
 
-Every page takes one task you already know how to do in SAS and shows how it is done
-in R: the working code, its real output, and the places where the two languages do
-**not** line up. The examples run when the site is built, so what you see on a page is
-what R actually printed.
+::: {.topic-group}
+::: {.topic-cat}
+Text
+:::
 
-In a hurry, or already know the topic and just want the call? The
-[cheat sheet](cheatsheet.qmd) is every topic reduced to code, on one page.
+- [Substrings](substr.qmd) extract part of a character value
+:::
 
-## How to use it
+::: {.topic-group}
+::: {.topic-cat}
+Dates
+:::
 
-Every topic page opens with a short block that is nothing but the code, then works
-through the same material slowly underneath. Read as far down as you need and stop.
+- [Study day](study-day.qmd) date subtraction for `--DY`
+:::
 
-Pages are organised by what you are trying to do, not by which package provides it.
-Each one opens with the SAS equivalents it replaces, so searching for `MERGE` or
-`PROC TRANSPOSE` will find the right page even though nothing is filed under those names.
+::: {.topic-group}
+::: {.topic-cat}
+Tables
+:::
 
-Code is shown in base R and the tidyverse side by side where both are worth knowing.
-Where one is clearly better for the job, the page says so and explains why.
+- [Joins](joins.qmd) combining tables
+- [Coalesce](coalesce.qmd) prefer one value, fall back to another
+:::
 
-## Topics
+::: {.topic-group}
+::: {.topic-cat}
+Derivations
+:::
 
-Available now:
+- [Sequence numbers](seq.qmd) `--SEQ` within a subject
+- [Last observation before exposure](lobxfl.qmd) `--LOBXFL` flags
+:::
 
-- [Joins](joins.qmd), combining tables
-
-Planned, in no fixed order: data frames and tibbles, filtering and selecting, sorting,
-grouping and summarising, reshaping, dates and times, text manipulation, numbers and
-rounding, factors, missing data, import and export, functions and control flow,
-plotting.
-
-## Corrections
-
-Something wrong, unclear, or missing? [sham4n@gmail.com](mailto:sham4n@gmail.com), or
-open an issue on [GitHub](https://github.com/kris-ow/sas-to-r/issues).
+:::

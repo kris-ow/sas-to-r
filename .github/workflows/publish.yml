@@ -34,9 +34,15 @@ jobs:
             any::rmarkdown
             any::dplyr
 
-      - name: Render and publish
-        uses: quarto-dev/quarto-actions/publish@v2
+      - name: Render site
+        uses: quarto-dev/quarto-actions/render@v2
+
+      # Same destination as before (gh-pages root). clean-exclude keeps
+      # PR previews under pr-preview/ from being wiped on every main publish.
+      - name: Publish to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          target: gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          folder: _site
+          branch: gh-pages
+          clean-exclude: pr-preview
+          force: false

@@ -1,0 +1,52 @@
+<script>
+(function () {
+  function ready(fn) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", fn);
+    } else {
+      fn();
+    }
+  }
+
+  function isDark() {
+    return document.body.classList.contains("quarto-dark");
+  }
+
+  function makeBtn(label, wantDark, extraClass) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "theme-switch-btn " + extraClass;
+    b.textContent = label;
+    b.setAttribute("aria-label", wantDark ? "Use dark theme" : "Use light theme");
+    b.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (isDark() === wantDark) return;
+      if (typeof window.quartoToggleColorScheme === "function") {
+        window.quartoToggleColorScheme();
+      }
+    });
+    return b;
+  }
+
+  ready(function () {
+    var orig = document.querySelector(".navbar .quarto-color-scheme-toggle");
+    if (!orig || orig.classList.contains("theme-split")) return;
+
+    var wrap = document.createElement("span");
+    wrap.className = "quarto-color-scheme-toggle quarto-navigation-tool theme-split";
+    wrap.setAttribute("role", "group");
+    wrap.setAttribute("aria-label", "Color scheme");
+
+    var sep = document.createElement("span");
+    sep.className = "theme-switch-sep";
+    sep.textContent = "|";
+    sep.setAttribute("aria-hidden", "true");
+
+    wrap.appendChild(makeBtn("Light", false, "theme-switch-light"));
+    wrap.appendChild(sep);
+    wrap.appendChild(makeBtn("Dark", true, "theme-switch-dark"));
+    orig.replaceWith(wrap);
+  });
+})();
+</script>

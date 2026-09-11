@@ -1,0 +1,108 @@
+---
+title: "Coalesce"
+subtitle: "Prefer one value, fall back to another"
+---
+
+::: {.sas-equiv}
+**SAS:** `COALESCE`, `coalescec`, `IFN` / `IFC`, specify-then-coded
+:::
+
+SAS `COALESCE` / `coalescec` skip missing values. `dplyr::coalesce()` skips `NA`
+only. Blank `""` is a value, not missing.
+
+## Quick reference
+
+{{< include _quickref/coalesce.md >}}
+
+Worked examples below.
+
+## The example table
+
+Specify versus coded location. Four rows; four states of the specify field.
+
+```{r}
+#| label: setup
+library(dplyr)
+
+cm <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002", "STD-001-0003", "STD-001-0004"),
+  LOCSPY  = c("Left deltoid", "", NA, "Right thigh, anterior"),
+  LOC     = c("ARM", "ARM", "LEG", "THIGH")
+)
+
+cm
+```
+
+- `STD-001-0001`: specify present; overrides `ARM`
+- `STD-001-0002`: specify is `""`; use coded
+- `STD-001-0003`: specify is `NA`; use coded
+- `STD-001-0004`: specify present; overrides `THIGH`
+
+## `coalesce()` skips `NA`
+
+```sas
+loc = coalescec(locspy, loc);
+```
+
+```{r}
+cm |>
+  mutate(LOC_OUT = coalesce(LOCSPY, LOC))
+```
+
+`STD-001-0003` is correct: `NA` is skipped, `LEG` is used. `STD-001-0002` is not.
+`""` is not `NA`, so `coalesce()` keeps it and does not use coded `ARM`.
+
+::: {.callout-important}
+## `coalesce()` does not treat `""` as missing
+
+SAS character missing is blank. R character missing is `NA`. `coalesce()` follows R.
+A specify field of `""` is present, so it overrides the coded term. Convert blanks
+with `na_if()`, then coalesce.
+:::
+
+## The fix: `na_if()` then `coalesce()`
+
+```{r}
+cm |>
+  mutate(LOC_OUT = coalesce(na_if(LOCSPY, ""), LOC))
+```
+
+Specify is used when it has text. Coded is used when specify is `""` or `NA`.
+
+Specify-overrides-coded is `coalesce(na_if(spy, ""), coded)`. Reversed arguments
+`coalesce(coded, na_if(spy, ""))` keep `ARM` on `STD-001-0001` and drop the specify
+text.
+
+## `na_if()` on its own
+
+```{r}
+na_if(cm$LOCSPY, "")
+```
+
+`""` becomes `NA`. Other strings are unchanged. `NA` remains `NA`.
+
+The characters `"NA"` are not missing. If an export stored that string, convert it
+with `na_if(x, "NA")`. That is separate from `na_if(x, "")`.
+
+## `IFN` / `IFC`
+
+SAS `IFN` (numeric) and `IFC` (character) are a condition and two (or three) results.
+That mapping is `if_else()`, not `coalesce()`:
+
+```sas
+loc = ifc(missing(locspy) or locspy = "", loc, locspy);
+```
+
+```{r}
+cm |>
+  mutate(
+    LOC_OUT = if_else(
+      is.na(na_if(LOCSPY, "")),
+      LOC,
+      LOCSPY
+    )
+  )
+```
+
+Same result as `coalesce(na_if(LOCSPY, ""), LOC)`. Use `coalesce()` for first
+non-missing. Use `if_else()` when the rule is a named condition.

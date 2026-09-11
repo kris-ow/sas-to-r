@@ -14,6 +14,25 @@ quarto preview     # live reload while writing
 quarto render      # build once into _site/
 ```
 
+## Theme
+
+One layout, two palettes. Light is Paper terminal (warm paper, teal accent).
+Dark is Slate IDE (slate background, green accent, cyan links). Fonts, grid,
+navbar and search chrome stay the same; only the color tokens change.
+
+The site follows `prefers-color-scheme` on first visit
+(`respect-user-color-scheme: true` in `_quarto.yml`). Light and Dark labels in
+the navbar override that independently (click the mode you want). Quarto stores
+the choice in localStorage. The navbar stays on screen (`navbar.pinned: true`);
+it does not autohide on scroll.
+Both modes compile from the same Cosmo Bootstrap base so toggling does not reflow
+the page. Palette tokens live in `styles.css` under `body.quarto-light` /
+`body.quarto-dark`. Bootstrap color variables for each mode are in
+`theme-light.scss` and `theme-dark.scss`.
+
+Code blocks keep Quarto/Pandoc syntax highlighting (`highlight-style: atom-one`).
+Token colors switch with the page theme. They are not flattened to a single grey.
+
 ## Writing style
 
 **Plain ASCII only.** No em dashes, curly quotes, arrows, ellipsis characters or any other
@@ -49,10 +68,9 @@ bash tools/check-ascii.sh
 3. Open it with a `::: {.sas-equiv} **SAS:** ... :::` block naming the SAS procedures,
    statements or functions it replaces. The site search indexes this, which is how
    readers looking for `PROC TRANSPOSE` find the reshaping page.
-4. Add the file to the `sidebar` contents in `_quarto.yml`, and link it from the topic
-   list in `index.qmd`.
+4. Add the topic to the list in `index.qmd`.
 5. If it uses a package not already installed in CI, add it to
-   `.github/workflows/publish.yml`.
+   `.github/workflows/publish.yml` and `.github/workflows/pr-preview.yml`.
 6. Run `bash tools/check-ascii.sh` before pushing.
 
 Also add the topic to `cheatsheet.qmd` with a `## [Topic](topic.qmd)` heading and the
@@ -68,10 +86,15 @@ so treat the worked examples below them as the thing that proves the code.
 
 ## Publishing
 
-Every push to `main` renders the site and pushes the result to the `gh-pages` branch.
-Pages is enabled automatically on the first successful publish, pointed at `gh-pages`.
-No manual setup in Settings is needed.
+Every push to `main` renders the site and pushes the result to the `gh-pages` branch
+(root of the Pages site). Pages is enabled automatically on the first successful
+publish, pointed at `gh-pages`. No manual setup in Settings is needed.
 
-Note that `quarto publish gh-pages` will not create the branch itself when it runs in CI.
-If you ever start a second site from this template, push an empty orphan `gh-pages`
-branch before the first build.
+Pull requests also get a preview: `.github/workflows/pr-preview.yml` renders the
+branch and deploys it to `pr-preview/pr-<number>/` on `gh-pages`, then comments the
+URL on the PR. Open that link to click through the proposed site without merging.
+Closing the PR removes the preview. Main publishes leave `pr-preview/` in place.
+
+Note that the first Pages publish still needs a `gh-pages` branch to exist. If you
+ever start a second site from this template, push an empty orphan `gh-pages` branch
+before the first build.

@@ -1,0 +1,121 @@
+---
+title: "Last observation before exposure"
+subtitle: "--LOBXFL flags"
+---
+
+::: {.sas-equiv}
+**SAS:** last on or before `RFSTDTC`, `--LOBXFL`
+:::
+
+`--LOBXFL` is `"Y"` on the last record on or before the reference start, per
+entity, and blank otherwise. Build the flag table from qualifying rows, then
+join it back. Do not flag in place with a running `last.`.
+
+## Quick reference
+
+{{< include _quickref/lobxfl.md >}}
+
+Worked examples below.
+
+## The example table
+
+Two subjects, two lesions. `RFSTDTC` is on the row.
+
+```{r}
+#| label: setup
+library(dplyr)
+
+tu <- data.frame(
+  USUBJID = c(
+    "STD-001-0001", "STD-001-0001", "STD-001-0001",
+    "STD-001-0001", "STD-001-0001", "STD-001-0001",
+    "STD-001-0002", "STD-001-0002"
+  ),
+  TULNKID = c("T01", "T01", "T01", "T02", "T02", "T02", "T01", "T01"),
+  TUDTC   = as.Date(c(
+    "2025-05-20",
+    "2025-06-03",
+    "2025-06-17",
+    "2025-05-20",
+    "2025-05-20",
+    "2025-06-17",
+    "2025-06-20",
+    "2025-06-27"
+  )),
+  RFSTDTC = as.Date(c(
+    "2025-06-03", "2025-06-03", "2025-06-03",
+    "2025-06-03", "2025-06-03", "2025-06-03",
+    "2025-06-10", "2025-06-10"
+  )),
+  TUSTRESC = c("CR", "CR", "SD", "CR", "NE", "PD", "PR", "PR")
+)
+
+tu
+```
+
+- `STD-001-0001` T01: last on or before `2025-06-03` is `2025-06-03` (on the
+  reference date)
+- `STD-001-0001` T02: two rows share `2025-05-20`; the later visit is after
+  start, so both of those rows are last
+- `STD-001-0002` T01: both dates are after `2025-06-10`; nothing qualifies
+
+## Filter, `slice_max()`, join a `"Y"`
+
+Keep rows with `TUDTC <= RFSTDTC`. Per `USUBJID` and `TULNKID`, take the latest
+`TUDTC`. Distinct the keys so a tied date does not multiply rows on the join.
+Flag `"Y"`, join back, fill the rest with `""`.
+
+```{r}
+last_before <- tu |>
+  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC <= RFSTDTC) |>
+  group_by(USUBJID, TULNKID) |>
+  slice_max(TUDTC, n = 1, with_ties = TRUE) |>
+  ungroup() |>
+  distinct(USUBJID, TULNKID, TUDTC) |>
+  mutate(TULOBXFL = "Y")
+
+last_before
+
+tu |>
+  left_join(last_before, by = c("USUBJID", "TULNKID", "TUDTC")) |>
+  mutate(TULOBXFL = coalesce(TULOBXFL, ""))
+```
+
+`STD-001-0001` T01 on `2025-06-03` is `"Y"`. Both `STD-001-0001` T02 rows on
+`2025-05-20` are `"Y"` (`with_ties = TRUE`). Post-baseline rows are blank.
+`STD-001-0002` is blank on both rows.
+
+::: {.callout-important}
+## Blank is `""`, not `NA`
+
+SDTM `--LOBXFL` is `"Y"` or blank. A left join puts `NA` on unmatched rows.
+`waldo` and a SAS XPT compare treat `NA` versus `""` as a difference on every
+unflagged row. `coalesce(TULOBXFL, "")` is required for that compare.
+:::
+
+## Group by the entity
+
+`TULNKID` is the lesion. Last-before-exposure is per lesion, not per subject.
+`group_by(USUBJID)` alone selects one date for the subject and can flag the
+wrong T02 row, or miss it. Put the IG entity (`TULNKID`, `RSGRPID`, or a record
+identifier) in `group_by()`.
+
+## Empty qualifying set stays blank
+
+`STD-001-0002` has no row with `TUDTC <= RFSTDTC`. `last_before` has no keys for
+that subject. The left join matches nothing; `coalesce(..., "")` leaves both
+rows blank. Do not assign `"Y"` to the earliest post-baseline record.
+
+## `with_ties = TRUE`
+
+`slice_max(..., with_ties = TRUE)` keeps every row that shares the maximum date.
+When two records on the same entity fall on the last qualifying day, both get
+`"Y"`.
+
+`distinct(USUBJID, TULNKID, TUDTC)` makes the right-hand table unique on the join
+keys, so those two left rows each match once. Without `distinct()`, a two-row
+tie on the right cartesian-joins against two left rows with the same keys.
+
+`with_ties = FALSE` keeps one row and does not specify which. If the IG requires
+exactly one flag per entity on a tied date, pass a tie-breaker to `slice_max()`
+(a sequence or a datetime).

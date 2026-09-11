@@ -1,0 +1,119 @@
+---
+title: "Sequence numbers"
+subtitle: "--SEQ within a subject"
+---
+
+::: {.sas-equiv}
+**SAS:** `PROC SORT` then `_N_` within `BY`, `--SEQ`
+:::
+
+`--SEQ` is a within-subject row number after a defined order. In R: `arrange()`,
+then `group_by(USUBJID)`, then `row_number()`. Without `arrange()`, the numbers
+follow the current row order, not the IG order.
+
+## Quick reference
+
+{{< include _quickref/seq.md >}}
+
+Worked examples below.
+
+## The example table
+
+Tumor results in input order, which is not the `TUSEQ` order.
+
+```{r}
+#| label: setup
+library(dplyr)
+
+tu <- data.frame(
+  USUBJID  = c(
+    "STD-001-0001", "STD-001-0001", "STD-001-0001",
+    "STD-001-0001", "STD-001-0002"
+  ),
+  TUEVAL   = c(
+    "INVESTIGATOR", "INVESTIGATOR", "INVESTIGATOR",
+    "INDEPENDENT ASSESSOR", "INVESTIGATOR"
+  ),
+  TULNKID  = c("T01", "T01", "T02", "T01", "T01"),
+  VISITNUM = c(3, 1, 1, 1, 2),
+  TUDY     = c(15, 1, 1, 1, 8),
+  TUSTRESC = c("SD", "CR", "CR", "CR", "PR")
+)
+
+tu
+```
+
+`STD-001-0001` has investigator lesions T01 and T02, and one independent-assessor
+row. `VISITNUM` 3 is the first input row. IG order: evaluator, lesion, visit,
+study day.
+
+## Wrong: `row_number()` without `arrange()`
+
+```{r}
+tu |>
+  group_by(USUBJID) |>
+  mutate(TUSEQ = row_number()) |>
+  ungroup()
+```
+
+`STD-001-0001` is numbered 1 to 4 in file order. `VISITNUM` 3 is `TUSEQ` 1.
+Equivalent to `_N_` without `PROC SORT`.
+
+## Right: `arrange()`, then number
+
+```sas
+proc sort data=tu;
+  by usubjid tueval tulnkid visitnum tudy;
+run;
+
+data tu;
+  set tu;
+  by usubjid;
+  if first.usubjid then tuseq = 0;
+  tuseq + 1;
+run;
+```
+
+```{r}
+tu |>
+  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |>
+  group_by(USUBJID) |>
+  mutate(TUSEQ = as.double(row_number())) |>
+  ungroup()
+```
+
+`INDEPENDENT ASSESSOR` sorts before `INVESTIGATOR` and is `TUSEQ` 1. Then
+investigator T01 visit 1, T01 visit 3, T02 visit 1. `TULNKID` precedes
+`VISITNUM`, so T01 visit 3 precedes T02 visit 1. `STD-001-0002` restarts at 1.
+
+::: {.callout-important}
+## `row_number()` numbers the current order
+
+It does not infer a clinical order. `group_by(USUBJID)` then `row_number()` uses
+the frame's current order. Sort first. Include every IG key in `arrange()`,
+including tie-breakers.
+:::
+
+## Tie-breakers
+
+Two rows can share a study day. `arrange(USUBJID, TUDY)` alone leaves their
+relative order undefined. Add keys that make a row unique, in IG order:
+`TUEVAL`, `TULNKID`, `VISITNUM`, `TUDY`. If a tie remains, add a source sequence
+or a datetime.
+
+## `as.double()` for XPT
+
+SAS numeric is double. `row_number()` returns integer. `haven` / `xportr` write
+that as integer unless it is cast. SDTM `--SEQ` in a SAS XPT is double:
+
+```{r}
+tu |>
+  arrange(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) |>
+  group_by(USUBJID) |>
+  mutate(TUSEQ = as.double(row_number())) |>
+  ungroup() |>
+  pull(TUSEQ) |>
+  typeof()
+```
+
+`double`. Cast before writing XPT so the type matches SAS.

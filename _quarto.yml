@@ -9,31 +9,20 @@ website:
   repo-url: https://github.com/kris-ow/sas-to-r
   search:
     location: navbar
-    type: overlay
+    type: textbox
     copy-button: true
+    keyboard-shortcut:
+      - "/"
+      - "s"
   navbar:
+    pinned: true
     left:
-      - href: index.qmd
-        text: Home
       - href: cheatsheet.qmd
         text: Cheat sheet
-    right:
-      - icon: github
-        href: https://github.com/kris-ow/sas-to-r
-        aria-label: Source on GitHub
-  sidebar:
-    style: floating
-    search: false
-    contents:
-      - href: index.qmd
-        text: Start here
-      - href: cheatsheet.qmd
-        text: Cheat sheet
-      - section: "Combining data"
-        contents:
-          - joins.qmd
+      - href: about.qmd
+        text: About
   page-footer:
-    center: "Questions or corrections: [sham4n@gmail.com](mailto:sham4n@gmail.com)"
+    center: "&copy; 2026 Krzysztof Owczarek, [k.owczarek84@gmail.com](mailto:k.owczarek84@gmail.com)"
 
 format:
   html:
@@ -41,13 +30,27 @@ format:
     # straight quotes to curly ones and -- to an en dash at render time, so an
     # all-ASCII source still publishes non-keyboard characters. See README.
     from: markdown-smart
-    theme: cosmo
+    # Same Bootswatch base in both modes. Cosmo vs darkly was shifting
+    # fonts, heading sizes, and navbar padding on every theme toggle.
+    theme:
+      light: [cosmo, theme-light.scss]
+      dark: [cosmo, theme-dark.scss]
+    respect-user-color-scheme: true
     css: styles.css
     toc: true
     toc-depth: 3
     code-copy: true
     code-overflow: wrap
-    highlight-style: github
+    # Adaptive atom-one: light tokens on paper, dark tokens on slate.
+    # Do not flatten code to a single grey; keep skylighting colors.
+    highlight-style: atom-one
+    include-in-header:
+      - text: |
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    include-after-body:
+      - file: _theme-switch.html
 
 execute:
   echo: true
