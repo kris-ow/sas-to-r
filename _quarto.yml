@@ -22,7 +22,7 @@ website:
       - href: about.qmd
         text: About
   page-footer:
-    center: "Questions or corrections: [sham4n@gmail.com](mailto:sham4n@gmail.com)"
+    center: "Author: Krzysztof Owczarek, [k.owczarek84@gmail.com](mailto:k.owczarek84@gmail.com)"
 
 format:
   html:
