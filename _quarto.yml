@@ -3,6 +3,7 @@ project:
   output-dir: _site
   resources:
     - assets
+    - CNAME
 
 website:
   title: "SAS to R"
