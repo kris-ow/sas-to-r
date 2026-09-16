@@ -1,1 +1,1 @@
-Sitemap: https://kris-ow.github.io/sas-to-r/sitemap.xml
+Sitemap: https://sas-to-r.org/sitemap.xml
