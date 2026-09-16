@@ -7,7 +7,7 @@ project:
 website:
   title: "SAS to R"
   description: "SAS programming tasks mapped to R."
-  site-url: https://kris-ow.github.io/sas-to-r/
+  site-url: https://sas-to-r.org/
   repo-url: https://github.com/kris-ow/sas-to-r
   favicon: assets/favicon.png
   image: assets/og.png
