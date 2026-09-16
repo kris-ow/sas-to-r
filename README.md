@@ -2,7 +2,7 @@
 
 Source for **SAS to R**, a practical reference for SAS programmers writing R.
 
-Published at <https://kris-ow.github.io/sas-to-r/>.
+Published at <https://sas-to-r.org/>.
 
 ## Building locally
 
