@@ -4,12 +4,16 @@ subtitle: "--LOBXFL flags"
 ---
 
 ::: {.sas-equiv}
-**SAS:** last on or before `RFSTDTC`, `--LOBXFL`
+**SAS:** last on or before `RFXSTDTC`, `--LOBXFL`
 :::
 
-`--LOBXFL` is `"Y"` on the last record on or before the reference start, per
-entity, and blank otherwise. Build the flag table from qualifying rows, then
-join it back. Do not flag in place with a running `last.`.
+When a findings domain carries `--LOBXFL`, build it in R as: filter qualifying
+rows, take the last date per entity, join `"Y"` back, fill the rest with `""`.
+Do not flag in place with a running `last.`.
+
+`RFXSTDTC` is first study treatment. `RFSTDTC` is the subject reference start
+and may differ. `--DTC` is character ISO. Convert to Date and compare `VSDT`
+to `RFXSTDT`.
 
 ## Quick reference
 
@@ -19,90 +23,102 @@ Worked examples below.
 
 ## The example table
 
-Two subjects, two lesions. `RFSTDTC` is on the row.
+Two subjects, two vital-sign tests. `RFXSTDTC` is on the row as character ISO.
 
 ```{r}
 #| label: setup
 library(dplyr)
 
-tu <- data.frame(
+vs <- data.frame(
   USUBJID = c(
     "STD-001-0001", "STD-001-0001", "STD-001-0001",
     "STD-001-0001", "STD-001-0001", "STD-001-0001",
     "STD-001-0002", "STD-001-0002"
   ),
-  TULNKID = c("T01", "T01", "T01", "T02", "T02", "T02", "T01", "T01"),
-  TUDTC   = as.Date(c(
+  VSTESTCD = c("SYSBP", "SYSBP", "SYSBP", "DIABP", "DIABP", "DIABP", "SYSBP", "SYSBP"),
+  VSDTC    = c(
     "2025-05-20",
     "2025-06-03",
     "2025-06-17",
     "2025-05-20",
     "2025-05-20",
-    "2025-06-17",
+    "2025-06-02",
     "2025-06-20",
     "2025-06-27"
-  )),
-  RFSTDTC = as.Date(c(
+  ),
+  RFXSTDTC = c(
     "2025-06-03", "2025-06-03", "2025-06-03",
     "2025-06-03", "2025-06-03", "2025-06-03",
     "2025-06-10", "2025-06-10"
-  )),
-  TUSTRESC = c("CR", "CR", "SD", "CR", "NE", "PD", "PR", "PR")
+  ),
+  VSSTRESN = c(122, 118, 130, 80, 78, NA_real_, 125, 122)
 )
 
-tu
+vs <- vs |>
+  mutate(
+    VSDT = as.Date(substr(VSDTC, 1, 10)),
+    RFXSTDT = as.Date(substr(RFXSTDTC, 1, 10))
+  )
+
+vs
 ```
 
-- `STD-001-0001` T01: last on or before `2025-06-03` is `2025-06-03` (on the
-  reference date)
-- `STD-001-0001` T02: two rows share `2025-05-20`; the later visit is after
-  start, so both of those rows are last
-- `STD-001-0002` T01: both dates are after `2025-06-10`; nothing qualifies
+- `STD-001-0001` SYSBP: last on or before `2025-06-03` with a result is
+  `2025-06-03` (same calendar day as first dose)
+- `STD-001-0001` DIABP: `2025-06-02` has no numeric result, so it does not
+  qualify; two rows share `2025-05-20` and both get the flag
+- `STD-001-0002` SYSBP: both dates are after `2025-06-10`; nothing qualifies
 
 ## Filter, `slice_max()`, join a `"Y"`
 
-Keep rows with `TUDTC <= RFSTDTC`. Per `USUBJID` and `TULNKID`, take the latest
-`TUDTC`. Distinct the keys so a tied date does not multiply rows on the join.
-Flag `"Y"`, join back, fill the rest with `""`.
+Drop missing dates and missing numeric results (`!is.na(VSSTRESN)`), then keep
+`VSDT <= RFXSTDT`. Per `USUBJID` and `VSTESTCD`, take the latest `VSDT`.
+Distinct the keys so a tied date does not multiply rows on the join. Flag
+`"Y"`, join back, fill the rest with `""`.
 
 ```{r}
-last_before <- tu |>
-  filter(!is.na(TUDTC), !is.na(RFSTDTC), TUDTC <= RFSTDTC) |>
-  group_by(USUBJID, TULNKID) |>
-  slice_max(TUDTC, n = 1, with_ties = TRUE) |>
+last_before <- vs |>
+  filter(!is.na(VSDT), !is.na(RFXSTDT), !is.na(VSSTRESN), VSDT <= RFXSTDT) |>
+  group_by(USUBJID, VSTESTCD) |>
+  slice_max(VSDT, n = 1, with_ties = TRUE) |>
   ungroup() |>
-  distinct(USUBJID, TULNKID, TUDTC) |>
-  mutate(TULOBXFL = "Y")
+  distinct(USUBJID, VSTESTCD, VSDT) |>
+  mutate(VSLOBXFL = "Y")
 
 last_before
 
-tu |>
-  left_join(last_before, by = c("USUBJID", "TULNKID", "TUDTC")) |>
-  mutate(TULOBXFL = coalesce(TULOBXFL, ""))
+vs |>
+  left_join(last_before, by = c("USUBJID", "VSTESTCD", "VSDT")) |>
+  mutate(VSLOBXFL = coalesce(VSLOBXFL, ""))
 ```
 
-`STD-001-0001` T01 on `2025-06-03` is `"Y"`. Both `STD-001-0001` T02 rows on
-`2025-05-20` are `"Y"` (`with_ties = TRUE`). Post-baseline rows are blank.
-`STD-001-0002` is blank on both rows.
+`STD-001-0001` SYSBP on `2025-06-03` is `"Y"`. Both `STD-001-0001` DIABP rows on
+`2025-05-20` are `"Y"` (`with_ties = TRUE`). The DIABP row with a missing
+numeric result stays blank. Post-baseline rows are blank. `STD-001-0002` is
+blank on both rows.
+
+These dates have no times. A visit on the same calendar day as first dose
+cannot be ordered by datetime. The study rule must say whether that day counts
+as before, after, or is decided by visit or timepoint. The pattern above treats
+same calendar day as on or before (`<=`).
 
 ::: {.callout-important}
 ## Blank is `""`, not `NA`
 
-SDTM `--LOBXFL` is `"Y"` or blank. A left join puts `NA` on unmatched rows.
+`--LOBXFL` is `"Y"` or blank. A left join puts `NA` on unmatched rows.
 `waldo` and a SAS XPT compare treat `NA` versus `""` as a difference on every
-unflagged row. `coalesce(TULOBXFL, "")` is required for that compare.
+unflagged row. `coalesce(VSLOBXFL, "")` is required for that compare.
 :::
 
 ## Group by the entity
 
-`TULNKID` is the lesion. Last-before-exposure is per lesion, not per subject.
+Last-before-exposure is per test here (`VSTESTCD`), not per subject.
 `group_by(USUBJID)` alone selects one date for the subject and can flag the
-wrong T02 row, or miss it. Put the IG entity (`TULNKID`, `RSGRPID`, or a record
-identifier) in `group_by()`.
+wrong DIABP row, or miss it. Put the finding key in `group_by()`.
 
 ## Empty qualifying set stays blank
 
-`STD-001-0002` has no row with `TUDTC <= RFSTDTC`. `last_before` has no keys for
+`STD-001-0002` has no row with `VSDT <= RFXSTDT`. `last_before` has no keys for
 that subject. The left join matches nothing; `coalesce(..., "")` leaves both
 rows blank. Do not assign `"Y"` to the earliest post-baseline record.
 
@@ -112,10 +128,11 @@ rows blank. Do not assign `"Y"` to the earliest post-baseline record.
 When two records on the same entity fall on the last qualifying day, both get
 `"Y"`.
 
-`distinct(USUBJID, TULNKID, TUDTC)` makes the right-hand table unique on the join
-keys, so those two left rows each match once. Without `distinct()`, a two-row
-tie on the right cartesian-joins against two left rows with the same keys.
+`distinct(USUBJID, VSTESTCD, VSDT)` makes the right-hand table unique on the
+join keys, so those two left rows each match once. Without `distinct()`, a
+two-row tie on the right cartesian-joins against two left rows with the same
+keys.
 
-`with_ties = FALSE` keeps one row and does not specify which. If the IG requires
-exactly one flag per entity on a tied date, pass a tie-breaker to `slice_max()`
-(a sequence or a datetime).
+`with_ties = FALSE` keeps one row and does not specify which. If the study
+requires exactly one flag per entity on a tied date, pass a tie-breaker to
+`slice_max()` (a sequence or a datetime).

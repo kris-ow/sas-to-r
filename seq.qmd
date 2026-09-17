@@ -4,12 +4,12 @@ subtitle: "--SEQ within a subject"
 ---
 
 ::: {.sas-equiv}
-**SAS:** `PROC SORT` then `_N_` within `BY`, `--SEQ`
+**SAS:** `PROC SORT` then `first.` and a retained counter, `--SEQ`
 :::
 
 `--SEQ` is a within-subject row number after a defined order. In R: `arrange()`,
 then `group_by(USUBJID)`, then `row_number()`. Without `arrange()`, the numbers
-follow the current row order, not the IG order.
+follow the current row order, not the study keys.
 
 ## Quick reference
 
@@ -44,8 +44,8 @@ tu
 ```
 
 `STD-001-0001` has investigator lesions T01 and T02, and one independent-assessor
-row. `VISITNUM` 3 is the first input row. IG order: evaluator, lesion, visit,
-study day.
+row. `VISITNUM` 3 is the first input row. Sponsor order used here: evaluator,
+lesion, visit, study day.
 
 ## Wrong: `row_number()` without `arrange()`
 
@@ -57,7 +57,10 @@ tu |>
 ```
 
 `STD-001-0001` is numbered 1 to 4 in file order. `VISITNUM` 3 is `TUSEQ` 1.
-Equivalent to `_N_` without `PROC SORT`.
+SAS `BY usubjid` on unsorted data stops with `BY variables are not properly
+sorted`. That check is only `USUBJID`, not the secondary keys. R does not
+error. This example is already in `USUBJID` order, so SAS would also number
+it in file order without an error.
 
 ## Right: `arrange()`, then number
 
@@ -86,25 +89,30 @@ tu |>
 investigator T01 visit 1, T01 visit 3, T02 visit 1. `TULNKID` precedes
 `VISITNUM`, so T01 visit 3 precedes T02 visit 1. `STD-001-0002` restarts at 1.
 
+`_N_` does not restart within `BY`. The SAS analogue of `group_by(USUBJID)` then
+`row_number()` is the `first.` plus retained counter above, not `_N_`.
+
 ::: {.callout-important}
 ## `row_number()` numbers the current order
 
 It does not infer a clinical order. `group_by(USUBJID)` then `row_number()` uses
-the frame's current order. Sort first. Include every IG key in `arrange()`,
+the frame's current order. Sort first. Include every study key in `arrange()`,
 including tie-breakers.
 :::
 
 ## Tie-breakers
 
 Two rows can share a study day. `arrange(USUBJID, TUDY)` alone leaves their
-relative order undefined. Add keys that make a row unique, in IG order:
-`TUEVAL`, `TULNKID`, `VISITNUM`, `TUDY`. If a tie remains, add a source sequence
-or a datetime.
+relative order undefined. Add keys that make a row unique, in the sponsor-defined
+order: `TUEVAL`, `TULNKID`, `VISITNUM`, `TUDY`. If a tie remains, add a source
+sequence or a datetime.
 
-## `as.double()` for XPT
+## `as.double()` for R-side compares
 
-SAS numeric is double. `row_number()` returns integer. `haven` / `xportr` write
-that as integer unless it is cast. SDTM `--SEQ` in a SAS XPT is double:
+XPT has numeric and character only. Integer is not a distinct XPT type.
+`row_number()` returns integer in R. SAS numeric is double. `waldo` and
+`diffdf` report that as a type difference even when the values match. Cast when
+you need the R objects to compare equal:
 
 ```{r}
 tu |>
@@ -116,4 +124,5 @@ tu |>
   typeof()
 ```
 
-`double`. Cast before writing XPT so the type matches SAS.
+`double`. The cast is for R-side compares against SAS numeric, not because XPT
+stores a separate integer type.

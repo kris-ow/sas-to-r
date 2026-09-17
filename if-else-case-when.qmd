@@ -34,7 +34,9 @@ dm |>
 When `AGE` is `NA`, `if_else()` returns `NA` for that row (unless you set
 `missing=`).
 
-SAS `ifc(age < 65, "<65", ">=65")` is the same idea for character results.
+SAS `ifc(age < 65, "<65", ">=65")` is not the same on missing age. Missing is
+smaller than any number, so the condition is true and SAS returns `"<65"`. R
+returns `NA`.
 
 ## Multi-way: `case_when()`
 
@@ -51,13 +53,13 @@ ae |>
       AESEV == "MILD" ~ 1L,
       AESEV == "MODERATE" ~ 2L,
       AESEV == "SEVERE" ~ 3L,
-      TRUE ~ NA_integer_
+      .default = NA_integer_
     )
   )
 ```
 
-The first matching condition wins. End with `TRUE ~ ...` as the catch-all
-(SAS OTHERWISE).
+The first matching condition wins. `.default` is the catch-all (SAS OTHERWISE).
+Older dplyr used `TRUE ~ ...` for that branch.
 
 ::: {.callout-important}
 ## Prefer `if_else()` over base `ifelse()` in dplyr

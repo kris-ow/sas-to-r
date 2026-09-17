@@ -41,12 +41,49 @@ vs |>
   filter(PARAMCD == "SYSBP", !is.na(AVAL))
 ```
 
-Commas in `filter()` mean AND. Use `|` for OR.
+Commas in `filter()` mean AND. Use `|` for OR. `!is.na(AVAL)` is the usual way
+to drop missing results before a comparison.
+
+## Missing numeric: SAS `WHERE` keeps the row
+
+Same table. Compare `AVAL < 100` in both languages.
+
+```{r}
+#| label: missing
+vs |>
+  filter(AVAL < 100)
+```
+
+| `AVAL` | SAS `where aval < 100` | R `filter(AVAL < 100)` |
+|---|---|---|
+| 120 | drop | drop |
+| 80 | keep | keep |
+| missing | keep | drop |
+
+R keeps only 80. `NA < 100` is `NA`, not `TRUE`, so `filter()` drops that row.
+
+SAS `where aval < 100;` keeps 80 and the missing row. A missing numeric is
+smaller than any number, so the comparison is true.
+
+To drop missing in R, say so:
+
+```{r}
+#| label: drop-na
+vs |>
+  filter(!is.na(AVAL), AVAL < 100)
+```
+
+To keep missing on purpose (the SAS `WHERE` result on this data):
+
+```{r}
+#| label: keep-na
+vs |>
+  filter(is.na(AVAL) | AVAL < 100)
+```
 
 ::: {.callout-important}
 ## `NA` in the condition drops the row
 
-`filter(AVAL > 100)` drops rows where `AVAL` is `NA`, because `NA > 100` is not
-`TRUE`. Keep missing values on purpose with `is.na(AVAL) | AVAL > 100` when that
-is the rule.
+`filter(AVAL < 100)` drops rows where `AVAL` is `NA`. SAS `WHERE aval < 100`
+keeps them. Write `!is.na(AVAL)` when missing must not pass.
 :::

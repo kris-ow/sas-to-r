@@ -12,7 +12,7 @@ bind_rows(
 | R | SAS |
 |---|---|
 | `bind_rows(a, b)` | `set a b;` (stack; align names with `rename=` if needed) |
-| `bind_rows(..., .id = "SRC")` | add a source variable before `set` |
+| `bind_rows(..., .id = "SRC")` | `set a b indsname=src;` |
 | `bind_rows()` by column name | `PROC SQL` `OUTER UNION CORR` |
 
-Trap: `bind_rows()` matches columns by name, not position. A type clash on the same name (character vs numeric) errors or coerces; fix types before stacking.
+Traps: `bind_rows()` matches columns by name, not position. Character versus numeric on the same name errors in dplyr; fix types before stacking. SAS `SET` takes character length from the first dataset and can truncate later values; `bind_rows()` does not truncate.
