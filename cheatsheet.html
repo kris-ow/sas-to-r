@@ -350,15 +350,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#basics" id="toc-basics" class="nav-link active" data-scroll-target="#basics">Basics</a>
   <ul class="collapse">
-  <li><a href="#mutate" id="toc-mutate" class="nav-link" data-scroll-target="#mutate">Mutate</a></li>
-  <li><a href="#select-and-rename" id="toc-select-and-rename" class="nav-link" data-scroll-target="#select-and-rename">Select and rename</a></li>
-  <li><a href="#filter" id="toc-filter" class="nav-link" data-scroll-target="#filter">Filter</a></li>
-  <li><a href="#if-else-and-case-when" id="toc-if-else-and-case-when" class="nav-link" data-scroll-target="#if-else-and-case-when">If else and case when</a></li>
-  <li><a href="#coalesce" id="toc-coalesce" class="nav-link" data-scroll-target="#coalesce">Coalesce</a></li>
+  <li><a href="#create-or-change-columns" id="toc-create-or-change-columns" class="nav-link" data-scroll-target="#create-or-change-columns">Create or change columns</a></li>
+  <li><a href="#keep-drop-and-rename-columns" id="toc-keep-drop-and-rename-columns" class="nav-link" data-scroll-target="#keep-drop-and-rename-columns">Keep, drop, and rename columns</a></li>
+  <li><a href="#keep-rows-that-match-a-condition" id="toc-keep-rows-that-match-a-condition" class="nav-link" data-scroll-target="#keep-rows-that-match-a-condition">Keep rows that match a condition</a></li>
+  <li><a href="#conditional-values" id="toc-conditional-values" class="nav-link" data-scroll-target="#conditional-values">Conditional values</a></li>
+  <li><a href="#first-non-missing" id="toc-first-non-missing" class="nav-link" data-scroll-target="#first-non-missing">First non-missing</a></li>
   </ul></li>
   <li><a href="#text" id="toc-text" class="nav-link" data-scroll-target="#text">Text</a>
   <ul class="collapse">
-  <li><a href="#substrings" id="toc-substrings" class="nav-link" data-scroll-target="#substrings">Substrings</a></li>
+  <li><a href="#extract-part-of-a-character-value" id="toc-extract-part-of-a-character-value" class="nav-link" data-scroll-target="#extract-part-of-a-character-value">Extract part of a character value</a></li>
   </ul></li>
   <li><a href="#dates" id="toc-dates" class="nav-link" data-scroll-target="#dates">Dates</a>
   <ul class="collapse">
@@ -367,12 +367,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#combining-data" id="toc-combining-data" class="nav-link" data-scroll-target="#combining-data">Combining Data</a>
   <ul class="collapse">
-  <li><a href="#joins" id="toc-joins" class="nav-link" data-scroll-target="#joins">Joins</a></li>
-  <li><a href="#bind-rows" id="toc-bind-rows" class="nav-link" data-scroll-target="#bind-rows">Bind rows</a></li>
+  <li><a href="#merge-on-keys" id="toc-merge-on-keys" class="nav-link" data-scroll-target="#merge-on-keys">Merge on keys</a></li>
+  <li><a href="#stack-datasets" id="toc-stack-datasets" class="nav-link" data-scroll-target="#stack-datasets">Stack datasets</a></li>
   </ul></li>
   <li><a href="#derivations" id="toc-derivations" class="nav-link" data-scroll-target="#derivations">Derivations</a>
   <ul class="collapse">
-  <li><a href="#sequence-numbers" id="toc-sequence-numbers" class="nav-link" data-scroll-target="#sequence-numbers">Sequence numbers</a></li>
+  <li><a href="#within-subject-sequence" id="toc-within-subject-sequence" class="nav-link" data-scroll-target="#within-subject-sequence">Within-subject sequence</a></li>
   <li><a href="#last-observation-before-exposure" id="toc-last-observation-before-exposure" class="nav-link" data-scroll-target="#last-observation-before-exposure">Last observation before exposure</a></li>
   </ul></li>
   </ul>
@@ -405,8 +405,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This page is short SAS-to-R code pairs from each topic. Open the topic page for more detail.</p>
 <section id="basics" class="level2">
 <h2 class="anchored" data-anchor-id="basics">Basics</h2>
-<section id="mutate" class="level3">
-<h3 class="anchored" data-anchor-id="mutate"><a href="./mutate.html">Mutate</a></h3>
+<section id="create-or-change-columns" class="level3">
+<h3 class="anchored" data-anchor-id="create-or-change-columns"><a href="./mutate.html">Create or change columns</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
@@ -442,8 +442,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Trap: <code>mutate()</code> returns a new table; assign it or pipe onward. It does not change the input object in place unless you overwrite the name.</p>
 </section>
-<section id="select-and-rename" class="level3">
-<h3 class="anchored" data-anchor-id="select-and-rename"><a href="./select-rename.html">Select and rename</a></h3>
+<section id="keep-drop-and-rename-columns" class="level3">
+<h3 class="anchored" data-anchor-id="keep-drop-and-rename-columns"><a href="./select-rename.html">Keep, drop, and rename columns</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
@@ -478,8 +478,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Trap: SAS <code>RENAME old=new</code> puts the old name first. <code>dplyr::rename(new = old)</code> puts the new name first.</p>
 </section>
-<section id="filter" class="level3">
-<h3 class="anchored" data-anchor-id="filter"><a href="./filter.html">Filter</a></h3>
+<section id="keep-rows-that-match-a-condition" class="level3">
+<h3 class="anchored" data-anchor-id="keep-rows-that-match-a-condition"><a href="./filter.html">Keep rows that match a condition</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
@@ -511,8 +511,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Traps: <code>filter()</code> keeps rows where the condition is <code>TRUE</code>. <code>NA</code> in the condition drops the row. SAS <code>where aval &lt; 100</code> keeps missing numeric rows (missing is smaller than any number). Use <code>!is.na(AVAL)</code> when missing must not pass.</p>
 </section>
-<section id="if-else-and-case-when" class="level3">
-<h3 class="anchored" data-anchor-id="if-else-and-case-when"><a href="./if-else-case-when.html">If else and case when</a></h3>
+<section id="conditional-values" class="level3">
+<h3 class="anchored" data-anchor-id="conditional-values"><a href="./if-else-case-when.html">Conditional values</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
@@ -553,8 +553,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Traps: <code>dplyr::if_else()</code> is stricter on types than base <code>ifelse()</code>. Prefer <code>if_else()</code> in dplyr pipelines. <code>case_when()</code> stops at the first true condition. Older dplyr used <code>TRUE ~</code> instead of <code>.default</code>. SAS <code>ifc(age &lt; 65, "&lt;65", "&gt;=65")</code> puts missing age in <code>"&lt;65"</code>; R <code>if_else()</code> returns <code>NA</code>.</p>
 </section>
-<section id="coalesce" class="level3">
-<h3 class="anchored" data-anchor-id="coalesce"><a href="./coalesce.html">Coalesce</a></h3>
+<section id="first-non-missing" class="level3">
+<h3 class="anchored" data-anchor-id="first-non-missing"><a href="./coalesce.html">First non-missing</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coalesce</span>(x, y)                    <span class="co"># first non-NA argument; later args are fallbacks</span></span>
@@ -589,8 +589,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="text" class="level2">
 <h2 class="anchored" data-anchor-id="text">Text</h2>
-<section id="substrings" class="level3">
-<h3 class="anchored" data-anchor-id="substrings"><a href="./substr.html">Substrings</a></h3>
+<section id="extract-part-of-a-character-value" class="level3">
+<h3 class="anchored" data-anchor-id="extract-part-of-a-character-value"><a href="./substr.html">Extract part of a character value</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SAS: SUBSTR(string, start, length)</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># R:   substr(string, start, stop)     stop is an end position, not a length</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -715,8 +715,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="combining-data" class="level2">
 <h2 class="anchored" data-anchor-id="combining-data">Combining Data</h2>
-<section id="joins" class="level3">
-<h3 class="anchored" data-anchor-id="joins"><a href="./joins.html">Joins</a></h3>
+<section id="merge-on-keys" class="level3">
+<h3 class="anchored" data-anchor-id="merge-on-keys"><a href="./joins.html">Merge on keys</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the six joins ------------------------------------------------------</span></span>
@@ -777,8 +777,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Traps: <code>NA</code> after a join means "no match", not "missing value". <code>inner_join()</code> throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what <code>relationship =</code> is for.</p>
 </section>
-<section id="bind-rows" class="level3">
-<h3 class="anchored" data-anchor-id="bind-rows"><a href="./bind-rows.html">Bind rows</a></h3>
+<section id="stack-datasets" class="level3">
+<h3 class="anchored" data-anchor-id="stack-datasets"><a href="./bind-rows.html">Stack datasets</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(ae_site_a, ae_site_b)</span>
@@ -818,8 +818,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="derivations" class="level2">
 <h2 class="anchored" data-anchor-id="derivations">Derivations</h2>
-<section id="sequence-numbers" class="level3">
-<h3 class="anchored" data-anchor-id="sequence-numbers"><a href="./seq.html">Sequence numbers</a></h3>
+<section id="within-subject-sequence" class="level3">
+<h3 class="anchored" data-anchor-id="within-subject-sequence"><a href="./seq.html">Within-subject sequence</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
