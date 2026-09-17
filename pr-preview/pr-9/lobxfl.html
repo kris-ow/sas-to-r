@@ -120,14 +120,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <link rel="stylesheet" href="styles.css">
 <meta property="og:title" content="Last observation before exposure – SAS to R">
-<meta property="og:description" content="--LOBXFL-style flags">
+<meta property="og:description" content="--LOBXFL flags">
 <meta property="og:image" content="https://sas-to-r.org/assets/og.png">
 <meta property="og:site_name" content="SAS to R">
 <meta property="og:image:height" content="630">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
 <meta name="twitter:title" content="Last observation before exposure – SAS to R">
-<meta name="twitter:description" content="--LOBXFL-style flags">
+<meta name="twitter:description" content="--LOBXFL flags">
 <meta name="twitter:image" content="https://sas-to-r.org/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
@@ -364,7 +364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Last observation before exposure</h1>
-<p class="subtitle lead">–LOBXFL-style flags</p>
+<p class="subtitle lead">–LOBXFL flags</p>
 </div>
 
 
@@ -384,23 +384,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sas-equiv">
 <p><strong>SAS:</strong> last on or before <code>RFXSTDTC</code>, <code>--LOBXFL</code></p>
 </div>
-<p>When a findings domain carries an <code>--LOBXFL</code>-style flag, build it in R as: filter qualifying rows, take the last date per entity, join <code>"Y"</code> back, fill the rest with <code>""</code>. Do not flag in place with a running <code>last.</code>.</p>
-<p><code>RFXSTDTC</code> is first study treatment. <code>RFSTDTC</code> is the subject reference start and may differ. Use <code>RFXSTDTC</code> as the cutoff.</p>
+<p>When a findings domain carries <code>--LOBXFL</code>, build it in R as: filter qualifying rows, take the last date per entity, join <code>"Y"</code> back, fill the rest with <code>""</code>. Do not flag in place with a running <code>last.</code>.</p>
+<p><code>RFXSTDTC</code> is first study treatment. <code>RFSTDTC</code> is the subject reference start and may differ. <code>--DTC</code> is character ISO. Convert to Date and compare <code>VSDT</code> to <code>RFXSTDT</code>.</p>
 <section id="quick-reference" class="level2">
 <h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(VSDTC), <span class="sc">!</span><span class="fu">is.na</span>(RFXSTDTC), <span class="sc">!</span><span class="fu">is.na</span>(VSSTRESN), VSDTC <span class="sc">&lt;=</span> RFXSTDTC) <span class="sc">|&gt;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, VSTESTCD) <span class="sc">|&gt;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(VSDTC, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, VSTESTCD, VSDTC) <span class="sc">|&gt;</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="st">"Y"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"VSTESTCD"</span>, <span class="st">"VSDTC"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="fu">coalesce</span>(VSLOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>vs <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">VSDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(VSDTC, <span class="dv">1</span>, <span class="dv">10</span>)),     <span class="co"># ISO character --DTC -&gt; Date</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">RFXSTDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(RFXSTDTC, <span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(VSDT), <span class="sc">!</span><span class="fu">is.na</span>(RFXSTDT), <span class="sc">!</span><span class="fu">is.na</span>(VSSTRESN), VSDT <span class="sc">&lt;=</span> RFXSTDT) <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, VSTESTCD) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(VSDT, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, VSTESTCD, VSDT) <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="st">"Y"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"VSTESTCD"</span>, <span class="st">"VSDT"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="fu">coalesce</span>(VSLOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -414,11 +420,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>filter(VSDTC &lt;= RFXSTDTC)</code></td>
+<td><code>filter(VSDT &lt;= RFXSTDT)</code></td>
 <td>subset on or before <code>RFXSTDTC</code></td>
 </tr>
 <tr class="even">
-<td><code>slice_max(VSDTC, n = 1, with_ties = TRUE)</code></td>
+<td><code>slice_max(VSDT, n = 1, with_ties = TRUE)</code></td>
 <td>last date in that subset</td>
 </tr>
 <tr class="odd">
@@ -427,12 +433,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Traps: group by the entity (<code>VSTESTCD</code> here), not only the subject. Drop missing or not-done results before picking last. An empty qualifying set stays blank, not <code>"Y"</code> and not <code>NA</code>. <code>with_ties = TRUE</code> flags every row that shares the last date; <code>distinct()</code> on the flag keys so the join does not multiply rows. Same calendar day as first dose with no times needs a study rule; <code>&lt;=</code> is one choice. The flag is <code>""</code>, not <code>NA</code>.</p>
+<p>Traps: group by the entity (<code>VSTESTCD</code> here), not only the subject. Drop missing numeric results (<code>!is.na(VSSTRESN)</code>) before picking last. An empty qualifying set stays blank, not <code>"Y"</code> and not <code>NA</code>. <code>with_ties = TRUE</code> flags every row that shares the last date; <code>distinct()</code> on the flag keys so the join does not multiply rows. Same calendar day as first dose with no times needs a study rule; <code>&lt;=</code> is one choice. The flag is <code>""</code>, not <code>NA</code>. Compare Date columns (<code>VSDT</code>, <code>RFXSTDT</code>), not mixed-precision <code>--DTC</code> strings.</p>
 <p>Worked examples below.</p>
 </section>
 <section id="the-example-table" class="level2">
 <h2 class="anchored" data-anchor-id="the-example-table">The example table</h2>
-<p>Two subjects, two vital-sign tests. <code>RFXSTDTC</code> is on the row.</p>
+<p>Two subjects, two vital-sign tests. <code>RFXSTDTC</code> is on the row as character ISO.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -456,7 +462,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0002"</span>, <span class="st">"STD-001-0002"</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">VSTESTCD =</span> <span class="fu">c</span>(<span class="st">"SYSBP"</span>, <span class="st">"SYSBP"</span>, <span class="st">"SYSBP"</span>, <span class="st">"DIABP"</span>, <span class="st">"DIABP"</span>, <span class="st">"DIABP"</span>, <span class="st">"SYSBP"</span>, <span class="st">"SYSBP"</span>),</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">VSDTC   =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">VSDTC    =</span> <span class="fu">c</span>(</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-05-20"</span>,</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-03"</span>,</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-17"</span>,</span>
@@ -465,70 +471,85 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-02"</span>,</span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-20"</span>,</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-27"</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  )),</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFXSTDTC =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFXSTDTC =</span> <span class="fu">c</span>(</span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>,</span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>,</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-10"</span>, <span class="st">"2025-06-10"</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  )),</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  ),</span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">VSSTRESN =</span> <span class="fu">c</span>(<span class="dv">122</span>, <span class="dv">118</span>, <span class="dv">130</span>, <span class="dv">80</span>, <span class="dv">78</span>, <span class="cn">NA_real_</span>, <span class="dv">125</span>, <span class="dv">122</span>)</span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>vs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>vs <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">VSDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(VSDTC, <span class="dv">1</span>, <span class="dv">10</span>)),</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">RFXSTDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(RFXSTDTC, <span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>vs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID VSTESTCD      VSDTC   RFXSTDTC VSSTRESN
-1 STD-001-0001    SYSBP 2025-05-20 2025-06-03      122
-2 STD-001-0001    SYSBP 2025-06-03 2025-06-03      118
-3 STD-001-0001    SYSBP 2025-06-17 2025-06-03      130
-4 STD-001-0001    DIABP 2025-05-20 2025-06-03       80
-5 STD-001-0001    DIABP 2025-05-20 2025-06-03       78
-6 STD-001-0001    DIABP 2025-06-02 2025-06-03       NA
-7 STD-001-0002    SYSBP 2025-06-20 2025-06-10      125
-8 STD-001-0002    SYSBP 2025-06-27 2025-06-10      122</code></pre>
+<pre><code>       USUBJID VSTESTCD      VSDTC   RFXSTDTC VSSTRESN       VSDT    RFXSTDT
+1 STD-001-0001    SYSBP 2025-05-20 2025-06-03      122 2025-05-20 2025-06-03
+2 STD-001-0001    SYSBP 2025-06-03 2025-06-03      118 2025-06-03 2025-06-03
+3 STD-001-0001    SYSBP 2025-06-17 2025-06-03      130 2025-06-17 2025-06-03
+4 STD-001-0001    DIABP 2025-05-20 2025-06-03       80 2025-05-20 2025-06-03
+5 STD-001-0001    DIABP 2025-05-20 2025-06-03       78 2025-05-20 2025-06-03
+6 STD-001-0001    DIABP 2025-06-02 2025-06-03       NA 2025-06-02 2025-06-03
+7 STD-001-0002    SYSBP 2025-06-20 2025-06-10      125 2025-06-20 2025-06-10
+8 STD-001-0002    SYSBP 2025-06-27 2025-06-10      122 2025-06-27 2025-06-10</code></pre>
 </div>
 </div>
 <ul>
 <li><code>STD-001-0001</code> SYSBP: last on or before <code>2025-06-03</code> with a result is <code>2025-06-03</code> (same calendar day as first dose)</li>
-<li><code>STD-001-0001</code> DIABP: <code>2025-06-02</code> has no result, so it does not qualify; two rows share <code>2025-05-20</code> and both get the flag</li>
+<li><code>STD-001-0001</code> DIABP: <code>2025-06-02</code> has no numeric result, so it does not qualify; two rows share <code>2025-05-20</code> and both get the flag</li>
 <li><code>STD-001-0002</code> SYSBP: both dates are after <code>2025-06-10</code>; nothing qualifies</li>
 </ul>
 </section>
 <section id="filter-slice_max-join-a-y" class="level2">
 <h2 class="anchored" data-anchor-id="filter-slice_max-join-a-y">Filter, <code>slice_max()</code>, join a <code>"Y"</code></h2>
-<p>Drop missing dates and missing or not-done results, then keep <code>VSDTC &lt;= RFXSTDTC</code>. Per <code>USUBJID</code> and <code>VSTESTCD</code>, take the latest <code>VSDTC</code>. Distinct the keys so a tied date does not multiply rows on the join. Flag <code>"Y"</code>, join back, fill the rest with <code>""</code>.</p>
+<p>Drop missing dates and missing numeric results (<code>!is.na(VSSTRESN)</code>), then keep <code>VSDT &lt;= RFXSTDT</code>. Per <code>USUBJID</code> and <code>VSTESTCD</code>, take the latest <code>VSDT</code>. Distinct the keys so a tied date does not multiply rows on the join. Flag <code>"Y"</code>, join back, fill the rest with <code>""</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(VSDTC), <span class="sc">!</span><span class="fu">is.na</span>(RFXSTDTC), <span class="sc">!</span><span class="fu">is.na</span>(VSSTRESN), VSDTC <span class="sc">&lt;=</span> RFXSTDTC) <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(VSDT), <span class="sc">!</span><span class="fu">is.na</span>(RFXSTDT), <span class="sc">!</span><span class="fu">is.na</span>(VSSTRESN), VSDT <span class="sc">&lt;=</span> RFXSTDT) <span class="sc">|&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, VSTESTCD) <span class="sc">|&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(VSDTC, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(VSDT, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, VSTESTCD, VSDTC) <span class="sc">|&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, VSTESTCD, VSDT) <span class="sc">|&gt;</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="st">"Y"</span>)</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>last_before</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 4
-  USUBJID      VSTESTCD VSDTC      VSLOBXFL
+  USUBJID      VSTESTCD VSDT       VSLOBXFL
   &lt;chr&gt;        &lt;chr&gt;    &lt;date&gt;     &lt;chr&gt;   
 1 STD-001-0001 DIABP    2025-05-20 Y       
 2 STD-001-0001 SYSBP    2025-06-03 Y       </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"VSTESTCD"</span>, <span class="st">"VSDTC"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"VSTESTCD"</span>, <span class="st">"VSDT"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="fu">coalesce</span>(VSLOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID VSTESTCD      VSDTC   RFXSTDTC VSSTRESN VSLOBXFL
-1 STD-001-0001    SYSBP 2025-05-20 2025-06-03      122         
-2 STD-001-0001    SYSBP 2025-06-03 2025-06-03      118        Y
-3 STD-001-0001    SYSBP 2025-06-17 2025-06-03      130         
-4 STD-001-0001    DIABP 2025-05-20 2025-06-03       80        Y
-5 STD-001-0001    DIABP 2025-05-20 2025-06-03       78        Y
-6 STD-001-0001    DIABP 2025-06-02 2025-06-03       NA         
-7 STD-001-0002    SYSBP 2025-06-20 2025-06-10      125         
-8 STD-001-0002    SYSBP 2025-06-27 2025-06-10      122         </code></pre>
+<pre><code>       USUBJID VSTESTCD      VSDTC   RFXSTDTC VSSTRESN       VSDT    RFXSTDT
+1 STD-001-0001    SYSBP 2025-05-20 2025-06-03      122 2025-05-20 2025-06-03
+2 STD-001-0001    SYSBP 2025-06-03 2025-06-03      118 2025-06-03 2025-06-03
+3 STD-001-0001    SYSBP 2025-06-17 2025-06-03      130 2025-06-17 2025-06-03
+4 STD-001-0001    DIABP 2025-05-20 2025-06-03       80 2025-05-20 2025-06-03
+5 STD-001-0001    DIABP 2025-05-20 2025-06-03       78 2025-05-20 2025-06-03
+6 STD-001-0001    DIABP 2025-06-02 2025-06-03       NA 2025-06-02 2025-06-03
+7 STD-001-0002    SYSBP 2025-06-20 2025-06-10      125 2025-06-20 2025-06-10
+8 STD-001-0002    SYSBP 2025-06-27 2025-06-10      122 2025-06-27 2025-06-10
+  VSLOBXFL
+1         
+2        Y
+3         
+4        Y
+5        Y
+6         
+7         
+8         </code></pre>
 </div>
 </div>
-<p><code>STD-001-0001</code> SYSBP on <code>2025-06-03</code> is <code>"Y"</code>. Both <code>STD-001-0001</code> DIABP rows on <code>2025-05-20</code> are <code>"Y"</code> (<code>with_ties = TRUE</code>). The DIABP row with a missing result stays blank. Post-baseline rows are blank. <code>STD-001-0002</code> is blank on both rows.</p>
+<p><code>STD-001-0001</code> SYSBP on <code>2025-06-03</code> is <code>"Y"</code>. Both <code>STD-001-0001</code> DIABP rows on <code>2025-05-20</code> are <code>"Y"</code> (<code>with_ties = TRUE</code>). The DIABP row with a missing numeric result stays blank. Post-baseline rows are blank. <code>STD-001-0002</code> is blank on both rows.</p>
 <p>These dates have no times. A visit on the same calendar day as first dose cannot be ordered by datetime. The study rule must say whether that day counts as before, after, or is decided by visit or timepoint. The pattern above treats same calendar day as on or before (<code>&lt;=</code>).</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -550,12 +571,12 @@ Attaching package: 'dplyr'</code></pre>
 </section>
 <section id="empty-qualifying-set-stays-blank" class="level2">
 <h2 class="anchored" data-anchor-id="empty-qualifying-set-stays-blank">Empty qualifying set stays blank</h2>
-<p><code>STD-001-0002</code> has no row with <code>VSDTC &lt;= RFXSTDTC</code>. <code>last_before</code> has no keys for that subject. The left join matches nothing; <code>coalesce(..., "")</code> leaves both rows blank. Do not assign <code>"Y"</code> to the earliest post-baseline record.</p>
+<p><code>STD-001-0002</code> has no row with <code>VSDT &lt;= RFXSTDT</code>. <code>last_before</code> has no keys for that subject. The left join matches nothing; <code>coalesce(..., "")</code> leaves both rows blank. Do not assign <code>"Y"</code> to the earliest post-baseline record.</p>
 </section>
 <section id="with_ties-true" class="level2">
 <h2 class="anchored" data-anchor-id="with_ties-true"><code>with_ties = TRUE</code></h2>
 <p><code>slice_max(..., with_ties = TRUE)</code> keeps every row that shares the maximum date. When two records on the same entity fall on the last qualifying day, both get <code>"Y"</code>.</p>
-<p><code>distinct(USUBJID, VSTESTCD, VSDTC)</code> makes the right-hand table unique on the join keys, so those two left rows each match once. Without <code>distinct()</code>, a two-row tie on the right cartesian-joins against two left rows with the same keys.</p>
+<p><code>distinct(USUBJID, VSTESTCD, VSDT)</code> makes the right-hand table unique on the join keys, so those two left rows each match once. Without <code>distinct()</code>, a two-row tie on the right cartesian-joins against two left rows with the same keys.</p>
 <p><code>with_ties = FALSE</code> keeps one row and does not specify which. If the study requires exactly one flag per entity on a tied date, pass a tie-breaker to <code>slice_max()</code> (a sequence or a datetime).</p>
 
 

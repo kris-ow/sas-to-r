@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Sequence numbers – SAS to R</title>
+<title>review – SAS to R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -25,41 +25,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -119,15 +84,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="Sequence numbers – SAS to R">
-<meta property="og:description" content="--SEQ within a subject">
+<meta property="og:title" content="SAS to R">
+<meta property="og:description" content="SAS programming tasks mapped to R.">
 <meta property="og:image" content="https://sas-to-r.org/assets/og.png">
 <meta property="og:site_name" content="SAS to R">
 <meta property="og:image:height" content="630">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
-<meta name="twitter:title" content="Sequence numbers – SAS to R">
-<meta name="twitter:description" content="--SEQ within a subject">
+<meta name="twitter:title" content="SAS to R">
+<meta name="twitter:description" content="SAS programming tasks mapped to R.">
 <meta name="twitter:image" content="https://sas-to-r.org/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
@@ -348,214 +313,89 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
-  <li><a href="#the-example-table" id="toc-the-example-table" class="nav-link" data-scroll-target="#the-example-table">The example table</a></li>
-  <li><a href="#wrong-row_number-without-arrange" id="toc-wrong-row_number-without-arrange" class="nav-link" data-scroll-target="#wrong-row_number-without-arrange">Wrong: <code>row_number()</code> without <code>arrange()</code></a></li>
-  <li><a href="#right-arrange-then-number" id="toc-right-arrange-then-number" class="nav-link" data-scroll-target="#right-arrange-then-number">Right: <code>arrange()</code>, then number</a></li>
-  <li><a href="#tie-breakers" id="toc-tie-breakers" class="nav-link" data-scroll-target="#tie-breakers">Tie-breakers</a></li>
-  <li><a href="#as.double-for-r-side-compares" id="toc-as.double-for-r-side-compares" class="nav-link" data-scroll-target="#as.double-for-r-side-compares"><code>as.double()</code> for R-side compares</a></li>
+  <li><a href="#review-checklist" id="toc-review-checklist" class="nav-link active" data-scroll-target="#review-checklist">Review checklist</a>
+  <ul class="collapse">
+  <li><a href="#workflow" id="toc-workflow" class="nav-link" data-scroll-target="#workflow">Workflow</a></li>
+  <li><a href="#sas-claims" id="toc-sas-claims" class="nav-link" data-scroll-target="#sas-claims">1. SAS claims</a></li>
+  <li><a href="#cdisc-claims" id="toc-cdisc-claims" class="nav-link" data-scroll-target="#cdisc-claims">2. CDISC claims</a></li>
+  <li><a href="#r-code" id="toc-r-code" class="nav-link" data-scroll-target="#r-code">3. R code</a></li>
+  <li><a href="#page-structure" id="toc-page-structure" class="nav-link" data-scroll-target="#page-structure">4. Page structure</a></li>
+  <li><a href="#mechanical" id="toc-mechanical" class="nav-link" data-scroll-target="#mechanical">5. Mechanical</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Sequence numbers</h1>
-<p class="subtitle lead">–SEQ within a subject</p>
-</div>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
 
 
-</header>
-
-
-<div class="sas-equiv">
-<p><strong>SAS:</strong> <code>PROC SORT</code> then <code>first.</code> and a retained counter, <code>--SEQ</code></p>
-</div>
-<p><code>--SEQ</code> is a within-subject row number after a defined order. In R: <code>arrange()</code>, then <code>group_by(USUBJID)</code>, then <code>row_number()</code>. Without <code>arrange()</code>, the numbers follow the current row order, not the study keys.</p>
-<section id="quick-reference" class="level2">
-<h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span>  <span class="co"># order first</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span>              <span class="co"># --SEQ; double for SAS compares</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>R</th>
-<th>SAS</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>arrange(...)</code> then <code>group_by(USUBJID)</code> then <code>row_number()</code></td>
-<td><code>PROC SORT</code> then <code>if first.usubjid then seq = 0; seq + 1;</code></td>
-</tr>
-<tr class="even">
-<td><code>group_by(USUBJID)</code></td>
-<td><code>BY USUBJID</code></td>
-</tr>
-<tr class="odd">
-<td><code>as.double(row_number())</code></td>
-<td>SAS numeric is double</td>
-</tr>
-</tbody>
-</table>
-<p>Traps: <code>row_number()</code> follows the current row order, so skip <code>arrange()</code> and <code>--SEQ</code> is whatever the last PROC left behind. Equal dates need tie-breakers in <code>arrange()</code>. <code>_N_</code> is not a within-<code>BY</code> counter. Cast to double so waldo/diffdf match SAS numeric; XPT has no separate integer type.</p>
-<p>Worked examples below.</p>
+<section id="review-checklist" class="level1">
+<h1>Review checklist</h1>
+<p>Every pull request is checked against this list. The author (human or coding agent) checks it before opening the PR; the reviewer checks it again on the diff.</p>
+<section id="workflow" class="level2">
+<h2 class="anchored" data-anchor-id="workflow">Workflow</h2>
+<ol type="1">
+<li>One PR per topic, or per batch of related fixes. Small enough to read in one sitting.</li>
+<li>PR description lists what changed and which checks were run.</li>
+<li>Reviewer posts one review on the PR: <strong>Must fix</strong>, <strong>Should fix</strong>, <strong>Minor</strong>, each finding naming the file and quoting the line.</li>
+<li>Author pushes fixes to the same branch and replies per finding (fixed, or why not).</li>
+<li>Reviewer re-reviews only what changed since the last review.</li>
+<li>Only the owner merges. Agents never merge.</li>
+</ol>
+<p>Must fix blocks the merge. Should fix is expected unless the author gives a reason. Minor is at the author's discretion.</p>
 </section>
-<section id="the-example-table" class="level2">
-<h2 class="anchored" data-anchor-id="the-example-table">The example table</h2>
-<p>Tumor results in input order, which is not the <code>TUSEQ</code> order.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tu <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID  =</span> <span class="fu">c</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">TUEVAL   =</span> <span class="fu">c</span>(</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"INVESTIGATOR"</span>, <span class="st">"INVESTIGATOR"</span>, <span class="st">"INVESTIGATOR"</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"INDEPENDENT ASSESSOR"</span>, <span class="st">"INVESTIGATOR"</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">TULNKID  =</span> <span class="fu">c</span>(<span class="st">"T01"</span>, <span class="st">"T01"</span>, <span class="st">"T02"</span>, <span class="st">"T01"</span>, <span class="st">"T01"</span>),</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">VISITNUM =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">TUDY     =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">8</span>),</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">TUSTRESC =</span> <span class="fu">c</span>(<span class="st">"SD"</span>, <span class="st">"CR"</span>, <span class="st">"CR"</span>, <span class="st">"CR"</span>, <span class="st">"PR"</span>)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>tu</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID               TUEVAL TULNKID VISITNUM TUDY TUSTRESC
-1 STD-001-0001         INVESTIGATOR     T01        3   15       SD
-2 STD-001-0001         INVESTIGATOR     T01        1    1       CR
-3 STD-001-0001         INVESTIGATOR     T02        1    1       CR
-4 STD-001-0001 INDEPENDENT ASSESSOR     T01        1    1       CR
-5 STD-001-0002         INVESTIGATOR     T01        2    8       PR</code></pre>
-</div>
-</div>
-<p><code>STD-001-0001</code> has investigator lesions T01 and T02, and one independent-assessor row. <code>VISITNUM</code> 3 is the first input row. Sponsor order used here: evaluator, lesion, visit, study day.</p>
+<section id="sas-claims" class="level2">
+<h2 class="anchored" data-anchor-id="sas-claims">1. SAS claims</h2>
+<p>A wrong SAS statement is the worst error this site can make: the reader knows SAS and will trust the R side because the SAS side looked right.</p>
+<ul class="task-list">
+<li><label><input type="checkbox">Every "SAS does X" claim is true in SAS 9.4 as written, not approximately.</label></li>
+<li><label><input type="checkbox"><strong>Missing values.</strong> SAS numeric missing is smaller than any number, so <code>where x &lt; 100</code>, <code>if x &lt; 100</code> and <code>ifn(x &lt; 100, ...)</code> treat missing as true. R returns <code>NA</code>. Any comparison example states which side drops or keeps missing.</label></li>
+<li><label><input type="checkbox">SAS character missing is blank; R <code>""</code> is not <code>NA</code>. Stated wherever it changes the result.</label></li>
+<li><label><input type="checkbox">SAS equivalents are the idiomatic ones (<code>first.</code>/<code>last.</code>, <code>indsname=</code>, <code>INTNX</code>), not a construct that only looks similar (<code>_N_</code> is not a within-BY counter).</label></li>
+<li><label><input type="checkbox">The <code>.sas-equiv</code> block names the procedures, statements and functions a SAS programmer would search for.</label></li>
+</ul>
 </section>
-<section id="wrong-row_number-without-arrange" class="level2">
-<h2 class="anchored" data-anchor-id="wrong-row_number-without-arrange">Wrong: <code>row_number()</code> without <code>arrange()</code></h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TUSEQ =</span> <span class="fu">row_number</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 5 × 7
-  USUBJID      TUEVAL               TULNKID VISITNUM  TUDY TUSTRESC TUSEQ
-  &lt;chr&gt;        &lt;chr&gt;                &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;int&gt;
-1 STD-001-0001 INVESTIGATOR         T01            3    15 SD           1
-2 STD-001-0001 INVESTIGATOR         T01            1     1 CR           2
-3 STD-001-0001 INVESTIGATOR         T02            1     1 CR           3
-4 STD-001-0001 INDEPENDENT ASSESSOR T01            1     1 CR           4
-5 STD-001-0002 INVESTIGATOR         T01            2     8 PR           1</code></pre>
-</div>
-</div>
-<p><code>STD-001-0001</code> is numbered 1 to 4 in file order. <code>VISITNUM</code> 3 is <code>TUSEQ</code> 1. SAS <code>BY usubjid</code> on unsorted data stops with <code>BY variables are not properly sorted</code>. That check is only <code>USUBJID</code>, not the secondary keys. R does not error.</p>
+<section id="cdisc-claims" class="level2">
+<h2 class="anchored" data-anchor-id="cdisc-claims">2. CDISC claims</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">The right standard is named: SDTM keeps data as collected; imputation, flags such as <code>ASTDTF</code>, and analysis derivations are ADaM.</label></li>
+<li><label><input type="checkbox">Variable names and reference dates match the IG (for example <code>--LOBXFL</code> uses <code>RFXSTDTC</code>, first exposure, not <code>RFSTDTC</code>).</label></li>
+<li><label><input type="checkbox">Sponsor or SAP conventions are labelled as such, never as "the IG says".</label></li>
+<li><label><input type="checkbox">Derivation rules are stated precisely enough that following them literally gives the right answer on edge cases. Check the example data covers those edge cases.</label></li>
+<li><label><input type="checkbox"><code>--DTC</code> variables are ISO 8601 character. An example that holds dates as <code>Date</code> uses a non-<code>DTC</code> name (<code>VSDT</code>) or shows the conversion.</label></li>
+</ul>
 </section>
-<section id="right-arrange-then-number" class="level2">
-<h2 class="anchored" data-anchor-id="right-arrange-then-number">Right: <code>arrange()</code>, then number</h2>
-<pre class="sas"><code>proc sort data=tu;
-  by usubjid tueval tulnkid visitnum tudy;
-run;
-
-data tu;
-  set tu;
-  by usubjid;
-  if first.usubjid then tuseq = 0;
-  tuseq + 1;
-run;</code></pre>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TUSEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 5 × 7
-  USUBJID      TUEVAL               TULNKID VISITNUM  TUDY TUSTRESC TUSEQ
-  &lt;chr&gt;        &lt;chr&gt;                &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;
-1 STD-001-0001 INDEPENDENT ASSESSOR T01            1     1 CR           1
-2 STD-001-0001 INVESTIGATOR         T01            1     1 CR           2
-3 STD-001-0001 INVESTIGATOR         T01            3    15 SD           3
-4 STD-001-0001 INVESTIGATOR         T02            1     1 CR           4
-5 STD-001-0002 INVESTIGATOR         T01            2     8 PR           1</code></pre>
-</div>
-</div>
-<p><code>INDEPENDENT ASSESSOR</code> sorts before <code>INVESTIGATOR</code> and is <code>TUSEQ</code> 1. Then investigator T01 visit 1, T01 visit 3, T02 visit 1. <code>TULNKID</code> precedes <code>VISITNUM</code>, so T01 visit 3 precedes T02 visit 1. <code>STD-001-0002</code> restarts at 1.</p>
-<p><code>_N_</code> does not restart within <code>BY</code>. The SAS analogue of <code>group_by(USUBJID)</code> then <code>row_number()</code> is the <code>first.</code> plus retained counter above, not <code>_N_</code>.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span><code>row_number()</code> numbers the current order
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>It does not infer a clinical order. <code>group_by(USUBJID)</code> then <code>row_number()</code> uses the frame's current order. Sort first. Include every study key in <code>arrange()</code>, including tie-breakers.</p>
-</div>
-</div>
+<section id="r-code" class="level2">
+<h2 class="anchored" data-anchor-id="r-code">3. R code</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Every worked example is an executed chunk and the preview build is green.</label></li>
+<li><label><input type="checkbox">The quick-reference block (static, not executed) matches the worked examples below it: same functions, same arguments, same rule.</label></li>
+<li><label><input type="checkbox">Current dplyr idiom (<code>.default</code> in <code>case_when()</code>, <code>|&gt;</code>, <code>relationship =</code> on joins).</label></li>
+<li><label><input type="checkbox">Output shown or described in prose matches what the chunk actually prints.</label></li>
+<li><label><input type="checkbox">Example data uses generic <code>STD-001-*</code> subjects. Nothing from a real study.</label></li>
+</ul>
 </section>
-<section id="tie-breakers" class="level2">
-<h2 class="anchored" data-anchor-id="tie-breakers">Tie-breakers</h2>
-<p>Two rows can share a study day. <code>arrange(USUBJID, TUDY)</code> alone leaves their relative order undefined. Add keys that make a row unique, in the sponsor-defined order: <code>TUEVAL</code>, <code>TULNKID</code>, <code>VISITNUM</code>, <code>TUDY</code>. If a tie remains, add a source sequence or a datetime.</p>
+<section id="page-structure" class="level2">
+<h2 class="anchored" data-anchor-id="page-structure">4. Page structure</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Follows "Adding a topic" in <code>README.md</code>: quick reference first, include near the top, <code>.sas-equiv</code> block, <code>index.qmd</code>, <code>cheatsheet.qmd</code>, CI packages.</label></li>
+<li><label><input type="checkbox">Trap lines start with <code>Traps:</code>, never a count.</label></li>
+<li><label><input type="checkbox">Prose is short and declarative. No marketing, no personal content.</label></li>
+</ul>
 </section>
-<section id="as.double-for-r-side-compares" class="level2">
-<h2 class="anchored" data-anchor-id="as.double-for-r-side-compares"><code>as.double()</code> for R-side compares</h2>
-<p>XPT has numeric and character only. Integer is not a distinct XPT type. <code>row_number()</code> returns integer in R. SAS numeric is double. <code>waldo</code> and <code>diffdf</code> report that as a type difference even when the values match. Cast when you need the R objects to compare equal:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TUSEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(TUSEQ) <span class="sc">|&gt;</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">typeof</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "double"</code></pre>
-</div>
-</div>
-<p><code>double</code>. The cast is for R-side compares against SAS numeric, not because XPT stores a separate integer type.</p>
+<section id="mechanical" class="level2">
+<h2 class="anchored" data-anchor-id="mechanical">5. Mechanical</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"><code>bash tools/check-ascii.sh</code> passes.</label></li>
+<li><label><input type="checkbox">New R packages added to both <code>publish.yml</code> and <code>pr-preview.yml</code>.</label></li>
+<li><label><input type="checkbox">Links between topics resolve on the preview site.</label></li>
+</ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

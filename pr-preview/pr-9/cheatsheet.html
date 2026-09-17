@@ -679,8 +679,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-15"</span>))        <span class="co"># common mid-month convention</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>(<span class="fu">ceiling_date</span>(<span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>)), <span class="st">"month"</span>) <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">as.Date</span>()</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># common AE rule: do not impute start earlier than first dose</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(ASTDT <span class="sc">&lt;</span> RFXSTDTC, RFXSTDTC, ASTDT)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># AE start: only when known year-month equals first dose and first-of-month</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># is still before dose, set ASTDT to RFXSTDTC; otherwise keep first-of-period</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>ASTDT <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(AESTDTC, <span class="st">"-01"</span>))</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(ASTDT, <span class="st">"%Y-%m"</span>) <span class="sc">==</span> <span class="fu">format</span>(RFXSTDTC, <span class="st">"%Y-%m"</span>) <span class="sc">&amp;</span> ASTDT <span class="sc">&lt;</span> RFXSTDTC,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  RFXSTDTC,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  ASTDT</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -703,7 +709,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Imputation flags (<code>ASTDTF</code>, <code>ADTF</code>) are ADaM; SDTM keeps partial <code>--DTC</code>. A common AE rule is to clamp an imputed start so it is not before <code>RFXSTDTC</code>.</p>
+<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Imputation flags (<code>ASTDTF</code>, <code>ADTF</code>) are ADaM; SDTM keeps partial <code>--DTC</code>. Impute AE start to first dose only when the known year-month (or year) matches first dose and first-of-period is still before dose. Do not clamp every earlier month onto the dose date. The exact rule, including AE end-date checks, comes from the SAP.</p>
 </section>
 </section>
 <section id="combining-data" class="level2">
@@ -852,17 +858,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="last-observation-before-exposure"><a href="./lobxfl.html">Last observation before exposure</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(VSDTC), <span class="sc">!</span><span class="fu">is.na</span>(RFXSTDTC), <span class="sc">!</span><span class="fu">is.na</span>(VSSTRESN), VSDTC <span class="sc">&lt;=</span> RFXSTDTC) <span class="sc">|&gt;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, VSTESTCD) <span class="sc">|&gt;</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(VSDTC, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, VSTESTCD, VSDTC) <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="st">"Y"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"VSTESTCD"</span>, <span class="st">"VSDTC"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="fu">coalesce</span>(VSLOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>vs <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">VSDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(VSDTC, <span class="dv">1</span>, <span class="dv">10</span>)),     <span class="co"># ISO character --DTC -&gt; Date</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">RFXSTDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(RFXSTDTC, <span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(VSDT), <span class="sc">!</span><span class="fu">is.na</span>(RFXSTDT), <span class="sc">!</span><span class="fu">is.na</span>(VSSTRESN), VSDT <span class="sc">&lt;=</span> RFXSTDT) <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, VSTESTCD) <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(VSDT, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, VSTESTCD, VSDT) <span class="sc">|&gt;</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="st">"Y"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"VSTESTCD"</span>, <span class="st">"VSDT"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="fu">coalesce</span>(VSLOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -876,11 +888,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>filter(VSDTC &lt;= RFXSTDTC)</code></td>
+<td><code>filter(VSDT &lt;= RFXSTDT)</code></td>
 <td>subset on or before <code>RFXSTDTC</code></td>
 </tr>
 <tr class="even">
-<td><code>slice_max(VSDTC, n = 1, with_ties = TRUE)</code></td>
+<td><code>slice_max(VSDT, n = 1, with_ties = TRUE)</code></td>
 <td>last date in that subset</td>
 </tr>
 <tr class="odd">
@@ -889,7 +901,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Traps: group by the entity (<code>VSTESTCD</code> here), not only the subject. Drop missing or not-done results before picking last. An empty qualifying set stays blank, not <code>"Y"</code> and not <code>NA</code>. <code>with_ties = TRUE</code> flags every row that shares the last date; <code>distinct()</code> on the flag keys so the join does not multiply rows. Same calendar day as first dose with no times needs a study rule; <code>&lt;=</code> is one choice. The flag is <code>""</code>, not <code>NA</code>.</p>
+<p>Traps: group by the entity (<code>VSTESTCD</code> here), not only the subject. Drop missing numeric results (<code>!is.na(VSSTRESN)</code>) before picking last. An empty qualifying set stays blank, not <code>"Y"</code> and not <code>NA</code>. <code>with_ties = TRUE</code> flags every row that shares the last date; <code>distinct()</code> on the flag keys so the join does not multiply rows. Same calendar day as first dose with no times needs a study rule; <code>&lt;=</code> is one choice. The flag is <code>""</code>, not <code>NA</code>. Compare Date columns (<code>VSDT</code>, <code>RFXSTDT</code>), not mixed-precision <code>--DTC</code> strings.</p>
 
 
 </section>
