@@ -14,4 +14,4 @@ df |>
 | `filter(a, b)` | `where a and b;` (both must be true) |
 | `filter(a \| b)` | `where a or b;` |
 
-Trap: `filter()` keeps rows where the condition is `TRUE`. Rows with `NA` in the condition are dropped. SAS `where` also treats missing as not true for most comparisons.
+Traps: `filter()` keeps rows where the condition is `TRUE`. `NA` in the condition drops the row. SAS `where aval < 100` keeps missing numeric rows (missing is smaller than any number). Use `!is.na(AVAL)` when missing must not pass.

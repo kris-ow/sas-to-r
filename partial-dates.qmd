@@ -8,12 +8,15 @@ subtitle: "Impute year-only or year-month to a full date"
 :::
 
 Clinical data often arrive as incomplete ISO-like strings: year only (`2025`)
-or year-month (`2024-04`). Derivation rules usually push these to the first,
-middle, or last day of the known period. Month bounds matter most for
-year-month; year-only is the same idea at year scale.
+or year-month (`2024-04`). SDTM keeps partial `--DTC` as collected. Imputing a
+full date and setting an imputation flag is ADaM work (for example `ASTDTF`,
+`ADTF`).
 
-Always follow the study imputation convention and record how far you imputed
-(for example CDISC `--DTF`) when required. Examples below use generic
+Derivation rules usually push these to the first, middle, or last day of the
+known period. Month bounds matter most for year-month; year-only is the same
+idea at year scale.
+
+Always follow the study imputation convention. Examples below use generic
 `STD-001-*` subjects and one explicit mid rule.
 
 ## Quick reference
@@ -102,9 +105,33 @@ constructed from the year.
 | Neutral / midpoint rule in SAP | mid (day 15 / 30 Jun or protocol rule) |
 
 Do not invent a mid rule in production code. Read the SAP or derivation
-specification. When CDISC date imputation flags apply, set `--DTF` to show which
-parts were imputed (for example `D` when day was imputed, `M` when month and day
-were imputed). Exact flag codes follow the standard and the study metadata.
+specification. When an ADaM imputation flag is required, set `ASTDTF` / `ADTF`
+(or the study equivalent) to show which parts were imputed (for example `D`
+when day was imputed, `M` when month and day were imputed). Exact flag codes
+follow the ADaM spec and the study metadata.
 
 Missing or unusable partial strings stay missing after failed parses. Do not
 silently coerce blank `--DTC` to period start.
+
+## Do not impute an AE start before first dose
+
+A common study rule: after the first/mid/last impute, the AE start date must
+not be earlier than first treatment. Clamp to `RFXSTDTC` when it would be.
+
+```{r}
+#| label: clamp
+ae <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002"),
+  AESTDTC = c("2025-05", "2025-07"),
+  RFXSTDTC = as.Date(c("2025-06-03", "2025-06-10"))
+)
+
+ae |>
+  mutate(
+    ASTDT = ymd(paste0(AESTDTC, "-01")),
+    ASTDT = if_else(ASTDT < RFXSTDTC, RFXSTDTC, ASTDT)
+  )
+```
+
+`STD-001-0001` imputes to 1 May, then clamps to `2025-06-03`. `STD-001-0002`
+imputes to 1 July, which is after first dose, so it stays.

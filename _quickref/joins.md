@@ -27,7 +27,7 @@ left_join(dm, ae, by = "subjid", relationship = "one-to-many")
 | `anti_join()` | `if a and not b;` | `WHERE ... NOT IN` |
 | `semi_join()` | `if a and b;` then dedupe | `WHERE EXISTS` |
 
-Three traps: `NA` after a join means "no match", not "missing value". `inner_join()`
+Traps: `NA` after a join means "no match", not "missing value". `inner_join()`
 throws away your data errors and your event-free subjects together, without saying so.
 And a duplicate key on the right silently multiplies rows, which is what
 `relationship =` is for.

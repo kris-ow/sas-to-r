@@ -4,7 +4,7 @@ subtitle: "Stack tables on top of each other"
 ---
 
 ::: {.sas-equiv}
-**SAS:** `SET` with several datasets; `PROC SQL` `UNION` / `OUTER UNION CORR`
+**SAS:** `SET` with several datasets; `INDSNAME=`; `PROC SQL` `UNION` / `OUTER UNION CORR`
 :::
 
 `dplyr::bind_rows()` stacks tables vertically. Columns are matched by name.
@@ -51,15 +51,48 @@ bind_rows(
 )
 ```
 
-`.id` adds a column with the list names. Useful when you need to know which
-input row came from.
+`.id` adds a column with the list names. SAS:
+
+```sas
+data all;
+  set ae_site_a ae_site_b indsname=src;
+  site = src;
+run;
+```
+
+`INDSNAME=` is the dataset name that contributed the row (often `WORK.AE_SITE_A`
+style). Rename or `scan` that value if you need a short code like `.id`.
 
 ::: {.callout-important}
 ## Match by name, not position
 
 `bind_rows()` does not line up column 1 with column 1. Rename first when the
-same concept has different names. When the same name has different types,
-fix the type before stacking.
+same concept has different names. Character versus numeric on the same name
+is an error in dplyr. Fix the type before stacking.
 :::
+
+## SAS truncates; `bind_rows()` does not
+
+The first SAS dataset in `SET` sets character lengths. A later dataset with a
+longer value is truncated to that length. `bind_rows()` keeps the full string:
+
+```{r}
+#| label: lengths
+ae_short <- data.frame(
+  USUBJID = "STD-001-0001",
+  AETERM = "NAUSEA"
+)
+
+ae_long <- data.frame(
+  USUBJID = "STD-001-0003",
+  AETERM = "MYOCARDIAL INFARCTION"
+)
+
+bind_rows(ae_short, ae_long)
+```
+
+`AETERM` is the full term on both rows. In SAS, `set ae_short ae_long;` would
+cut `MYOCARDIAL INFARCTION` to the length of `NAUSEA` unless you set length
+first.
 
 For side-by-side combines on keys, use joins (see Joins), not `bind_rows()`.
