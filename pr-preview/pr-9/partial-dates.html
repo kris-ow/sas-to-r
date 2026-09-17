@@ -402,13 +402,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>(<span class="fu">ceiling_date</span>(<span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>)), <span class="st">"month"</span>) <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">as.Date</span>()</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># AE start: only when known year-month equals first dose and first-of-month</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># is still before dose, set ASTDT to RFXSTDTC; otherwise keep first-of-period</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>ASTDT <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(AESTDTC, <span class="st">"-01"</span>))</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(ASTDT, <span class="st">"%Y-%m"</span>) <span class="sc">==</span> <span class="fu">format</span>(RFXSTDTC, <span class="st">"%Y-%m"</span>) <span class="sc">&amp;</span> ASTDT <span class="sc">&lt;</span> RFXSTDTC,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  RFXSTDTC,</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  ASTDT</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># is still before dose, set ASTDT to RFXSTDT; otherwise keep first-of-period</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># year-only partials: compare format(..., "%Y") instead of "%Y-%m"</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>ASTDT <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(AESTDTC, <span class="st">"-01"</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(ASTDT, <span class="st">"%Y-%m"</span>) <span class="sc">==</span> <span class="fu">format</span>(RFXSTDT, <span class="st">"%Y-%m"</span>) <span class="sc">&amp;</span> ASTDT <span class="sc">&lt;</span> RFXSTDT,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  RFXSTDT,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  ASTDT</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -431,7 +432,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Imputation flags (<code>ASTDTF</code>, <code>ADTF</code>) are ADaM; SDTM keeps partial <code>--DTC</code>. Impute AE start to first dose only when the known year-month (or year) matches first dose and first-of-period is still before dose. Do not clamp every earlier month onto the dose date. The exact rule, including AE end-date checks, comes from the SAP.</p>
+<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Imputation flags (<code>ASTDTF</code>, <code>ADTF</code>) are ADaM; SDTM keeps partial <code>--DTC</code>. Impute AE start to first dose only when the known year-month matches first dose and first-of-period is still before dose (year-only partials compare on <code>"%Y"</code>). Do not clamp every earlier month onto the dose date. The exact rule, including AE end-date checks, comes from the SAP.</p>
 <p>Worked examples below.</p>
 </section>
 <section id="year-month-to-first-mid-last" class="level2">
@@ -608,25 +609,25 @@ Attaching package: 'lubridate'</code></pre>
 </section>
 <section id="partial-ae-start-in-the-same-period-as-first-dose" class="level2">
 <h2 class="anchored" data-anchor-id="partial-ae-start-in-the-same-period-as-first-dose">Partial AE start in the same period as first dose</h2>
-<p>Impute year-month to the first of the month as usual. Move <code>ASTDT</code> to first dose only when the known year-month (or year) equals that of first dose and the first-of-period date is still before dose. A collected month that is already before first dose stays on the first of that month. The exact rule, including AE end-date checks, comes from the SAP.</p>
+<p>Impute year-month to the first of the month as usual. Move <code>ASTDT</code> to first dose only when the known year-month (or year) equals that of first dose and the first-of-period date is still before dose. A collected month that is already before first dose stays on the first of that month. Year-only partials compare on <code>"%Y"</code> instead of <code>"%Y-%m"</code>. The exact rule, including AE end-date checks, comes from the SAP.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ae <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>, <span class="st">"STD-001-0003"</span>),</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">AESTDTC =</span> <span class="fu">c</span>(<span class="st">"2025-05"</span>, <span class="st">"2025-06"</span>, <span class="st">"2025-07"</span>),</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFXSTDTC =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFXSTDT =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>))</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>ae <span class="sc">|&gt;</span></span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">ASTDT =</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(AESTDTC, <span class="st">"-01"</span>)),</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">ASTDT =</span> <span class="fu">if_else</span>(</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">format</span>(ASTDT, <span class="st">"%Y-%m"</span>) <span class="sc">==</span> <span class="fu">format</span>(RFXSTDTC, <span class="st">"%Y-%m"</span>) <span class="sc">&amp;</span> ASTDT <span class="sc">&lt;</span> RFXSTDTC,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      RFXSTDTC,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">format</span>(ASTDT, <span class="st">"%Y-%m"</span>) <span class="sc">==</span> <span class="fu">format</span>(RFXSTDT, <span class="st">"%Y-%m"</span>) <span class="sc">&amp;</span> ASTDT <span class="sc">&lt;</span> RFXSTDT,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      RFXSTDT,</span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      ASTDT</span>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID AESTDTC   RFXSTDTC      ASTDT
+<pre><code>       USUBJID AESTDTC    RFXSTDT      ASTDT
 1 STD-001-0001 2025-05 2025-06-03 2025-05-01
 2 STD-001-0002 2025-06 2025-06-03 2025-06-03
 3 STD-001-0003 2025-07 2025-06-03 2025-07-01</code></pre>
