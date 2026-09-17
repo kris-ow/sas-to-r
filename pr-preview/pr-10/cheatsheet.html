@@ -352,7 +352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#create-or-change-columns" id="toc-create-or-change-columns" class="nav-link" data-scroll-target="#create-or-change-columns">Create or change columns</a></li>
   <li><a href="#keep-drop-and-rename-columns" id="toc-keep-drop-and-rename-columns" class="nav-link" data-scroll-target="#keep-drop-and-rename-columns">Keep, drop, and rename columns</a></li>
-  <li><a href="#keep-rows" id="toc-keep-rows" class="nav-link" data-scroll-target="#keep-rows">Keep rows</a></li>
+  <li><a href="#keep-rows-that-match-a-condition" id="toc-keep-rows-that-match-a-condition" class="nav-link" data-scroll-target="#keep-rows-that-match-a-condition">Keep rows that match a condition</a></li>
   <li><a href="#conditional-values" id="toc-conditional-values" class="nav-link" data-scroll-target="#conditional-values">Conditional values</a></li>
   <li><a href="#first-non-missing" id="toc-first-non-missing" class="nav-link" data-scroll-target="#first-non-missing">First non-missing</a></li>
   </ul></li>
@@ -367,7 +367,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#combining-data" id="toc-combining-data" class="nav-link" data-scroll-target="#combining-data">Combining Data</a>
   <ul class="collapse">
-  <li><a href="#combine-tables" id="toc-combine-tables" class="nav-link" data-scroll-target="#combine-tables">Combine tables</a></li>
+  <li><a href="#merge-on-keys" id="toc-merge-on-keys" class="nav-link" data-scroll-target="#merge-on-keys">Merge on keys</a></li>
   <li><a href="#stack-datasets" id="toc-stack-datasets" class="nav-link" data-scroll-target="#stack-datasets">Stack datasets</a></li>
   </ul></li>
   <li><a href="#derivations" id="toc-derivations" class="nav-link" data-scroll-target="#derivations">Derivations</a>
@@ -478,8 +478,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Trap: SAS <code>RENAME old=new</code> puts the old name first. <code>dplyr::rename(new = old)</code> puts the new name first.</p>
 </section>
-<section id="keep-rows" class="level3">
-<h3 class="anchored" data-anchor-id="keep-rows"><a href="./filter.html">Keep rows</a></h3>
+<section id="keep-rows-that-match-a-condition" class="level3">
+<h3 class="anchored" data-anchor-id="keep-rows-that-match-a-condition"><a href="./filter.html">Keep rows that match a condition</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
@@ -715,8 +715,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="combining-data" class="level2">
 <h2 class="anchored" data-anchor-id="combining-data">Combining Data</h2>
-<section id="combine-tables" class="level3">
-<h3 class="anchored" data-anchor-id="combine-tables"><a href="./joins.html">Combine tables</a></h3>
+<section id="merge-on-keys" class="level3">
+<h3 class="anchored" data-anchor-id="merge-on-keys"><a href="./joins.html">Merge on keys</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the six joins ------------------------------------------------------</span></span>
