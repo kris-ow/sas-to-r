@@ -113,25 +113,33 @@ follow the ADaM spec and the study metadata.
 Missing or unusable partial strings stay missing after failed parses. Do not
 silently coerce blank `--DTC` to period start.
 
-## Do not impute an AE start before first dose
+## Partial AE start in the same period as first dose
 
-A common study rule: after the first/mid/last impute, the AE start date must
-not be earlier than first treatment. Clamp to `RFXSTDTC` when it would be.
+Impute year-month to the first of the month as usual. Move `ASTDT` to first
+dose only when the known year-month (or year) equals that of first dose and
+the first-of-period date is still before dose. A collected month that is
+already before first dose stays on the first of that month. The exact rule,
+including AE end-date checks, comes from the SAP.
 
 ```{r}
 #| label: clamp
 ae <- data.frame(
-  USUBJID = c("STD-001-0001", "STD-001-0002"),
-  AESTDTC = c("2025-05", "2025-07"),
-  RFXSTDTC = as.Date(c("2025-06-03", "2025-06-10"))
+  USUBJID = c("STD-001-0001", "STD-001-0002", "STD-001-0003"),
+  AESTDTC = c("2025-05", "2025-06", "2025-07"),
+  RFXSTDTC = as.Date(c("2025-06-03", "2025-06-03", "2025-06-03"))
 )
 
 ae |>
   mutate(
     ASTDT = ymd(paste0(AESTDTC, "-01")),
-    ASTDT = if_else(ASTDT < RFXSTDTC, RFXSTDTC, ASTDT)
+    ASTDT = if_else(
+      format(ASTDT, "%Y-%m") == format(RFXSTDTC, "%Y-%m") & ASTDT < RFXSTDTC,
+      RFXSTDTC,
+      ASTDT
+    )
   )
 ```
 
-`STD-001-0001` imputes to 1 May, then clamps to `2025-06-03`. `STD-001-0002`
-imputes to 1 July, which is after first dose, so it stays.
+`STD-001-0001` is May, before the June dose, so `ASTDT` stays `2025-05-01`.
+`STD-001-0002` is the same month as dose, so `ASTDT` becomes `2025-06-03`.
+`STD-001-0003` is July, after dose, so `ASTDT` stays `2025-07-01`.

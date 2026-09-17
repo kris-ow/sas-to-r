@@ -1,18 +1,19 @@
 ---
 title: "Last observation before exposure"
-subtitle: "--LOBXFL-style flags"
+subtitle: "--LOBXFL flags"
 ---
 
 ::: {.sas-equiv}
 **SAS:** last on or before `RFXSTDTC`, `--LOBXFL`
 :::
 
-When a findings domain carries an `--LOBXFL`-style flag, build it in R as:
-filter qualifying rows, take the last date per entity, join `"Y"` back, fill
-the rest with `""`. Do not flag in place with a running `last.`.
+When a findings domain carries `--LOBXFL`, build it in R as: filter qualifying
+rows, take the last date per entity, join `"Y"` back, fill the rest with `""`.
+Do not flag in place with a running `last.`.
 
 `RFXSTDTC` is first study treatment. `RFSTDTC` is the subject reference start
-and may differ. Use `RFXSTDTC` as the cutoff.
+and may differ. `--DTC` is character ISO. Convert to Date and compare `VSDT`
+to `RFXSTDT`.
 
 ## Quick reference
 
@@ -22,7 +23,7 @@ Worked examples below.
 
 ## The example table
 
-Two subjects, two vital-sign tests. `RFXSTDTC` is on the row.
+Two subjects, two vital-sign tests. `RFXSTDTC` is on the row as character ISO.
 
 ```{r}
 #| label: setup
@@ -35,7 +36,7 @@ vs <- data.frame(
     "STD-001-0002", "STD-001-0002"
   ),
   VSTESTCD = c("SYSBP", "SYSBP", "SYSBP", "DIABP", "DIABP", "DIABP", "SYSBP", "SYSBP"),
-  VSDTC   = as.Date(c(
+  VSDTC    = c(
     "2025-05-20",
     "2025-06-03",
     "2025-06-17",
@@ -44,50 +45,57 @@ vs <- data.frame(
     "2025-06-02",
     "2025-06-20",
     "2025-06-27"
-  )),
-  RFXSTDTC = as.Date(c(
+  ),
+  RFXSTDTC = c(
     "2025-06-03", "2025-06-03", "2025-06-03",
     "2025-06-03", "2025-06-03", "2025-06-03",
     "2025-06-10", "2025-06-10"
-  )),
+  ),
   VSSTRESN = c(122, 118, 130, 80, 78, NA_real_, 125, 122)
 )
+
+vs <- vs |>
+  mutate(
+    VSDT = as.Date(substr(VSDTC, 1, 10)),
+    RFXSTDT = as.Date(substr(RFXSTDTC, 1, 10))
+  )
 
 vs
 ```
 
 - `STD-001-0001` SYSBP: last on or before `2025-06-03` with a result is
   `2025-06-03` (same calendar day as first dose)
-- `STD-001-0001` DIABP: `2025-06-02` has no result, so it does not qualify;
-  two rows share `2025-05-20` and both get the flag
+- `STD-001-0001` DIABP: `2025-06-02` has no numeric result, so it does not
+  qualify; two rows share `2025-05-20` and both get the flag
 - `STD-001-0002` SYSBP: both dates are after `2025-06-10`; nothing qualifies
 
 ## Filter, `slice_max()`, join a `"Y"`
 
-Drop missing dates and missing or not-done results, then keep
-`VSDTC <= RFXSTDTC`. Per `USUBJID` and `VSTESTCD`, take the latest `VSDTC`.
+Drop missing dates and missing numeric results (`!is.na(VSSTRESN)`), then keep
+`VSDT <= RFXSTDT`. Per `USUBJID` and `VSTESTCD`, take the latest `VSDT`.
 Distinct the keys so a tied date does not multiply rows on the join. Flag
 `"Y"`, join back, fill the rest with `""`.
 
 ```{r}
 last_before <- vs |>
-  filter(!is.na(VSDTC), !is.na(RFXSTDTC), !is.na(VSSTRESN), VSDTC <= RFXSTDTC) |>
+  filter(!is.na(VSDT), !is.na(RFXSTDT), !is.na(VSSTRESN), VSDT <= RFXSTDT) |>
   group_by(USUBJID, VSTESTCD) |>
-  slice_max(VSDTC, n = 1, with_ties = TRUE) |>
+  slice_max(VSDT, n = 1, with_ties = TRUE) |>
   ungroup() |>
-  distinct(USUBJID, VSTESTCD, VSDTC) |>
+  distinct(USUBJID, VSTESTCD, VSDT) |>
   mutate(VSLOBXFL = "Y")
 
 last_before
 
 vs |>
-  left_join(last_before, by = c("USUBJID", "VSTESTCD", "VSDTC")) |>
+  left_join(last_before, by = c("USUBJID", "VSTESTCD", "VSDT")) |>
   mutate(VSLOBXFL = coalesce(VSLOBXFL, ""))
 ```
 
 `STD-001-0001` SYSBP on `2025-06-03` is `"Y"`. Both `STD-001-0001` DIABP rows on
-`2025-05-20` are `"Y"` (`with_ties = TRUE`). The DIABP row with a missing result
-stays blank. Post-baseline rows are blank. `STD-001-0002` is blank on both rows.
+`2025-05-20` are `"Y"` (`with_ties = TRUE`). The DIABP row with a missing
+numeric result stays blank. Post-baseline rows are blank. `STD-001-0002` is
+blank on both rows.
 
 These dates have no times. A visit on the same calendar day as first dose
 cannot be ordered by datetime. The study rule must say whether that day counts
@@ -110,7 +118,7 @@ wrong DIABP row, or miss it. Put the finding key in `group_by()`.
 
 ## Empty qualifying set stays blank
 
-`STD-001-0002` has no row with `VSDTC <= RFXSTDTC`. `last_before` has no keys for
+`STD-001-0002` has no row with `VSDT <= RFXSTDT`. `last_before` has no keys for
 that subject. The left join matches nothing; `coalesce(..., "")` leaves both
 rows blank. Do not assign `"Y"` to the earliest post-baseline record.
 
@@ -120,7 +128,7 @@ rows blank. Do not assign `"Y"` to the earliest post-baseline record.
 When two records on the same entity fall on the last qualifying day, both get
 `"Y"`.
 
-`distinct(USUBJID, VSTESTCD, VSDTC)` makes the right-hand table unique on the
+`distinct(USUBJID, VSTESTCD, VSDT)` makes the right-hand table unique on the
 join keys, so those two left rows each match once. Without `distinct()`, a
 two-row tie on the right cartesian-joins against two left rows with the same
 keys.

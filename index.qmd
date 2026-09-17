@@ -51,7 +51,7 @@ Derivations
 :::
 
 - [Sequence numbers](seq.qmd) `--SEQ` within a subject
-- [Last observation before exposure](lobxfl.qmd) `--LOBXFL`-style flags
+- [Last observation before exposure](lobxfl.qmd) `--LOBXFL` flags
 :::
 
 :::

@@ -57,7 +57,9 @@ tu |>
 ```
 
 `STD-001-0001` is numbered 1 to 4 in file order. `VISITNUM` 3 is `TUSEQ` 1.
-The SAS counter restarts per subject too, but only after you sort.
+SAS `BY usubjid` on unsorted data stops with `BY variables are not properly
+sorted`. That check is only `USUBJID`, not the secondary keys. R does not
+error.
 
 ## Right: `arrange()`, then number
 
