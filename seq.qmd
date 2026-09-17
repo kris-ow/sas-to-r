@@ -59,7 +59,8 @@ tu |>
 `STD-001-0001` is numbered 1 to 4 in file order. `VISITNUM` 3 is `TUSEQ` 1.
 SAS `BY usubjid` on unsorted data stops with `BY variables are not properly
 sorted`. That check is only `USUBJID`, not the secondary keys. R does not
-error.
+error. This example is already in `USUBJID` order, so SAS would also number
+it in file order without an error.
 
 ## Right: `arrange()`, then number
 
