@@ -1,6 +1,6 @@
 ---
-title: "Substrings"
-subtitle: "Extract part of a character value"
+title: "Extract part of a character value"
+subtitle: "substr()"
 ---
 
 ::: {.sas-equiv}

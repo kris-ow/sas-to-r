@@ -1,6 +1,6 @@
 ---
-title: "If else and case when"
-subtitle: "Conditional column values"
+title: "Conditional values"
+subtitle: "if_else() / case_when()"
 ---
 
 ::: {.sas-equiv}

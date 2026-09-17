@@ -1,6 +1,6 @@
 ---
-title: "Bind rows"
-subtitle: "Stack tables on top of each other"
+title: "Stack datasets"
+subtitle: "bind_rows()"
 ---
 
 ::: {.sas-equiv}

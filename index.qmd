@@ -5,7 +5,7 @@ description: "SAS programming tasks mapped to R."
 toc: false
 ---
 
-Each entry is a SAS task with its R spelling.
+SAS task first. The R name follows where there is a close equivalent.
 
 ::: {.topic-index}
 
@@ -15,10 +15,10 @@ Basics
 :::
 
 - [Create or change columns](mutate.qmd) DATA step assignment -> `mutate`
-- [Keep, drop, and rename columns](select-rename.qmd) KEEP/DROP/RENAME -> `select` / `rename`
-- [Keep rows](filter.qmd) WHERE / subsetting IF -> `filter`
-- [Conditional values](if-else-case-when.qmd) IF-THEN / IFN/IFC -> `if_else` / `case_when`
-- [First non-missing](coalesce.qmd) COALESCE / coalescec -> `coalesce`
+- [Keep, drop, and rename columns](select-rename.qmd) `KEEP` / `DROP` / `RENAME` -> `select` / `rename`
+- [Keep rows that match a condition](filter.qmd) `WHERE` / subsetting `IF` -> `filter`
+- [Conditional values](if-else-case-when.qmd) `IF-THEN` / `IFN` / `IFC` -> `if_else` / `case_when`
+- [First non-missing](coalesce.qmd) `COALESCE` / `coalescec` -> `coalesce`
 :::
 
 ::: {.topic-group}
@@ -26,7 +26,7 @@ Basics
 Text
 :::
 
-- [Extract part of a character value](substr.qmd) SUBSTR -> `substr`
+- [Extract part of a character value](substr.qmd) `SUBSTR` -> `substr`
 :::
 
 ::: {.topic-group}
@@ -43,8 +43,8 @@ Dates
 Combining Data
 :::
 
-- [Combine tables](joins.qmd) MERGE / SQL JOIN -> `*_join`
-- [Stack datasets](bind-rows.qmd) SET -> `bind_rows`
+- [Merge on keys](joins.qmd) `MERGE` / SQL `JOIN` -> `*_join`
+- [Stack datasets](bind-rows.qmd) `SET` -> `bind_rows`
 :::
 
 ::: {.topic-group}

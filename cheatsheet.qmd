@@ -16,7 +16,7 @@ page for more detail.
 
 {{< include _quickref/select-rename.md >}}
 
-### [Keep rows](filter.qmd)
+### [Keep rows that match a condition](filter.qmd)
 
 {{< include _quickref/filter.md >}}
 
@@ -46,7 +46,7 @@ page for more detail.
 
 ## Combining Data
 
-### [Combine tables](joins.qmd)
+### [Merge on keys](joins.qmd)
 
 {{< include _quickref/joins.md >}}
 

@@ -1,6 +1,6 @@
 ---
-title: "Select and rename"
-subtitle: "Keep, drop, and rename columns"
+title: "Keep, drop, and rename columns"
+subtitle: "select() / rename()"
 ---
 
 ::: {.sas-equiv}

@@ -1,6 +1,6 @@
 ---
-title: "Mutate"
-subtitle: "Create or change columns"
+title: "Create or change columns"
+subtitle: "mutate()"
 ---
 
 ::: {.sas-equiv}
