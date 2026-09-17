@@ -351,6 +351,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
   <li><a href="#one-condition" id="toc-one-condition" class="nav-link" data-scroll-target="#one-condition">One condition</a></li>
   <li><a href="#several-conditions" id="toc-several-conditions" class="nav-link" data-scroll-target="#several-conditions">Several conditions</a></li>
+  <li><a href="#missing-numeric-sas-where-keeps-the-row" id="toc-missing-numeric-sas-where-keeps-the-row" class="nav-link" data-scroll-target="#missing-numeric-sas-where-keeps-the-row">Missing numeric: SAS <code>WHERE</code> keeps the row</a></li>
   </ul>
 </nav>
     </div>
@@ -413,7 +414,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Trap: <code>filter()</code> keeps rows where the condition is <code>TRUE</code>. Rows with <code>NA</code> in the condition are dropped. SAS <code>where</code> also treats missing as not true for most comparisons.</p>
+<p>Traps: <code>filter()</code> keeps rows where the condition is <code>TRUE</code>. <code>NA</code> in the condition drops the row. SAS <code>where aval &lt; 100</code> keeps missing numeric rows (missing is smaller than any number). Use <code>!is.na(AVAL)</code> when missing must not pass.</p>
 <p>Worked examples below.</p>
 </section>
 <section id="one-condition" class="level2">
@@ -460,7 +461,66 @@ Attaching package: 'dplyr'</code></pre>
 1 STD-001-0001   SYSBP  120</code></pre>
 </div>
 </div>
-<p>Commas in <code>filter()</code> mean AND. Use <code>|</code> for OR.</p>
+<p>Commas in <code>filter()</code> mean AND. Use <code>|</code> for OR. <code>!is.na(AVAL)</code> is the usual way to drop missing results before a comparison.</p>
+</section>
+<section id="missing-numeric-sas-where-keeps-the-row" class="level2">
+<h2 class="anchored" data-anchor-id="missing-numeric-sas-where-keeps-the-row">Missing numeric: SAS <code>WHERE</code> keeps the row</h2>
+<p>Same table. Compare <code>AVAL &lt; 100</code> in both languages.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(AVAL <span class="sc">&lt;</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID PARAMCD AVAL
+1 STD-001-0001   DIABP   80</code></pre>
+</div>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><code>AVAL</code></th>
+<th>SAS <code>where aval &lt; 100</code></th>
+<th>R <code>filter(AVAL &lt; 100)</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>120</td>
+<td>drop</td>
+<td>drop</td>
+</tr>
+<tr class="even">
+<td>80</td>
+<td>keep</td>
+<td>keep</td>
+</tr>
+<tr class="odd">
+<td>missing</td>
+<td>keep</td>
+<td>drop</td>
+</tr>
+</tbody>
+</table>
+<p>R keeps only 80. <code>NA &lt; 100</code> is <code>NA</code>, not <code>TRUE</code>, so <code>filter()</code> drops that row.</p>
+<p>SAS <code>where aval &lt; 100;</code> keeps 80 and the missing row. A missing numeric is smaller than any number, so the comparison is true.</p>
+<p>To drop missing in R, say so:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AVAL), AVAL <span class="sc">&lt;</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID PARAMCD AVAL
+1 STD-001-0001   DIABP   80</code></pre>
+</div>
+</div>
+<p>To keep missing on purpose (the SAS <code>WHERE</code> result on this data):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(AVAL) <span class="sc">|</span> AVAL <span class="sc">&lt;</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID PARAMCD AVAL
+1 STD-001-0001   DIABP   80
+2 STD-001-0002   SYSBP   NA</code></pre>
+</div>
+</div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -471,7 +531,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>filter(AVAL &gt; 100)</code> drops rows where <code>AVAL</code> is <code>NA</code>, because <code>NA &gt; 100</code> is not <code>TRUE</code>. Keep missing values on purpose with <code>is.na(AVAL) | AVAL &gt; 100</code> when that is the rule.</p>
+<p><code>filter(AVAL &lt; 100)</code> drops rows where <code>AVAL</code> is <code>NA</code>. SAS <code>WHERE aval &lt; 100</code> keeps them. Write <code>!is.na(AVAL)</code> when missing must not pass.</p>
 </div>
 </div>
 

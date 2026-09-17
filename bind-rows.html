@@ -351,6 +351,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
   <li><a href="#stack-two-tables" id="toc-stack-two-tables" class="nav-link" data-scroll-target="#stack-two-tables">Stack two tables</a></li>
   <li><a href="#mark-the-source-table" id="toc-mark-the-source-table" class="nav-link" data-scroll-target="#mark-the-source-table">Mark the source table</a></li>
+  <li><a href="#sas-truncates-bind_rows-does-not" id="toc-sas-truncates-bind_rows-does-not" class="nav-link" data-scroll-target="#sas-truncates-bind_rows-does-not">SAS truncates; <code>bind_rows()</code> does not</a></li>
   </ul>
 </nav>
     </div>
@@ -379,7 +380,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="sas-equiv">
-<p><strong>SAS:</strong> <code>SET</code> with several datasets; <code>PROC SQL</code> <code>UNION</code> / <code>OUTER UNION CORR</code></p>
+<p><strong>SAS:</strong> <code>SET</code> with several datasets; <code>INDSNAME=</code>; <code>PROC SQL</code> <code>UNION</code> / <code>OUTER UNION CORR</code></p>
 </div>
 <p><code>dplyr::bind_rows()</code> stacks tables vertically. Columns are matched by name. Columns present in only one table are filled with <code>NA</code> in the other rows.</p>
 <section id="quick-reference" class="level2">
@@ -410,7 +411,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td><code>bind_rows(..., .id = "SRC")</code></td>
-<td>add a source variable before <code>set</code></td>
+<td><code>set a b indsname=src;</code></td>
 </tr>
 <tr class="odd">
 <td><code>bind_rows()</code> by column name</td>
@@ -418,7 +419,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Trap: <code>bind_rows()</code> matches columns by name, not position. A type clash on the same name (character vs numeric) errors or coerces; fix types before stacking.</p>
+<p>Traps: <code>bind_rows()</code> matches columns by name, not position. Character versus numeric on the same name errors in dplyr; fix types before stacking. SAS <code>SET</code> takes character length from the first dataset and can truncate later values; <code>bind_rows()</code> does not truncate.</p>
 <p>Worked examples below.</p>
 </section>
 <section id="stack-two-tables" class="level2">
@@ -476,7 +477,12 @@ Attaching package: 'dplyr'</code></pre>
 3 SITEB STD-001-0003  FATIGUE     MILD RELATED</code></pre>
 </div>
 </div>
-<p><code>.id</code> adds a column with the list names. Useful when you need to know which input row came from.</p>
+<p><code>.id</code> adds a column with the list names. SAS:</p>
+<pre class="sas"><code>data all;
+  set ae_site_a ae_site_b indsname=src;
+  site = src;
+run;</code></pre>
+<p><code>INDSNAME=</code> is the dataset name that contributed the row (often <code>WORK.AE_SITE_A</code> style). Rename or <code>scan</code> that value if you need a short code like <code>.id</code>.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -487,9 +493,32 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>bind_rows()</code> does not line up column 1 with column 1. Rename first when the same concept has different names. When the same name has different types, fix the type before stacking.</p>
+<p><code>bind_rows()</code> does not line up column 1 with column 1. Rename first when the same concept has different names. Character versus numeric on the same name is an error in dplyr. Fix the type before stacking.</p>
 </div>
 </div>
+</section>
+<section id="sas-truncates-bind_rows-does-not" class="level2">
+<h2 class="anchored" data-anchor-id="sas-truncates-bind_rows-does-not">SAS truncates; <code>bind_rows()</code> does not</h2>
+<p>The first SAS dataset in <code>SET</code> sets character lengths. A later dataset with a longer value is truncated to that length. <code>bind_rows()</code> keeps the full string:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ae_short <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="st">"STD-001-0001"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">AETERM =</span> <span class="st">"NAUSEA"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>ae_long <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="st">"STD-001-0003"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">AETERM =</span> <span class="st">"MYOCARDIAL INFARCTION"</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(ae_short, ae_long)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID                AETERM
+1 STD-001-0001                NAUSEA
+2 STD-001-0003 MYOCARDIAL INFARCTION</code></pre>
+</div>
+</div>
+<p><code>AETERM</code> is the full term on both rows. In SAS, <code>set ae_short ae_long;</code> would cut <code>MYOCARDIAL INFARCTION</code> to the length of <code>NAUSEA</code> unless you set length first.</p>
 <p>For side-by-side combines on keys, use joins (see Joins), not <code>bind_rows()</code>.</p>
 
 

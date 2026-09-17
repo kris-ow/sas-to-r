@@ -397,7 +397,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MILD"</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MODERATE"</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"SEVERE"</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_integer_</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_integer_</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
@@ -417,12 +417,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>SELECT</code> / nested <code>IF-THEN-ELSE</code></td>
 </tr>
 <tr class="odd">
-<td><code>case_when(..., TRUE ~ other)</code></td>
+<td><code>case_when(..., .default = other)</code></td>
 <td>OTHERWISE / final else</td>
 </tr>
 </tbody>
 </table>
-<p>Trap: <code>dplyr::if_else()</code> is stricter on types than base <code>ifelse()</code>. Prefer <code>if_else()</code> in dplyr pipelines. <code>case_when()</code> stops at the first true condition.</p>
+<p>Traps: <code>dplyr::if_else()</code> is stricter on types than base <code>ifelse()</code>. Prefer <code>if_else()</code> in dplyr pipelines. <code>case_when()</code> stops at the first true condition. Older dplyr used <code>TRUE ~</code> instead of <code>.default</code>. SAS <code>ifc(age &lt; 65, "&lt;65", "&gt;=65")</code> puts missing age in <code>"&lt;65"</code>; R <code>if_else()</code> returns <code>NA</code>.</p>
 <p>Worked examples below.</p>
 </section>
 <section id="two-way-if_else" class="level2">
@@ -458,7 +458,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 </div>
 <p>When <code>AGE</code> is <code>NA</code>, <code>if_else()</code> returns <code>NA</code> for that row (unless you set <code>missing=</code>).</p>
-<p>SAS <code>ifc(age &lt; 65, "&lt;65", "&gt;=65")</code> is the same idea for character results.</p>
+<p>SAS <code>ifc(age &lt; 65, "&lt;65", "&gt;=65")</code> is not the same on missing age. Missing is smaller than any number, so the condition is true and SAS returns <code>"&lt;65"</code>. R returns <code>NA</code>.</p>
 </section>
 <section id="multi-way-case_when" class="level2">
 <h2 class="anchored" data-anchor-id="multi-way-case_when">Multi-way: <code>case_when()</code></h2>
@@ -474,7 +474,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MILD"</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MODERATE"</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"SEVERE"</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_integer_</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_integer_</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -485,7 +485,7 @@ Attaching package: 'dplyr'</code></pre>
 4 STD-001-0004     &lt;NA&gt;     NA</code></pre>
 </div>
 </div>
-<p>The first matching condition wins. End with <code>TRUE ~ ...</code> as the catch-all (SAS OTHERWISE).</p>
+<p>The first matching condition wins. <code>.default</code> is the catch-all (SAS OTHERWISE). Older dplyr used <code>TRUE ~ ...</code> for that branch.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

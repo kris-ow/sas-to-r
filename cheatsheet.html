@@ -509,7 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Trap: <code>filter()</code> keeps rows where the condition is <code>TRUE</code>. Rows with <code>NA</code> in the condition are dropped. SAS <code>where</code> also treats missing as not true for most comparisons.</p>
+<p>Traps: <code>filter()</code> keeps rows where the condition is <code>TRUE</code>. <code>NA</code> in the condition drops the row. SAS <code>where aval &lt; 100</code> keeps missing numeric rows (missing is smaller than any number). Use <code>!is.na(AVAL)</code> when missing must not pass.</p>
 </section>
 <section id="if-else-and-case-when" class="level3">
 <h3 class="anchored" data-anchor-id="if-else-and-case-when"><a href="./if-else-case-when.html">If else and case when</a></h3>
@@ -526,7 +526,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MILD"</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"MODERATE"</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      AESEV <span class="sc">==</span> <span class="st">"SEVERE"</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_integer_</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_integer_</span></span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
@@ -546,12 +546,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>SELECT</code> / nested <code>IF-THEN-ELSE</code></td>
 </tr>
 <tr class="odd">
-<td><code>case_when(..., TRUE ~ other)</code></td>
+<td><code>case_when(..., .default = other)</code></td>
 <td>OTHERWISE / final else</td>
 </tr>
 </tbody>
 </table>
-<p>Trap: <code>dplyr::if_else()</code> is stricter on types than base <code>ifelse()</code>. Prefer <code>if_else()</code> in dplyr pipelines. <code>case_when()</code> stops at the first true condition.</p>
+<p>Traps: <code>dplyr::if_else()</code> is stricter on types than base <code>ifelse()</code>. Prefer <code>if_else()</code> in dplyr pipelines. <code>case_when()</code> stops at the first true condition. Older dplyr used <code>TRUE ~</code> instead of <code>.default</code>. SAS <code>ifc(age &lt; 65, "&lt;65", "&gt;=65")</code> puts missing age in <code>"&lt;65"</code>; R <code>if_else()</code> returns <code>NA</code>.</p>
 </section>
 <section id="coalesce" class="level3">
 <h3 class="anchored" data-anchor-id="coalesce"><a href="./coalesce.html">Coalesce</a></h3>
@@ -584,7 +584,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Three traps: <code>coalesce()</code> skips <code>NA</code> only, not <code>""</code>. A specify field of <code>""</code> therefore beats the coded value. Convert blanks with <code>na_if()</code> first, then prefer specify over coded: <code>coalesce(na_if(spy, ""), coded)</code>.</p>
+<p>Traps: <code>coalesce()</code> skips <code>NA</code> only, not <code>""</code>. A specify field of <code>""</code> therefore beats the coded value. Convert blanks with <code>na_if()</code> first, then prefer specify over coded: <code>coalesce(na_if(spy, ""), coded)</code>.</p>
 </section>
 </section>
 <section id="text" class="level2">
@@ -622,7 +622,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Three traps: the third argument is a stop position, not a length. <code>substr(x, 5, 3)</code> is not "three characters from 5"; it is the empty range 5-to-3. Write <code>start+len-1</code>, or count the end position. <code>substring()</code> and <code>str_sub()</code> use end positions too.</p>
+<p>Traps: the third argument is a stop position, not a length. <code>substr(x, 5, 3)</code> is not "three characters from 5"; it is the empty range 5-to-3. Write <code>start+len-1</code>, or count the end position. <code>substring()</code> and <code>str_sub()</code> use end positions too.</p>
 </section>
 </section>
 <section id="dates" class="level2">
@@ -662,7 +662,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Three traps: raw subtraction is not <code>--DY</code>. On the reference date the raw diff is 0; <code>--DY</code> is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.</p>
+<p>Traps: raw subtraction is not <code>--DY</code>. On the reference date the raw diff is 0; <code>--DY</code> is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.</p>
 </section>
 <section id="partial-dates" class="level3">
 <h3 class="anchored" data-anchor-id="partial-dates"><a href="./partial-dates.html">Partial dates</a></h3>
@@ -677,7 +677,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># year-month "2024-04" -&gt; first / mid / last day of month</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>))</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-15"</span>))        <span class="co"># common mid-month convention</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>(<span class="fu">ceiling_date</span>(<span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>)), <span class="st">"month"</span>) <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">as.Date</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>(<span class="fu">ceiling_date</span>(<span class="fu">ymd</span>(<span class="fu">paste0</span>(ym_txt, <span class="st">"-01"</span>)), <span class="st">"month"</span>) <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">as.Date</span>()</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># AE start: only when known year-month equals first dose and first-of-month</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># is still before dose, set ASTDT to RFXSTDT; otherwise keep first-of-period</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># year-only partials: compare format(..., "%Y") instead of "%Y-%m"</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>ASTDT <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(AESTDTC, <span class="st">"-01"</span>))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(ASTDT, <span class="st">"%Y-%m"</span>) <span class="sc">==</span> <span class="fu">format</span>(RFXSTDT, <span class="st">"%Y-%m"</span>) <span class="sc">&amp;</span> ASTDT <span class="sc">&lt;</span> RFXSTDT,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  RFXSTDT,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  ASTDT</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -700,7 +710,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Keep an imputation flag (<code>--DTF</code>) when the standard requires it.</p>
+<p>Traps: document the mid rule (15 vs true midpoint). <code>ceiling_date(..., "month")</code> alone is next month start, not month end. Missing completely stays missing. Imputation flags (<code>ASTDTF</code>, <code>ADTF</code>) are ADaM; SDTM keeps partial <code>--DTC</code>. Impute AE start to first dose only when the known year-month matches first dose and first-of-period is still before dose (year-only partials compare on <code>"%Y"</code>). Do not clamp every earlier month onto the dose date. The exact rule, including AE end-date checks, comes from the SAP.</p>
 </section>
 </section>
 <section id="combining-data" class="level2">
@@ -765,7 +775,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Three traps: <code>NA</code> after a join means "no match", not "missing value". <code>inner_join()</code> throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what <code>relationship =</code> is for.</p>
+<p>Traps: <code>NA</code> after a join means "no match", not "missing value". <code>inner_join()</code> throws away your data errors and your event-free subjects together, without saying so. And a duplicate key on the right silently multiplies rows, which is what <code>relationship =</code> is for.</p>
 </section>
 <section id="bind-rows" class="level3">
 <h3 class="anchored" data-anchor-id="bind-rows"><a href="./bind-rows.html">Bind rows</a></h3>
@@ -795,7 +805,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td><code>bind_rows(..., .id = "SRC")</code></td>
-<td>add a source variable before <code>set</code></td>
+<td><code>set a b indsname=src;</code></td>
 </tr>
 <tr class="odd">
 <td><code>bind_rows()</code> by column name</td>
@@ -803,7 +813,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Trap: <code>bind_rows()</code> matches columns by name, not position. A type clash on the same name (character vs numeric) errors or coerces; fix types before stacking.</p>
+<p>Traps: <code>bind_rows()</code> matches columns by name, not position. Character versus numeric on the same name errors in dplyr; fix types before stacking. SAS <code>SET</code> takes character length from the first dataset and can truncate later values; <code>bind_rows()</code> does not truncate.</p>
 </section>
 </section>
 <section id="derivations" class="level2">
@@ -815,7 +825,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(USUBJID, TUEVAL, TULNKID, VISITNUM, TUDY) <span class="sc">|&gt;</span>  <span class="co"># order first</span></span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span>              <span class="co"># --SEQ, XPT-shaped</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SEQ =</span> <span class="fu">as.double</span>(<span class="fu">row_number</span>())) <span class="sc">|&gt;</span>              <span class="co"># --SEQ; double for SAS compares</span></span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
@@ -830,8 +840,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>arrange(...)</code> then <code>row_number()</code></td>
-<td><code>PROC SORT</code> then <code>_N_</code> within <code>BY</code></td>
+<td><code>arrange(...)</code> then <code>group_by(USUBJID)</code> then <code>row_number()</code></td>
+<td><code>PROC SORT</code> then <code>if first.usubjid then seq = 0; seq + 1;</code></td>
 </tr>
 <tr class="even">
 <td><code>group_by(USUBJID)</code></td>
@@ -839,27 +849,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td><code>as.double(row_number())</code></td>
-<td>SAS numeric is always double</td>
+<td>SAS numeric is double</td>
 </tr>
 </tbody>
 </table>
-<p>Three traps: <code>row_number()</code> follows the current row order, so skip <code>arrange()</code> and <code>--SEQ</code> is whatever the last PROC left behind. Equal dates need tie-breakers in <code>arrange()</code>. Integer <code>SEQ</code> is not how SAS XPT stores it; use <code>as.double()</code>.</p>
+<p>Traps: <code>row_number()</code> follows the current row order, so skip <code>arrange()</code> and <code>--SEQ</code> is whatever the last PROC left behind. Equal dates need tie-breakers in <code>arrange()</code>. <code>_N_</code> is not a within-<code>BY</code> counter. Cast to double so waldo/diffdf match SAS numeric; XPT has no separate integer type.</p>
 </section>
 <section id="last-observation-before-exposure" class="level3">
 <h3 class="anchored" data-anchor-id="last-observation-before-exposure"><a href="./lobxfl.html">Last observation before exposure</a></h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> tu <span class="sc">|&gt;</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(TUDTC), <span class="sc">!</span><span class="fu">is.na</span>(RFSTDTC), TUDTC <span class="sc">&lt;=</span> RFSTDTC) <span class="sc">|&gt;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, TULNKID) <span class="sc">|&gt;</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(TUDTC, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, TULNKID, TUDTC) <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="st">"Y"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>tu <span class="sc">|&gt;</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"TULNKID"</span>, <span class="st">"TUDTC"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TULOBXFL =</span> <span class="fu">coalesce</span>(TULOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>vs <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">VSDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(VSDTC, <span class="dv">1</span>, <span class="dv">10</span>)),     <span class="co"># ISO character --DTC -&gt; Date</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">RFXSTDT =</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(RFXSTDTC, <span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>last_before <span class="ot">&lt;-</span> vs <span class="sc">|&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(VSDT), <span class="sc">!</span><span class="fu">is.na</span>(RFXSTDT), <span class="sc">!</span><span class="fu">is.na</span>(VSSTRESN), VSDT <span class="sc">&lt;=</span> RFXSTDT) <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID, VSTESTCD) <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(VSDT, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(USUBJID, VSTESTCD, VSDT) <span class="sc">|&gt;</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="st">"Y"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>vs <span class="sc">|&gt;</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(last_before, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"USUBJID"</span>, <span class="st">"VSTESTCD"</span>, <span class="st">"VSDT"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">VSLOBXFL =</span> <span class="fu">coalesce</span>(VSLOBXFL, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -873,11 +889,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>filter(TUDTC &lt;= RFSTDTC)</code></td>
-<td>subset on or before <code>RFSTDTC</code></td>
+<td><code>filter(VSDT &lt;= RFXSTDT)</code></td>
+<td>subset on or before <code>RFXSTDTC</code></td>
 </tr>
 <tr class="even">
-<td><code>slice_max(TUDTC, n = 1, with_ties = TRUE)</code></td>
+<td><code>slice_max(VSDT, n = 1, with_ties = TRUE)</code></td>
 <td>last date in that subset</td>
 </tr>
 <tr class="odd">
@@ -886,7 +902,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Three traps: group by the entity (<code>TULNKID</code>), not only the subject. An empty qualifying set stays blank, not <code>"Y"</code> and not <code>NA</code>. <code>with_ties = TRUE</code> flags every row that shares the last date; <code>distinct()</code> on the flag keys so the join does not multiply rows. SDTM wants <code>""</code>, not <code>NA</code>.</p>
+<p>Traps: group by the entity (<code>VSTESTCD</code> here), not only the subject. Drop missing numeric results (<code>!is.na(VSSTRESN)</code>) before picking last. An empty qualifying set stays blank, not <code>"Y"</code> and not <code>NA</code>. <code>with_ties = TRUE</code> flags every row that shares the last date; <code>distinct()</code> on the flag keys so the join does not multiply rows. Same calendar day as first dose with no times needs a study rule; <code>&lt;=</code> is one choice. The flag is <code>""</code>, not <code>NA</code>. Compare Date columns (<code>VSDT</code>, <code>RFXSTDT</code>), not mixed-precision <code>--DTC</code> strings.</p>
 
 
 </section>
