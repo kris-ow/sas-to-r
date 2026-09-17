@@ -1,6 +1,6 @@
 ---
-title: "Joins"
-subtitle: "Combining tables"
+title: "Merge on keys"
+subtitle: "*_join()"
 ---
 
 ::: {.sas-equiv}

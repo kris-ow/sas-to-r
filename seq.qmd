@@ -1,6 +1,6 @@
 ---
-title: "Sequence numbers"
-subtitle: "--SEQ within a subject"
+title: "Within-subject sequence"
+subtitle: "row_number()"
 ---
 
 ::: {.sas-equiv}

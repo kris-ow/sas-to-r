@@ -1,6 +1,6 @@
 ---
-title: "Coalesce"
-subtitle: "Prefer one value, fall back to another"
+title: "First non-missing"
+subtitle: "coalesce()"
 ---
 
 ::: {.sas-equiv}

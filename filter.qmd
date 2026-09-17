@@ -1,6 +1,6 @@
 ---
-title: "Filter"
-subtitle: "Keep rows that match a condition"
+title: "Keep rows that match a condition"
+subtitle: "filter()"
 ---
 
 ::: {.sas-equiv}
