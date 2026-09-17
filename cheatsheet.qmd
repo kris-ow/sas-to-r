@@ -8,29 +8,29 @@ page for more detail.
 
 ## Basics
 
-### [Mutate](mutate.qmd)
+### [Create or change columns](mutate.qmd)
 
 {{< include _quickref/mutate.md >}}
 
-### [Select and rename](select-rename.qmd)
+### [Keep, drop, and rename columns](select-rename.qmd)
 
 {{< include _quickref/select-rename.md >}}
 
-### [Filter](filter.qmd)
+### [Keep rows](filter.qmd)
 
 {{< include _quickref/filter.md >}}
 
-### [If else and case when](if-else-case-when.qmd)
+### [Conditional values](if-else-case-when.qmd)
 
 {{< include _quickref/if-else-case-when.md >}}
 
-### [Coalesce](coalesce.qmd)
+### [First non-missing](coalesce.qmd)
 
 {{< include _quickref/coalesce.md >}}
 
 ## Text
 
-### [Substrings](substr.qmd)
+### [Extract part of a character value](substr.qmd)
 
 {{< include _quickref/substr.md >}}
 
@@ -46,17 +46,17 @@ page for more detail.
 
 ## Combining Data
 
-### [Joins](joins.qmd)
+### [Combine tables](joins.qmd)
 
 {{< include _quickref/joins.md >}}
 
-### [Bind rows](bind-rows.qmd)
+### [Stack datasets](bind-rows.qmd)
 
 {{< include _quickref/bind-rows.md >}}
 
 ## Derivations
 
-### [Sequence numbers](seq.qmd)
+### [Within-subject sequence](seq.qmd)
 
 {{< include _quickref/seq.md >}}
 

@@ -5,6 +5,8 @@ description: "SAS programming tasks mapped to R."
 toc: false
 ---
 
+Each entry is a SAS task with its R spelling.
+
 ::: {.topic-index}
 
 ::: {.topic-group}
@@ -12,11 +14,11 @@ toc: false
 Basics
 :::
 
-- [Mutate](mutate.qmd) create or change columns
-- [Select and rename](select-rename.qmd) keep, drop, and rename columns
-- [Filter](filter.qmd) keep rows that match a condition
-- [If else and case when](if-else-case-when.qmd) conditional column values
-- [Coalesce](coalesce.qmd) prefer one value, fall back to another
+- [Create or change columns](mutate.qmd) DATA step assignment -> `mutate`
+- [Keep, drop, and rename columns](select-rename.qmd) KEEP/DROP/RENAME -> `select` / `rename`
+- [Keep rows](filter.qmd) WHERE / subsetting IF -> `filter`
+- [Conditional values](if-else-case-when.qmd) IF-THEN / IFN/IFC -> `if_else` / `case_when`
+- [First non-missing](coalesce.qmd) COALESCE / coalescec -> `coalesce`
 :::
 
 ::: {.topic-group}
@@ -24,7 +26,7 @@ Basics
 Text
 :::
 
-- [Substrings](substr.qmd) extract part of a character value
+- [Extract part of a character value](substr.qmd) SUBSTR -> `substr`
 :::
 
 ::: {.topic-group}
@@ -32,8 +34,8 @@ Text
 Dates
 :::
 
-- [Study day](study-day.qmd) date subtraction for `--DY`
-- [Partial dates](partial-dates.qmd) impute year-only or year-month to a full date
+- [Study day](study-day.qmd) `--DY` date subtraction
+- [Partial dates](partial-dates.qmd) impute year-only or year-month (ADaM)
 :::
 
 ::: {.topic-group}
@@ -41,8 +43,8 @@ Dates
 Combining Data
 :::
 
-- [Joins](joins.qmd) combining tables
-- [Bind rows](bind-rows.qmd) stack tables on top of each other
+- [Combine tables](joins.qmd) MERGE / SQL JOIN -> `*_join`
+- [Stack datasets](bind-rows.qmd) SET -> `bind_rows`
 :::
 
 ::: {.topic-group}
@@ -50,8 +52,8 @@ Combining Data
 Derivations
 :::
 
-- [Sequence numbers](seq.qmd) `--SEQ` within a subject
-- [Last observation before exposure](lobxfl.qmd) `--LOBXFL` flags
+- [Within-subject sequence](seq.qmd) `--SEQ` -> `row_number`
+- [Last observation before exposure](lobxfl.qmd) `--LOBXFL`
 :::
 
 :::
