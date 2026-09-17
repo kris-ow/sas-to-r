@@ -266,6 +266,55 @@
     "text": "Choosing first vs last vs mid\n\n\n\n\n\n\n\nSituation\nTypical choice\n\n\n\n\nConservative \"earliest possible\" onset\nfirst of period\n\n\nConservative \"latest possible\"\nlast of period\n\n\nNeutral / midpoint rule in SAP\nmid (day 15 / 30 Jun or protocol rule)\n\n\n\nDo not invent a mid rule in production code. Read the SAP or derivation specification. When CDISC date imputation flags apply, set --DTF to show which parts were imputed (for example D when day was imputed, M when month and day were imputed). Exact flag codes follow the standard and the study metadata.\nMissing or unusable partial strings stay missing after failed parses. Do not silently coerce blank --DTC to period start."
   },
   {
+    "objectID": "REVIEW.html",
+    "href": "REVIEW.html",
+    "title": "Review checklist",
+    "section": "",
+    "text": "Every pull request is checked against this list. The author (human or coding agent) checks it before opening the PR; the reviewer checks it again on the diff.\n\n\n\nOne PR per topic, or per batch of related fixes. Small enough to read in one sitting.\nPR description lists what changed and which checks were run.\nReviewer posts one review on the PR: Must fix, Should fix, Minor, each finding naming the file and quoting the line.\nAuthor pushes fixes to the same branch and replies per finding (fixed, or why not).\nReviewer re-reviews only what changed since the last review.\nOnly the owner merges. Agents never merge.\n\nMust fix blocks the merge. Should fix is expected unless the author gives a reason. Minor is at the author's discretion.\n\n\n\nA wrong SAS statement is the worst error this site can make: the reader knows SAS and will trust the R side because the SAS side looked right.\n\nEvery \"SAS does X\" claim is true in SAS 9.4 as written, not approximately.\nMissing values. SAS numeric missing is smaller than any number, so where x &lt; 100, if x &lt; 100 and ifn(x &lt; 100, ...) treat missing as true. R returns NA. Any comparison example states which side drops or keeps missing.\nSAS character missing is blank; R \"\" is not NA. Stated wherever it changes the result.\nSAS equivalents are the idiomatic ones (first./last., indsname=, INTNX), not a construct that only looks similar (_N_ is not a within-BY counter).\nThe .sas-equiv block names the procedures, statements and functions a SAS programmer would search for.\n\n\n\n\n\nThe right standard is named: SDTM keeps data as collected; imputation, flags such as ASTDTF, and analysis derivations are ADaM.\nVariable names and reference dates match the IG (for example --LOBXFL uses RFXSTDTC, first exposure, not RFSTDTC).\nSponsor or SAP conventions are labelled as such, never as \"the IG says\".\nDerivation rules are stated precisely enough that following them literally gives the right answer on edge cases. Check the example data covers those edge cases.\n--DTC variables are ISO 8601 character. An example that holds dates as Date uses a non-DTC name (VSDT) or shows the conversion.\n\n\n\n\n\nEvery worked example is an executed chunk and the preview build is green.\nThe quick-reference block (static, not executed) matches the worked examples below it: same functions, same arguments, same rule.\nCurrent dplyr idiom (.default in case_when(), |&gt;, relationship = on joins).\nOutput shown or described in prose matches what the chunk actually prints.\nExample data uses generic STD-001-* subjects. Nothing from a real study.\n\n\n\n\n\nFollows \"Adding a topic\" in README.md: quick reference first, include near the top, .sas-equiv block, index.qmd, cheatsheet.qmd, CI packages.\nTrap lines start with Traps:, never a count.\nProse is short and declarative. No marketing, no personal content.\n\n\n\n\n\nbash tools/check-ascii.sh passes.\nNew R packages added to both publish.yml and pr-preview.yml.\nLinks between topics resolve on the preview site."
+  },
+  {
+    "objectID": "REVIEW.html#workflow",
+    "href": "REVIEW.html#workflow",
+    "title": "Review checklist",
+    "section": "",
+    "text": "One PR per topic, or per batch of related fixes. Small enough to read in one sitting.\nPR description lists what changed and which checks were run.\nReviewer posts one review on the PR: Must fix, Should fix, Minor, each finding naming the file and quoting the line.\nAuthor pushes fixes to the same branch and replies per finding (fixed, or why not).\nReviewer re-reviews only what changed since the last review.\nOnly the owner merges. Agents never merge.\n\nMust fix blocks the merge. Should fix is expected unless the author gives a reason. Minor is at the author's discretion."
+  },
+  {
+    "objectID": "REVIEW.html#sas-claims",
+    "href": "REVIEW.html#sas-claims",
+    "title": "Review checklist",
+    "section": "",
+    "text": "A wrong SAS statement is the worst error this site can make: the reader knows SAS and will trust the R side because the SAS side looked right.\n\nEvery \"SAS does X\" claim is true in SAS 9.4 as written, not approximately.\nMissing values. SAS numeric missing is smaller than any number, so where x &lt; 100, if x &lt; 100 and ifn(x &lt; 100, ...) treat missing as true. R returns NA. Any comparison example states which side drops or keeps missing.\nSAS character missing is blank; R \"\" is not NA. Stated wherever it changes the result.\nSAS equivalents are the idiomatic ones (first./last., indsname=, INTNX), not a construct that only looks similar (_N_ is not a within-BY counter).\nThe .sas-equiv block names the procedures, statements and functions a SAS programmer would search for."
+  },
+  {
+    "objectID": "REVIEW.html#cdisc-claims",
+    "href": "REVIEW.html#cdisc-claims",
+    "title": "Review checklist",
+    "section": "",
+    "text": "The right standard is named: SDTM keeps data as collected; imputation, flags such as ASTDTF, and analysis derivations are ADaM.\nVariable names and reference dates match the IG (for example --LOBXFL uses RFXSTDTC, first exposure, not RFSTDTC).\nSponsor or SAP conventions are labelled as such, never as \"the IG says\".\nDerivation rules are stated precisely enough that following them literally gives the right answer on edge cases. Check the example data covers those edge cases.\n--DTC variables are ISO 8601 character. An example that holds dates as Date uses a non-DTC name (VSDT) or shows the conversion."
+  },
+  {
+    "objectID": "REVIEW.html#r-code",
+    "href": "REVIEW.html#r-code",
+    "title": "Review checklist",
+    "section": "",
+    "text": "Every worked example is an executed chunk and the preview build is green.\nThe quick-reference block (static, not executed) matches the worked examples below it: same functions, same arguments, same rule.\nCurrent dplyr idiom (.default in case_when(), |&gt;, relationship = on joins).\nOutput shown or described in prose matches what the chunk actually prints.\nExample data uses generic STD-001-* subjects. Nothing from a real study."
+  },
+  {
+    "objectID": "REVIEW.html#page-structure",
+    "href": "REVIEW.html#page-structure",
+    "title": "Review checklist",
+    "section": "",
+    "text": "Follows \"Adding a topic\" in README.md: quick reference first, include near the top, .sas-equiv block, index.qmd, cheatsheet.qmd, CI packages.\nTrap lines start with Traps:, never a count.\nProse is short and declarative. No marketing, no personal content."
+  },
+  {
+    "objectID": "REVIEW.html#mechanical",
+    "href": "REVIEW.html#mechanical",
+    "title": "Review checklist",
+    "section": "",
+    "text": "bash tools/check-ascii.sh passes.\nNew R packages added to both publish.yml and pr-preview.yml.\nLinks between topics resolve on the preview site."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Topics",
