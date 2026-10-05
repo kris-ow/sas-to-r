@@ -394,17 +394,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(chr)                          <span class="co"># input(chr, best.)</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">na_if</span>(<span class="fu">trimws</span>(chr), <span class="st">""</span>))       <span class="co"># blank text is not NA until you convert it</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%03d"</span>, num)                     <span class="co"># put(num, z3.)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%03d"</span>, num)                     <span class="co"># put(num, z3.); integer only; NA -&gt; " NA"</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(iso)                             <span class="co"># input(iso, yymmdd10.) as an R Date</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_date, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>) <span class="co"># SAS date number -&gt; Date</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(r_date <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>)) <span class="co"># Date -&gt; SAS date number</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">format =</span> <span class="st">"%Y-%m-%dT%H:%M:%S"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(sas_dt, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(fac))            <span class="co"># labels, not factor codes</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">sub</span>(<span class="st">","</span>, <span class="st">"."</span>, dec_comma, <span class="at">fixed =</span> <span class="cn">TRUE</span>)) <span class="co"># one decimal comma, no thousands mark</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">as.character</span>(<span class="fu">as.Date</span>(iso))               <span class="co"># put(date, yymmdd10.)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">format</span>(<span class="fu">as.Date</span>(iso), <span class="st">"%Y-%m-%d"</span>)         <span class="co"># same character date</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_date, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>) <span class="co"># SAS date number -&gt; Date</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(r_date <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>)) <span class="co"># Date -&gt; SAS date number</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">tz =</span> <span class="st">"UTC"</span>)              <span class="co"># date only; time after T is dropped</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">format =</span> <span class="st">"%Y-%m-%dT%H:%M:%S"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(sas_dt, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(fac))            <span class="co"># labels, not factor codes</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">sub</span>(<span class="st">","</span>, <span class="st">"."</span>, dec_comma, <span class="at">fixed =</span> <span class="cn">TRUE</span>)) <span class="co"># one decimal comma, no thousands mark</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -431,23 +434,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td><code>as.Date(x)</code></td>
-<td><code>input(x, yymmdd10.)</code> / <code>put(date, yymmdd10.)</code></td>
+<td><code>input(x, yymmdd10.)</code></td>
 </tr>
 <tr class="odd">
+<td><code>as.character(d)</code> / <code>format(d, "%Y-%m-%d")</code></td>
+<td><code>put(date, yymmdd10.)</code></td>
+</tr>
+<tr class="even">
 <td><code>as.Date(n, origin = "1960-01-01")</code></td>
 <td><code>n</code> is already a SAS date</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>as.POSIXct(n, origin = "1960-01-01", tz = "UTC")</code></td>
 <td><code>n</code> is a SAS datetime (<code>E8601DT.</code>)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>as.numeric(sub(",", ".", x, fixed = TRUE))</code></td>
 <td><code>input(x, commax.)</code> for a single decimal comma</td>
 </tr>
 </tbody>
 </table>
-<p>Traps: <code>as.numeric("001")</code> is <code>1</code>. Leading zeros do not survive a numeric. <code>""</code> and <code>" "</code> are not <code>NA</code>; <code>as.numeric()</code> of either is <code>NA</code> and does not warn. <code>as.numeric("1,25")</code> is <code>NA</code> and warns <code>NAs introduced by coercion</code>. <code>as.numeric()</code> does not read a decimal comma, and <code>OutDec</code> only changes printing. <code>as.Date(n)</code> with no <code>origin</code> counts from 1970-01-01, not from the SAS epoch 1960-01-01. <code>as.numeric()</code> on a factor returns the level code, not the label. <code>put(x, best.)</code> is <code>BEST12.</code> and can contain blanks; <code>as.character()</code> does not pad.</p>
+<p>Traps: <code>as.numeric("001")</code> is <code>1</code>. Leading zeros do not survive a numeric. <code>""</code> and <code>" "</code> are not <code>NA</code>; <code>as.numeric()</code> of either is <code>NA</code> and does not warn. <code>as.numeric("1,25")</code> is <code>NA</code> and warns <code>NAs introduced by coercion</code>. <code>as.numeric()</code> does not read a decimal comma, and <code>OutDec</code> only changes printing. <code>as.Date(n)</code> with no <code>origin</code> counts from 1970-01-01, not from the SAS epoch 1960-01-01. <code>as.Date()</code> reads; <code>put(date, yymmdd10.)</code> is <code>as.character(d)</code> or <code>format(d, "%Y-%m-%d")</code>. <code>as.numeric()</code> on a factor returns the level code, not the label. <code>put(x, best.)</code> is <code>BEST12.</code> and can contain blanks; <code>as.character()</code> does not pad. <code>sprintf("%03d", x)</code> needs an integer. <code>NA</code> becomes <code>" NA"</code>. A non-integer numeric errors. <code>as.POSIXct("2025-06-03T14:30:00", tz = "UTC")</code> with no <code>format</code> does not error: the date parses and the time is dropped (<code>2025-06-03 UTC</code>). Pass <code>format</code> to keep the clock time.</p>
 <p>Worked examples below.</p>
 </section>
 <section id="character-and-numeric" class="level2">
@@ -579,17 +586,24 @@ Caused by warning:
 </div>
 </div>
 <p><code>as.integer("001")</code> is <code>1</code>. <code>as.character()</code> of that value is <code>"1"</code>. <code>sprintf("%03d", SITE)</code> is <code>"001"</code>. SAS <code>put(site, z3.)</code> writes the same character zeros.</p>
+<p><code>%03d</code> needs an integer. A non-integer numeric errors. Missing becomes <code>" NA"</code>, not a blank:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%03d"</span>, <span class="fu">c</span>(<span class="dv">1</span>L, <span class="cn">NA_integer_</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "001" " NA"</code></pre>
+</div>
+</div>
 </section>
 <section id="factors" class="level2">
 <h2 class="anchored" data-anchor-id="factors">Factors</h2>
 <p><code>as.numeric()</code> on a factor uses the level codes.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fac <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"10"</span>, <span class="st">"20"</span>))</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(fac)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fac <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"10"</span>, <span class="st">"20"</span>))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(fac)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 2</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(fac))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(fac))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10 20</code></pre>
 </div>
@@ -600,23 +614,34 @@ Caused by warning:
 <h2 class="anchored" data-anchor-id="dates">Dates</h2>
 <p>A complete ISO date string and a SAS date number are different types. Partial <code>--DTC</code> strings are a separate problem: see <a href="./partial-dates.html">Partial dates</a>. Study day on <code>Date</code> values is <a href="./study-day.html">Study day</a>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2025-06-03"</span>, <span class="st">"2025-06-10"</span>, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2025-06-03"</span>, <span class="st">"2025-06-10"</span>, <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2025-06-03" "2025-06-10" NA          </code></pre>
 </div>
 </div>
-<p><code>as.Date("2025-06-03")</code> is that calendar day. <code>as.Date("")</code> is <code>NA</code>. SAS <code>input("2025-06-03", yymmdd10.)</code> does not return a <code>Date</code>. It returns the integer day count from 1960-01-01. <code>put</code> of that number with <code>yymmdd10.</code> is the character <code>2025-06-03</code> again.</p>
+<p><code>as.Date("2025-06-03")</code> is that calendar day. <code>as.Date("")</code> is <code>NA</code>. SAS <code>input("2025-06-03", yymmdd10.)</code> does not return a <code>Date</code>. It returns the integer day count from 1960-01-01. <code>as.Date()</code> is that <code>INPUT</code> direction only.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>sas_n <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>) <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>))</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>sas_n</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 23895</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_n, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.character</span>(<span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2025-06-03"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_n)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">format</span>(<span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>), <span class="st">"%Y-%m-%d"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-06-03"</code></pre>
+</div>
+</div>
+<p>Both are the character <code>2025-06-03</code>. That is <code>put(date, yymmdd10.)</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>sas_n <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>) <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>))</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>sas_n</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 23895</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_n, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-06-03"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_n)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2035-06-04"</code></pre>
 </div>
@@ -637,7 +662,7 @@ Caused by warning:
 </div>
 <p>The other direction, from an R <code>Date</code> to a SAS date number:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(<span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>) <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(<span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>) <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 23895</code></pre>
 </div>
@@ -645,23 +670,28 @@ Caused by warning:
 </section>
 <section id="datetime" class="level2">
 <h2 class="anchored" data-anchor-id="datetime">Datetime</h2>
-<p>SAS datetime values are seconds since 1960-01-01 00:00:00. <code>input("2025-06-03T14:30:00", e8601dt.)</code> reads that ISO form. <code>as.POSIXct()</code> does not accept the <code>T</code> separator unless you pass <code>format</code>.</p>
+<p>SAS datetime values are seconds since 1960-01-01 00:00:00. <code>input("2025-06-03T14:30:00", e8601dt.)</code> reads that ISO form.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>txt <span class="ot">&lt;-</span> <span class="st">"2025-06-03T14:30:00"</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">format =</span> <span class="st">"%Y-%m-%dT%H:%M:%S"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>txt <span class="ot">&lt;-</span> <span class="st">"2025-06-03T14:30:00"</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-06-03 UTC"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">format =</span> <span class="st">"%Y-%m-%dT%H:%M:%S"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2025-06-03 14:30:00 UTC"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>sas_dt <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.POSIXct</span>(<span class="st">"2025-06-03 14:30:00"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>) <span class="sc">-</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.POSIXct</span>(<span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>),</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"secs"</span></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(sas_dt, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>sas_dt <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.POSIXct</span>(<span class="st">"2025-06-03 14:30:00"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>) <span class="sc">-</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.POSIXct</span>(<span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>),</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"secs"</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(sas_dt, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2025-06-03 14:30:00 UTC"</code></pre>
 </div>
 </div>
+<p>With no <code>format</code>, <code>as.POSIXct(txt, tz = "UTC")</code> does not error. It returns <code>2025-06-03 UTC</code>. The date parses and the time is dropped. Pass <code>format = "%Y-%m-%dT%H:%M:%S"</code> to keep <code>14:30:00</code>.</p>
 <p>Set <code>tz</code>. A <code>POSIXct</code> value is an instant. Another zone prints another clock time. <code>"UTC"</code> keeps the clock time stored in a zone-naive SAS datetime.</p>
 
 

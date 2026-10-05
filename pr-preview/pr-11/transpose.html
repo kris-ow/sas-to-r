@@ -451,7 +451,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Traps: <code>QVAL</code> stays character. <code>IDVARVAL</code> is character and <code>AESEQ</code> is numeric; the join does not match until those types agree. A blank <code>QVAL</code> stays <code>""</code>. A qualifier with no SUPP row is <code>NA</code> after <code>pivot_wider()</code>. In SAS both are character missing. A repeated <code>ID</code> in a <code>BY</code> group makes <code>PROC TRANSPOSE</code> error unless <code>LET</code> is set. <code>pivot_wider()</code> without <code>values_fn</code> warns and returns list-columns. <code>PROC TRANSPOSE</code> requires the <code>BY</code> variables to be sorted. <code>SUPPxx</code> is SDTM collected structure, not an ADaM imputation.</p>
+<p>Traps: <code>QVAL</code> stays character. <code>IDVARVAL</code> is character and <code>AESEQ</code> is numeric; the join does not match until those types agree. A blank <code>QVAL</code> stays <code>""</code>. A qualifier with no SUPP row is <code>NA</code> after <code>pivot_wider()</code>. In SAS both are character missing. A repeated <code>ID</code> in a <code>BY</code> group makes <code>PROC TRANSPOSE</code> error unless <code>LET</code> is set. <code>pivot_wider()</code> without <code>values_fn</code> warns and returns list-columns. <code>PROC TRANSPOSE</code> requires the <code>BY</code> variables to be sorted. <code>SUPPxx</code> is SDTM collected structure, not an ADaM imputation. A standard parent variable such as <code>AEDUR</code> is not a SUPP <code>QNAM</code>.</p>
 <p>Worked examples below.</p>
 </section>
 <section id="long-to-wide" class="level2">
@@ -526,7 +526,7 @@ run;</code></pre>
   by usubjid;
   var alt ast;
 run;</code></pre>
-<p><code>NAME=</code> is <code>names_to</code>. Without an <code>ID</code> statement the values sit in <code>COL1</code>. Renaming <code>COL1</code> is <code>values_to</code>. <code>PREFIX=</code> without <code>ID</code> builds <code>COL1</code>, <code>COL2</code>, ... as <code>prefix1</code>, <code>prefix2</code>, .... That is a different naming rule from <code>PREFIX=</code> used with <code>ID</code>.</p>
+<p><code>NAME=</code> is <code>names_to</code>. Without an <code>ID</code> statement the values sit in <code>COL1</code>. Renaming <code>COL1</code> is <code>values_to</code>. Without <code>ID</code>, <code>PREFIX=</code> replaces <code>COL</code> in <code>COL1</code>, <code>COL2</code>, .... That is a different naming rule from <code>PREFIX=</code> used with <code>ID</code>.</p>
 </section>
 <section id="duplicate-id-values" class="level2">
 <h2 class="anchored" data-anchor-id="duplicate-id-values">Duplicate <code>ID</code> values</h2>
@@ -573,7 +573,7 @@ run;</code></pre>
 <section id="suppae-onto-ae" class="level2">
 <h2 class="anchored" data-anchor-id="suppae-onto-ae"><code>SUPPAE</code> onto <code>AE</code></h2>
 <p><code>SUPPxx</code> is SDTM. Each row is one supplemental qualifier as collected: <code>QNAM</code> is the name, <code>QVAL</code> is the value. <code>QVAL</code> is character, including when the text looks numeric. <code>IDVAR</code> names the parent key (<code>AESEQ</code>). <code>IDVARVAL</code> is that key's value, stored as character. A blank <code>IDVAR</code> means the qualifier is subject-level, and the key is <code>STUDYID</code> plus <code>USUBJID</code> only.</p>
-<p>This is not an ADaM imputation. The QNAMs below are example qualifier names.</p>
+<p>This is not an ADaM imputation. <code>AETRTEM</code> and <code>AENDAY</code> are the qualifier names in this example. <code>AENDAY</code> is sponsor-defined: a day count, stored as text. It is not an AE domain variable. A standard AE variable such as <code>AEDUR</code> stays on AE. The IG does not allow it in SUPPQUAL, and <code>AEDUR</code> is an ISO 8601 duration, not a number of days.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ae <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">STUDYID =</span> <span class="st">"STD-001"</span>,</span>
@@ -592,7 +592,7 @@ run;</code></pre>
 <span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  ),</span>
 <span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">IDVAR =</span> <span class="st">"AESEQ"</span>,</span>
 <span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">IDVARVAL =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"2"</span>, <span class="st">"1"</span>),</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">QNAM =</span> <span class="fu">c</span>(<span class="st">"AETRTEM"</span>, <span class="st">"AEDUR"</span>, <span class="st">"AETRTEM"</span>, <span class="st">"AEDUR"</span>, <span class="st">"AETRTEM"</span>),</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">QNAM =</span> <span class="fu">c</span>(<span class="st">"AETRTEM"</span>, <span class="st">"AENDAY"</span>, <span class="st">"AETRTEM"</span>, <span class="st">"AENDAY"</span>, <span class="st">"AETRTEM"</span>),</span>
 <span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">QVAL =</span> <span class="fu">c</span>(<span class="st">"Y"</span>, <span class="st">"5"</span>, <span class="st">"Y"</span>, <span class="st">""</span>, <span class="st">"N"</span>)</span>
 <span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
@@ -607,13 +607,13 @@ run;</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>  STUDYID RDOMAIN      USUBJID IDVAR IDVARVAL    QNAM QVAL
 1 STD-001      AE STD-001-0001 AESEQ        1 AETRTEM    Y
-2 STD-001      AE STD-001-0001 AESEQ        1   AEDUR    5
+2 STD-001      AE STD-001-0001 AESEQ        1  AENDAY    5
 3 STD-001      AE STD-001-0001 AESEQ        2 AETRTEM    Y
-4 STD-001      AE STD-001-0001 AESEQ        2   AEDUR     
+4 STD-001      AE STD-001-0001 AESEQ        2  AENDAY     
 5 STD-001      AE STD-001-0002 AESEQ        1 AETRTEM    N</code></pre>
 </div>
 </div>
-<p><code>STD-001-0001</code> sequence 2 has an <code>AEDUR</code> row whose <code>QVAL</code> is blank. <code>STD-001-0002</code> sequence 1 has no <code>AEDUR</code> row.</p>
+<p><code>STD-001-0001</code> sequence 2 has an <code>AENDAY</code> row whose <code>QVAL</code> is blank. <code>STD-001-0002</code> sequence 1 has no <code>AENDAY</code> row.</p>
 <p>Keep record-level qualifiers, convert <code>IDVARVAL</code> to the parent type, then widen. See <a href="./type-convert.html">Convert character, numeric, and date</a> for <code>as.integer()</code> and for turning a numeric-looking <code>QVAL</code> into a number afterwards.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>supp_wide <span class="ot">&lt;-</span> suppae <span class="sc">|&gt;</span></span>
@@ -628,21 +628,27 @@ run;</code></pre>
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>supp_wide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 5
-  STUDYID USUBJID      AESEQ AETRTEM AEDUR
-  &lt;chr&gt;   &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;
-1 STD-001 STD-001-0001     1 Y       "5"  
-2 STD-001 STD-001-0001     2 Y       ""   
-3 STD-001 STD-001-0002     1 N       &lt;NA&gt; </code></pre>
+  STUDYID USUBJID      AESEQ AETRTEM AENDAY
+  &lt;chr&gt;   &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;   &lt;chr&gt; 
+1 STD-001 STD-001-0001     1 Y       "5"   
+2 STD-001 STD-001-0001     2 Y       ""    
+3 STD-001 STD-001-0002     1 N       &lt;NA&gt;  </code></pre>
 </div>
 </div>
-<p><code>AETRTEM</code> and <code>AEDUR</code> are character. The blank <code>AEDUR</code> is <code>""</code>. The absent <code>AEDUR</code> is <code>NA</code>.</p>
+<p><code>AETRTEM</code> and <code>AENDAY</code> are character. The blank <code>AENDAY</code> is <code>""</code>. The absent <code>AENDAY</code> is <code>NA</code>.</p>
 <p>SAS, after sorting by the <code>BY</code> variables:</p>
 <pre class="sas"><code>proc transpose data=suppae(where=(rdomain="AE" and idvar="AESEQ"))
                out=supp_wide(drop=_name_);
   by studyid usubjid idvarval;
   id qnam;
   var qval;
+run;
+
+data supp_keyed;
+  set supp_wide;
+  aeseq = input(idvarval, best.);
 run;</code></pre>
+<p><code>IDVARVAL</code> is character. <code>AESEQ</code> on <code>AE</code> is numeric. <code>input(idvarval, best.)</code> is the SAS conversion before a <code>MERGE</code> on <code>studyid</code>, <code>usubjid</code>, and <code>aeseq</code>. Sort both tables by those keys first.</p>
 <p>Joining <code>AESEQ</code> (integer) to <code>IDVARVAL</code> (character) fails.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>supp_bad <span class="ot">&lt;-</span> suppae <span class="sc">|&gt;</span></span>
@@ -677,10 +683,10 @@ run;</code></pre>
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>ae_plus</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  STUDYID      USUBJID AESEQ   AETERM    AESEV AETRTEM AEDUR
-1 STD-001 STD-001-0001     1 Headache     MILD       Y     5
-2 STD-001 STD-001-0001     2   Nausea MODERATE       Y      
-3 STD-001 STD-001-0002     1  Fatigue     MILD       N  &lt;NA&gt;</code></pre>
+<pre><code>  STUDYID      USUBJID AESEQ   AETERM    AESEV AETRTEM AENDAY
+1 STD-001 STD-001-0001     1 Headache     MILD       Y      5
+2 STD-001 STD-001-0001     2   Nausea MODERATE       Y       
+3 STD-001 STD-001-0002     1  Fatigue     MILD       N   &lt;NA&gt;</code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -693,18 +699,18 @@ run;</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Sequence 2 for <code>STD-001-0001</code> has <code>AEDUR</code> equal to <code>""</code>: the qualifier was submitted blank. Sequence 1 for <code>STD-001-0002</code> has <code>AEDUR</code> equal to <code>NA</code>: <code>SUPPAE</code> has no <code>AEDUR</code> row for that event. <code>pivot_wider()</code> does not turn <code>""</code> into <code>NA</code>. In SAS both results are character missing, so the transposed column cannot show the difference.</p>
+<p>Sequence 2 for <code>STD-001-0001</code> has <code>AENDAY</code> equal to <code>""</code>: the qualifier was submitted blank. Sequence 1 for <code>STD-001-0002</code> has <code>AENDAY</code> equal to <code>NA</code>: <code>SUPPAE</code> has no <code>AENDAY</code> row for that event. <code>pivot_wider()</code> does not turn <code>""</code> into <code>NA</code>. In SAS both results are character missing, so the transposed column cannot show the difference.</p>
 </div>
 </div>
-<p><code>QVAL</code> is still character after the join. A duration used as a number has to be converted. <code>as.numeric(na_if(AEDUR, ""))</code> turns the blank into <code>NA</code>, and the already missing qualifier stays <code>NA</code>. After that step the two reasons are gone. Keep the character value, or a flag, if a later step must tell them apart.</p>
+<p><code>QVAL</code> is still character after the join. A sponsor-defined day count has to be converted before it is used as a number. <code>as.numeric(na_if(AENDAY, ""))</code> turns the blank into <code>NA</code>, and the already missing qualifier stays <code>NA</code>. After that step the two reasons are gone. Keep the character value, or a flag, if a later step must tell them apart.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>ae_plus <span class="sc">|&gt;</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AEDUR =</span> <span class="fu">as.numeric</span>(<span class="fu">na_if</span>(AEDUR, <span class="st">""</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AENDAY =</span> <span class="fu">as.numeric</span>(<span class="fu">na_if</span>(AENDAY, <span class="st">""</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  STUDYID      USUBJID AESEQ   AETERM    AESEV AETRTEM AEDUR
-1 STD-001 STD-001-0001     1 Headache     MILD       Y     5
-2 STD-001 STD-001-0001     2   Nausea MODERATE       Y    NA
-3 STD-001 STD-001-0002     1  Fatigue     MILD       N    NA</code></pre>
+<pre><code>  STUDYID      USUBJID AESEQ   AETERM    AESEV AETRTEM AENDAY
+1 STD-001 STD-001-0001     1 Headache     MILD       Y      5
+2 STD-001 STD-001-0001     2   Nausea MODERATE       Y     NA
+3 STD-001 STD-001-0002     1  Fatigue     MILD       N     NA</code></pre>
 </div>
 </div>
 

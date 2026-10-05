@@ -597,17 +597,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(chr)                          <span class="co"># input(chr, best.)</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">na_if</span>(<span class="fu">trimws</span>(chr), <span class="st">""</span>))       <span class="co"># blank text is not NA until you convert it</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%03d"</span>, num)                     <span class="co"># put(num, z3.)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%03d"</span>, num)                     <span class="co"># put(num, z3.); integer only; NA -&gt; " NA"</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(iso)                             <span class="co"># input(iso, yymmdd10.) as an R Date</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_date, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>) <span class="co"># SAS date number -&gt; Date</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(r_date <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>)) <span class="co"># Date -&gt; SAS date number</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">format =</span> <span class="st">"%Y-%m-%dT%H:%M:%S"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(sas_dt, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(fac))            <span class="co"># labels, not factor codes</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">sub</span>(<span class="st">","</span>, <span class="st">"."</span>, dec_comma, <span class="at">fixed =</span> <span class="cn">TRUE</span>)) <span class="co"># one decimal comma, no thousands mark</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">as.character</span>(<span class="fu">as.Date</span>(iso))               <span class="co"># put(date, yymmdd10.)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">format</span>(<span class="fu">as.Date</span>(iso), <span class="st">"%Y-%m-%d"</span>)         <span class="co"># same character date</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(sas_date, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>) <span class="co"># SAS date number -&gt; Date</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(r_date <span class="sc">-</span> <span class="fu">as.Date</span>(<span class="st">"1960-01-01"</span>)) <span class="co"># Date -&gt; SAS date number</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">tz =</span> <span class="st">"UTC"</span>)              <span class="co"># date only; time after T is dropped</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(txt, <span class="at">format =</span> <span class="st">"%Y-%m-%dT%H:%M:%S"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="fu">as.POSIXct</span>(sas_dt, <span class="at">origin =</span> <span class="st">"1960-01-01"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(fac))            <span class="co"># labels, not factor codes</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">sub</span>(<span class="st">","</span>, <span class="st">"."</span>, dec_comma, <span class="at">fixed =</span> <span class="cn">TRUE</span>)) <span class="co"># one decimal comma, no thousands mark</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -634,23 +637,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td><code>as.Date(x)</code></td>
-<td><code>input(x, yymmdd10.)</code> / <code>put(date, yymmdd10.)</code></td>
+<td><code>input(x, yymmdd10.)</code></td>
 </tr>
 <tr class="odd">
+<td><code>as.character(d)</code> / <code>format(d, "%Y-%m-%d")</code></td>
+<td><code>put(date, yymmdd10.)</code></td>
+</tr>
+<tr class="even">
 <td><code>as.Date(n, origin = "1960-01-01")</code></td>
 <td><code>n</code> is already a SAS date</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>as.POSIXct(n, origin = "1960-01-01", tz = "UTC")</code></td>
 <td><code>n</code> is a SAS datetime (<code>E8601DT.</code>)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>as.numeric(sub(",", ".", x, fixed = TRUE))</code></td>
 <td><code>input(x, commax.)</code> for a single decimal comma</td>
 </tr>
 </tbody>
 </table>
-<p>Traps: <code>as.numeric("001")</code> is <code>1</code>. Leading zeros do not survive a numeric. <code>""</code> and <code>" "</code> are not <code>NA</code>; <code>as.numeric()</code> of either is <code>NA</code> and does not warn. <code>as.numeric("1,25")</code> is <code>NA</code> and warns <code>NAs introduced by coercion</code>. <code>as.numeric()</code> does not read a decimal comma, and <code>OutDec</code> only changes printing. <code>as.Date(n)</code> with no <code>origin</code> counts from 1970-01-01, not from the SAS epoch 1960-01-01. <code>as.numeric()</code> on a factor returns the level code, not the label. <code>put(x, best.)</code> is <code>BEST12.</code> and can contain blanks; <code>as.character()</code> does not pad.</p>
+<p>Traps: <code>as.numeric("001")</code> is <code>1</code>. Leading zeros do not survive a numeric. <code>""</code> and <code>" "</code> are not <code>NA</code>; <code>as.numeric()</code> of either is <code>NA</code> and does not warn. <code>as.numeric("1,25")</code> is <code>NA</code> and warns <code>NAs introduced by coercion</code>. <code>as.numeric()</code> does not read a decimal comma, and <code>OutDec</code> only changes printing. <code>as.Date(n)</code> with no <code>origin</code> counts from 1970-01-01, not from the SAS epoch 1960-01-01. <code>as.Date()</code> reads; <code>put(date, yymmdd10.)</code> is <code>as.character(d)</code> or <code>format(d, "%Y-%m-%d")</code>. <code>as.numeric()</code> on a factor returns the level code, not the label. <code>put(x, best.)</code> is <code>BEST12.</code> and can contain blanks; <code>as.character()</code> does not pad. <code>sprintf("%03d", x)</code> needs an integer. <code>NA</code> becomes <code>" NA"</code>. A non-integer numeric errors. <code>as.POSIXct("2025-06-03T14:30:00", tz = "UTC")</code> with no <code>format</code> does not error: the date parses and the time is dropped (<code>2025-06-03 UTC</code>). Pass <code>format</code> to keep the clock time.</p>
 </section>
 </section>
 <section id="text" class="level2">
@@ -981,7 +988,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Traps: <code>QVAL</code> stays character. <code>IDVARVAL</code> is character and <code>AESEQ</code> is numeric; the join does not match until those types agree. A blank <code>QVAL</code> stays <code>""</code>. A qualifier with no SUPP row is <code>NA</code> after <code>pivot_wider()</code>. In SAS both are character missing. A repeated <code>ID</code> in a <code>BY</code> group makes <code>PROC TRANSPOSE</code> error unless <code>LET</code> is set. <code>pivot_wider()</code> without <code>values_fn</code> warns and returns list-columns. <code>PROC TRANSPOSE</code> requires the <code>BY</code> variables to be sorted. <code>SUPPxx</code> is SDTM collected structure, not an ADaM imputation.</p>
+<p>Traps: <code>QVAL</code> stays character. <code>IDVARVAL</code> is character and <code>AESEQ</code> is numeric; the join does not match until those types agree. A blank <code>QVAL</code> stays <code>""</code>. A qualifier with no SUPP row is <code>NA</code> after <code>pivot_wider()</code>. In SAS both are character missing. A repeated <code>ID</code> in a <code>BY</code> group makes <code>PROC TRANSPOSE</code> error unless <code>LET</code> is set. <code>pivot_wider()</code> without <code>values_fn</code> warns and returns list-columns. <code>PROC TRANSPOSE</code> requires the <code>BY</code> variables to be sorted. <code>SUPPxx</code> is SDTM collected structure, not an ADaM imputation. A standard parent variable such as <code>AEDUR</code> is not a SUPP <code>QNAM</code>.</p>
 </section>
 </section>
 <section id="derivations" class="level2">
