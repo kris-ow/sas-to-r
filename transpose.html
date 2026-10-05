@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Study day – SAS to R</title>
+<title>Transpose rows and columns – SAS to R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -119,15 +119,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="Study day – SAS to R">
-<meta property="og:description" content="Date subtraction for --DY">
+<meta property="og:title" content="Transpose rows and columns – SAS to R">
+<meta property="og:description" content="pivot_longer() / pivot_wider()">
 <meta property="og:image" content="https://sas-to-r.org/assets/og.png">
 <meta property="og:site_name" content="SAS to R">
 <meta property="og:image:height" content="630">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
-<meta name="twitter:title" content="Study day – SAS to R">
-<meta name="twitter:description" content="Date subtraction for --DY">
+<meta name="twitter:title" content="Transpose rows and columns – SAS to R">
+<meta name="twitter:description" content="pivot_longer() / pivot_wider()">
 <meta name="twitter:image" content="https://sas-to-r.org/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
@@ -349,9 +349,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
-  <li><a href="#raw-diff-versus---dy" id="toc-raw-diff-versus---dy" class="nav-link" data-scroll-target="#raw-diff-versus---dy">Raw diff versus <code>--DY</code></a></li>
-  <li><a href="#compact-form" id="toc-compact-form" class="nav-link" data-scroll-target="#compact-form">Compact form</a></li>
-  <li><a href="#a-subject-table" id="toc-a-subject-table" class="nav-link" data-scroll-target="#a-subject-table">A subject table</a></li>
+  <li><a href="#long-to-wide" id="toc-long-to-wide" class="nav-link" data-scroll-target="#long-to-wide">Long to wide</a></li>
+  <li><a href="#wide-to-long" id="toc-wide-to-long" class="nav-link" data-scroll-target="#wide-to-long">Wide to long</a></li>
+  <li><a href="#duplicate-id-values" id="toc-duplicate-id-values" class="nav-link" data-scroll-target="#duplicate-id-values">Duplicate <code>ID</code> values</a></li>
+  <li><a href="#suppae-onto-ae" id="toc-suppae-onto-ae" class="nav-link" data-scroll-target="#suppae-onto-ae"><code>SUPPAE</code> onto <code>AE</code></a></li>
   </ul>
 </nav>
     </div>
@@ -361,8 +362,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Study day</h1>
-<p class="subtitle lead">Date subtraction for –DY</p>
+<h1 class="title">Transpose rows and columns</h1>
+<p class="subtitle lead">pivot_longer() / pivot_wider()</p>
 </div>
 
 
@@ -380,18 +381,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="sas-equiv">
-<p><strong>SAS:</strong> date minus date, <code>INTCK('day', ...)</code>, CDISC <code>--DY</code></p>
+<p><strong>SAS:</strong> <code>PROC TRANSPOSE</code> (<code>BY</code>, <code>ID</code>, <code>VAR</code>, <code>NAME=</code>, <code>PREFIX=</code>, <code>LET</code>), then <code>MERGE</code> / SQL <code>JOIN</code> of <code>SUPPxx</code> onto the parent domain</p>
 </div>
-<p>CDISC <code>--DY</code> has no day 0. The reference start date is day 1. Dates before the reference stay negative and are not shifted. Raw subtraction is not <code>--DY</code> on or after the reference date.</p>
+<p><code>PROC TRANSPOSE</code> turns selected columns into rows. With <code>ID</code>, the values of that variable become column names. This site uses <code>tidyr::pivot_longer()</code> and <code>tidyr::pivot_wider()</code> for that pair. Base <code>reshape()</code> is not the form used here.</p>
 <section id="quick-reference" class="level2">
 <h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># CDISC --DY has no day 0. The reference date is day 1, not day 0.</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(date <span class="sc">&lt;</span> rfstdt, date <span class="sc">-</span> rfstdt, date <span class="sc">-</span> rfstdt <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># same rule, no branch:</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(date <span class="sc">-</span> rfstdt) <span class="sc">+</span> <span class="fu">as.integer</span>(date <span class="sc">&gt;=</span> rfstdt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># long -&gt; wide. PROC TRANSPOSE; by keys; id paramcd; var aval;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>lb <span class="sc">|&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> PARAMCD, <span class="at">values_from =</span> AVAL)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># wide -&gt; long. NAME= is names_to; rename COL1 to the value column</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>wide <span class="sc">|&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">c</span>(ALT, AST), <span class="at">names_to =</span> <span class="st">"PARAMCD"</span>, <span class="at">values_to =</span> <span class="st">"AVAL"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># LET keeps the last duplicate ID. Without values_fn, pivot_wider warns.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>lb_dup <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> PARAMCD, <span class="at">values_from =</span> AVAL, <span class="at">values_fn =</span> last)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># SUPPAE onto AE. QVAL stays character. IDVARVAL is character; AESEQ is integer.</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>supp_wide <span class="ot">&lt;-</span> suppae <span class="sc">|&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(RDOMAIN <span class="sc">==</span> <span class="st">"AE"</span>, IDVAR <span class="sc">==</span> <span class="st">"AESEQ"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AESEQ =</span> <span class="fu">as.integer</span>(IDVARVAL)) <span class="sc">|&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(STUDYID, USUBJID, AESEQ),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> QNAM,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> QVAL</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>ae <span class="sc">|&gt;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    supp_wide,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"STUDYID"</span>, <span class="st">"USUBJID"</span>, <span class="st">"AESEQ"</span>),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">relationship =</span> <span class="st">"one-to-one"</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -405,25 +430,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>date - rfstdt</code></td>
-<td>date minus date (raw, includes day 0)</td>
+<td><code>pivot_wider(names_from, values_from)</code></td>
+<td><code>PROC TRANSPOSE</code> with <code>BY</code>, <code>ID</code>, <code>VAR</code></td>
 </tr>
 <tr class="even">
-<td><code>if_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)</code></td>
-<td><code>--DY</code> (no day 0)</td>
+<td><code>names_prefix = "AVAL_"</code></td>
+<td><code>PREFIX=AVAL_</code> when <code>ID</code> is set</td>
 </tr>
 <tr class="odd">
-<td><code>as.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)</code></td>
-<td>the same <code>--DY</code> rule, compact</td>
+<td><code>pivot_longer(cols, names_to, values_to)</code></td>
+<td><code>PROC TRANSPOSE</code> with <code>VAR</code> and <code>NAME=</code>; values land in <code>COL1</code></td>
+</tr>
+<tr class="even">
+<td><code>values_fn = last</code></td>
+<td><code>LET</code> (last duplicate <code>ID</code> in the <code>BY</code> group)</td>
+</tr>
+<tr class="odd">
+<td><code>left_join()</code> after the widen</td>
+<td><code>MERGE</code> / SQL <code>LEFT JOIN</code> of <code>SUPPxx</code> onto the parent</td>
 </tr>
 </tbody>
 </table>
-<p>Traps: raw subtraction is not <code>--DY</code>. On the reference date the raw diff is 0; <code>--DY</code> is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.</p>
+<p>Traps: <code>QVAL</code> stays character. <code>IDVARVAL</code> is character and <code>AESEQ</code> is numeric; the join does not match until those types agree. A blank <code>QVAL</code> stays <code>""</code>. A qualifier with no SUPP row is <code>NA</code> after <code>pivot_wider()</code>. In SAS both are character missing. A repeated <code>ID</code> in a <code>BY</code> group makes <code>PROC TRANSPOSE</code> error unless <code>LET</code> is set. <code>pivot_wider()</code> without <code>values_fn</code> warns and returns list-columns. <code>PROC TRANSPOSE</code> requires the <code>BY</code> variables to be sorted. <code>SUPPxx</code> is SDTM collected structure, not an ADaM imputation. A standard parent variable such as <code>AEDUR</code> is not a SUPP <code>QNAM</code>.</p>
 <p>Worked examples below.</p>
 </section>
-<section id="raw-diff-versus---dy" class="level2">
-<h2 class="anchored" data-anchor-id="raw-diff-versus---dy">Raw diff versus <code>--DY</code></h2>
-<p>Five lab dates around one reference start: two before, the reference date, two after.</p>
+<section id="long-to-wide" class="level2">
+<h2 class="anchored" data-anchor-id="long-to-wide">Long to wide</h2>
+<p>One row per subject and lab test. The wide table has one row per subject and one column per <code>PARAMCD</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -440,140 +473,246 @@ Attaching package: 'dplyr'</code></pre>
 
     intersect, setdiff, setequal, union</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>lb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">LBDT   =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-01"</span>, <span class="st">"2025-06-02"</span>, <span class="st">"2025-06-03"</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-04"</span>, <span class="st">"2025-06-05"</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  )),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFSTDT =</span> <span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>lb <span class="sc">|&gt;</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">RAW  =</span> <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT),</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">LBDY =</span> <span class="fu">if_else</span>(</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      LBDT <span class="sc">&lt;</span> RFSTDT,</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT),</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT) <span class="sc">+</span> <span class="dv">1</span>L</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>lb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>, <span class="st">"STD-001-0002"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">PARAMCD =</span> <span class="fu">c</span>(<span class="st">"ALT"</span>, <span class="st">"AST"</span>, <span class="st">"ALT"</span>, <span class="st">"AST"</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">AVAL =</span> <span class="fu">c</span>(<span class="dv">22</span>, <span class="dv">24</span>, <span class="dv">31</span>, <span class="dv">28</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>wide <span class="ot">&lt;-</span> lb <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> PARAMCD, <span class="at">values_from =</span> AVAL)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>wide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID       LBDT     RFSTDT RAW LBDY
-1 STD-001-0001 2025-06-01 2025-06-03  -2   -2
-2 STD-001-0001 2025-06-02 2025-06-03  -1   -1
-3 STD-001-0001 2025-06-03 2025-06-03   0    1
-4 STD-001-0001 2025-06-04 2025-06-03   1    2
-5 STD-001-0001 2025-06-05 2025-06-03   2    3</code></pre>
+<pre><code># A tibble: 2 × 3
+  USUBJID        ALT   AST
+  &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;
+1 STD-001-0001    22    24
+2 STD-001-0002    31    28</code></pre>
 </div>
 </div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th><code>LBDT</code> vs <code>RFSTDT</code></th>
-<th>raw</th>
-<th><code>LBDY</code></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>two days before</td>
-<td>-2</td>
-<td>-2</td>
-</tr>
-<tr class="even">
-<td>one day before</td>
-<td>-1</td>
-<td>-1</td>
-</tr>
-<tr class="odd">
-<td>on the reference date</td>
-<td>0</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<td>one day after</td>
-<td>1</td>
-<td>2</td>
-</tr>
-<tr class="odd">
-<td>two days after</td>
-<td>2</td>
-<td>3</td>
-</tr>
-</tbody>
-</table>
-<p>The day before and the day after the reference are not symmetric. SAS date arithmetic returns the raw column. <code>--DY</code> is the <code>LBDY</code> column.</p>
+<p>SAS:</p>
+<pre class="sas"><code>proc sort data=lb;
+  by usubjid;
+run;
+
+proc transpose data=lb out=lb_wide(drop=_name_);
+  by usubjid;
+  id paramcd;
+  var aval;
+run;</code></pre>
+<p><code>BY</code> variables must be sorted before <code>PROC TRANSPOSE</code>. <code>ID</code> values become the column names <code>ALT</code> and <code>AST</code>. <code>VAR</code> supplies the cells. <code>_NAME_</code> holds the source variable name (<code>AVAL</code>); the <code>drop=</code> removes it. <code>pivot_wider()</code> does not add <code>_NAME_</code> and does not require a sort.</p>
+<p><code>PREFIX=AVAL_</code> together with <code>ID</code> names the columns <code>AVAL_ALT</code> and <code>AVAL_AST</code>. In R that prefix is <code>names_prefix = "AVAL_"</code>.</p>
+</section>
+<section id="wide-to-long" class="level2">
+<h2 class="anchored" data-anchor-id="wide-to-long">Wide to long</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>wide <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">c</span>(ALT, AST), <span class="at">names_to =</span> <span class="st">"PARAMCD"</span>, <span class="at">values_to =</span> <span class="st">"AVAL"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  USUBJID      PARAMCD  AVAL
+  &lt;chr&gt;        &lt;chr&gt;   &lt;dbl&gt;
+1 STD-001-0001 ALT        22
+2 STD-001-0001 AST        24
+3 STD-001-0002 ALT        31
+4 STD-001-0002 AST        28</code></pre>
+</div>
+</div>
+<p>SAS:</p>
+<pre class="sas"><code>proc transpose data=lb_wide out=lb_long(rename=(col1=aval)) name=paramcd;
+  by usubjid;
+  var alt ast;
+run;</code></pre>
+<p><code>NAME=</code> is <code>names_to</code>. Without an <code>ID</code> statement the values sit in <code>COL1</code>. Renaming <code>COL1</code> is <code>values_to</code>. Without <code>ID</code>, <code>PREFIX=</code> replaces <code>COL</code> in <code>COL1</code>, <code>COL2</code>, .... That is a different naming rule from <code>PREFIX=</code> used with <code>ID</code>.</p>
+</section>
+<section id="duplicate-id-values" class="level2">
+<h2 class="anchored" data-anchor-id="duplicate-id-values">Duplicate <code>ID</code> values</h2>
+<p><code>STD-001-0001</code> now has two <code>ALT</code> rows.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>lb_dup <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  lb,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">USUBJID =</span> <span class="st">"STD-001-0001"</span>, <span class="at">PARAMCD =</span> <span class="st">"ALT"</span>, <span class="at">AVAL =</span> <span class="dv">99</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>lb_dup <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> PARAMCD, <span class="at">values_from =</span> AVAL)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `AVAL` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} |&gt;
+  dplyr::summarise(n = dplyr::n(), .by = c(USUBJID, PARAMCD)) |&gt;
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  USUBJID      ALT       AST      
+  &lt;chr&gt;        &lt;list&gt;    &lt;list&gt;   
+1 STD-001-0001 &lt;dbl [2]&gt; &lt;dbl [1]&gt;
+2 STD-001-0002 &lt;dbl [1]&gt; &lt;dbl [1]&gt;</code></pre>
+</div>
+</div>
+<p><code>ALT</code> for <code>STD-001-0001</code> is a list of two numbers, not one result. <code>PROC TRANSPOSE</code> without <code>LET</code> stops when an <code>ID</code> value occurs twice in the same <code>BY</code> group. <code>LET</code> keeps the last occurrence in that group.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>lb_dup <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> PARAMCD, <span class="at">values_from =</span> AVAL, <span class="at">values_fn =</span> last)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  USUBJID        ALT   AST
+  &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;
+1 STD-001-0001    99    24
+2 STD-001-0002    31    28</code></pre>
+</div>
+</div>
+<p><code>values_fn = last</code> keeps 99, the last <code>ALT</code> for <code>STD-001-0001</code>. That is the <code>LET</code> result. It does not check which row is the right one.</p>
+</section>
+<section id="suppae-onto-ae" class="level2">
+<h2 class="anchored" data-anchor-id="suppae-onto-ae"><code>SUPPAE</code> onto <code>AE</code></h2>
+<p><code>SUPPxx</code> is SDTM. Each row is one supplemental qualifier as collected: <code>QNAM</code> is the name, <code>QVAL</code> is the value. <code>QVAL</code> is character, including when the text looks numeric. <code>IDVAR</code> names the parent key (<code>AESEQ</code>). <code>IDVARVAL</code> is that key's value, stored as character. A blank <code>IDVAR</code> means the qualifier is subject-level, and the key is <code>STUDYID</code> plus <code>USUBJID</code> only.</p>
+<p>This is not an ADaM imputation. <code>AETRTEM</code> and <code>AENDAY</code> are the qualifier names in this example. <code>AENDAY</code> is sponsor-defined: a day count, stored as text. It is not an AE domain variable. A standard AE variable such as <code>AEDUR</code> stays on AE. The IG does not allow it in SUPPQUAL, and <code>AEDUR</code> is an ISO 8601 duration, not a number of days.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ae <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">STUDYID =</span> <span class="st">"STD-001"</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span>),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">AESEQ =</span> <span class="fu">c</span>(<span class="dv">1</span>L, <span class="dv">2</span>L, <span class="dv">1</span>L),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">AETERM =</span> <span class="fu">c</span>(<span class="st">"Headache"</span>, <span class="st">"Nausea"</span>, <span class="st">"Fatigue"</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">AESEV =</span> <span class="fu">c</span>(<span class="st">"MILD"</span>, <span class="st">"MODERATE"</span>, <span class="st">"MILD"</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>suppae <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">STUDYID =</span> <span class="st">"STD-001"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">RDOMAIN =</span> <span class="st">"AE"</span>,</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0002"</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">IDVAR =</span> <span class="st">"AESEQ"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">IDVARVAL =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"2"</span>, <span class="st">"1"</span>),</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">QNAM =</span> <span class="fu">c</span>(<span class="st">"AETRTEM"</span>, <span class="st">"AENDAY"</span>, <span class="st">"AETRTEM"</span>, <span class="st">"AENDAY"</span>, <span class="st">"AETRTEM"</span>),</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">QVAL =</span> <span class="fu">c</span>(<span class="st">"Y"</span>, <span class="st">"5"</span>, <span class="st">"Y"</span>, <span class="st">""</span>, <span class="st">"N"</span>)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>ae</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  STUDYID      USUBJID AESEQ   AETERM    AESEV
+1 STD-001 STD-001-0001     1 Headache     MILD
+2 STD-001 STD-001-0001     2   Nausea MODERATE
+3 STD-001 STD-001-0002     1  Fatigue     MILD</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>suppae</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  STUDYID RDOMAIN      USUBJID IDVAR IDVARVAL    QNAM QVAL
+1 STD-001      AE STD-001-0001 AESEQ        1 AETRTEM    Y
+2 STD-001      AE STD-001-0001 AESEQ        1  AENDAY    5
+3 STD-001      AE STD-001-0001 AESEQ        2 AETRTEM    Y
+4 STD-001      AE STD-001-0001 AESEQ        2  AENDAY     
+5 STD-001      AE STD-001-0002 AESEQ        1 AETRTEM    N</code></pre>
+</div>
+</div>
+<p><code>STD-001-0001</code> sequence 2 has an <code>AENDAY</code> row whose <code>QVAL</code> is blank. <code>STD-001-0002</code> sequence 1 has no <code>AENDAY</code> row.</p>
+<p>Keep record-level qualifiers, convert <code>IDVARVAL</code> to the parent type, then widen. See <a href="./type-convert.html">Convert character, numeric, and date</a> for <code>as.integer()</code> and for turning a numeric-looking <code>QVAL</code> into a number afterwards.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>supp_wide <span class="ot">&lt;-</span> suppae <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(RDOMAIN <span class="sc">==</span> <span class="st">"AE"</span>, IDVAR <span class="sc">==</span> <span class="st">"AESEQ"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AESEQ =</span> <span class="fu">as.integer</span>(IDVARVAL)) <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(STUDYID, USUBJID, AESEQ),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> QNAM,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> QVAL</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>supp_wide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 5
+  STUDYID USUBJID      AESEQ AETRTEM AENDAY
+  &lt;chr&gt;   &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;   &lt;chr&gt; 
+1 STD-001 STD-001-0001     1 Y       "5"   
+2 STD-001 STD-001-0001     2 Y       ""    
+3 STD-001 STD-001-0002     1 N       &lt;NA&gt;  </code></pre>
+</div>
+</div>
+<p><code>AETRTEM</code> and <code>AENDAY</code> are character. The blank <code>AENDAY</code> is <code>""</code>. The absent <code>AENDAY</code> is <code>NA</code>.</p>
+<p>SAS, after sorting by the <code>BY</code> variables:</p>
+<pre class="sas"><code>proc transpose data=suppae(where=(rdomain="AE" and idvar="AESEQ"))
+               out=supp_wide(drop=_name_);
+  by studyid usubjid idvarval;
+  id qnam;
+  var qval;
+run;
+
+data supp_keyed;
+  set supp_wide;
+  aeseq = input(idvarval, best.);
+run;</code></pre>
+<p><code>IDVARVAL</code> is character. <code>AESEQ</code> on <code>AE</code> is numeric. <code>input(idvarval, best.)</code> is the SAS conversion before a <code>MERGE</code> on <code>studyid</code>, <code>usubjid</code>, and <code>aeseq</code>. Sort both tables by those keys first.</p>
+<p>Joining <code>AESEQ</code> (integer) to <code>IDVARVAL</code> (character) fails.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>supp_bad <span class="ot">&lt;-</span> suppae <span class="sc">|&gt;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(RDOMAIN <span class="sc">==</span> <span class="st">"AE"</span>, IDVAR <span class="sc">==</span> <span class="st">"AESEQ"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(STUDYID, USUBJID, IDVARVAL),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> QNAM,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> QVAL</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  ae,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  supp_bad,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"STUDYID"</span>, <span class="st">"USUBJID"</span>, <span class="st">"AESEQ"</span> <span class="ot">=</span> <span class="st">"IDVARVAL"</span>),</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">relationship =</span> <span class="st">"one-to-one"</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in `left_join()`:
+! Can't join `x$AESEQ` with `y$IDVARVAL` due to incompatible types.
+ℹ `x$AESEQ` is a &lt;integer&gt;.
+ℹ `y$IDVARVAL` is a &lt;character&gt;.</code></pre>
+</div>
+</div>
+<p>Convert first, then join on <code>STUDYID</code>, <code>USUBJID</code>, and <code>AESEQ</code>. The join rules are <a href="./joins.html">Merge on keys</a>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>ae_plus <span class="ot">&lt;-</span> <span class="fu">left_join</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  ae,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  supp_wide,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"STUDYID"</span>, <span class="st">"USUBJID"</span>, <span class="st">"AESEQ"</span>),</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">relationship =</span> <span class="st">"one-to-one"</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>ae_plus</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  STUDYID      USUBJID AESEQ   AETERM    AESEV AETRTEM AENDAY
+1 STD-001 STD-001-0001     1 Headache     MILD       Y      5
+2 STD-001 STD-001-0001     2   Nausea MODERATE       Y       
+3 STD-001 STD-001-0002     1  Fatigue     MILD       N   &lt;NA&gt;</code></pre>
+</div>
+</div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>There is no day 0
+<span class="screen-reader-only">Important</span>A blank <code>QVAL</code> is not a missing SUPP row
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>date - rfstdt</code> on the reference date is 0. <code>--DY</code> on that date is 1. Every date on or after the reference is shifted by +1. Dates before the reference remain a negative offset. The raw diff labels the first treatment day as 0 and offsets every later day by one.</p>
+<p>Sequence 2 for <code>STD-001-0001</code> has <code>AENDAY</code> equal to <code>""</code>: the qualifier was submitted blank. Sequence 1 for <code>STD-001-0002</code> has <code>AENDAY</code> equal to <code>NA</code>: <code>SUPPAE</code> has no <code>AENDAY</code> row for that event. <code>pivot_wider()</code> does not turn <code>""</code> into <code>NA</code>. In SAS both results are character missing, so the transposed column cannot show the difference.</p>
 </div>
 </div>
-</section>
-<section id="compact-form" class="level2">
-<h2 class="anchored" data-anchor-id="compact-form">Compact form</h2>
-<p>Add 1 when <code>date &gt;= rfstdt</code>, otherwise add 0:</p>
+<p><code>QVAL</code> is still character after the join. A sponsor-defined day count has to be converted before it is used as a number. <code>as.numeric(na_if(AENDAY, ""))</code> turns the blank into <code>NA</code>, and the already missing qualifier stays <code>NA</code>. After that step the two reasons are gone. Keep the character value, or a flag, if a later step must tell them apart.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>lb <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">LBDY =</span> <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT) <span class="sc">+</span> <span class="fu">as.integer</span>(LBDT <span class="sc">&gt;=</span> RFSTDT)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>ae_plus <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AENDAY =</span> <span class="fu">as.numeric</span>(<span class="fu">na_if</span>(AENDAY, <span class="st">""</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID       LBDT     RFSTDT LBDY
-1 STD-001-0001 2025-06-01 2025-06-03   -2
-2 STD-001-0001 2025-06-02 2025-06-03   -1
-3 STD-001-0001 2025-06-03 2025-06-03    1
-4 STD-001-0001 2025-06-04 2025-06-03    2
-5 STD-001-0001 2025-06-05 2025-06-03    3</code></pre>
+<pre><code>  STUDYID      USUBJID AESEQ   AETERM    AESEV AETRTEM AENDAY
+1 STD-001 STD-001-0001     1 Headache     MILD       Y      5
+2 STD-001 STD-001-0001     2   Nausea MODERATE       Y     NA
+3 STD-001 STD-001-0002     1  Fatigue     MILD       N     NA</code></pre>
 </div>
 </div>
-<p><code>as.integer(TRUE)</code> is 1. <code>as.integer(FALSE)</code> is 0. Same values as <code>if_else()</code>. <code>date - rfstdt</code> is a <code>difftime</code>; <code>as.integer()</code> converts it before the +1.</p>
-</section>
-<section id="a-subject-table" class="level2">
-<h2 class="anchored" data-anchor-id="a-subject-table">A subject table</h2>
-<p>Two subjects. <code>STD-001-0002</code> starts on <code>2025-06-10</code> and has one lab on that day. Missing <code>LBDT</code> remains missing.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lb2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0002"</span>, <span class="st">"STD-001-0002"</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">LBDT =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-02"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-04"</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-10"</span>, <span class="cn">NA</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  )),</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFSTDT =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>,</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-10"</span>, <span class="st">"2025-06-10"</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  ))</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>lb2 <span class="sc">|&gt;</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">LBDY =</span> <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT) <span class="sc">+</span> <span class="fu">as.integer</span>(LBDT <span class="sc">&gt;=</span> RFSTDT)</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID       LBDT     RFSTDT LBDY
-1 STD-001-0001 2025-06-02 2025-06-03   -1
-2 STD-001-0001 2025-06-03 2025-06-03    1
-3 STD-001-0001 2025-06-04 2025-06-03    2
-4 STD-001-0002 2025-06-10 2025-06-10    1
-5 STD-001-0002       &lt;NA&gt; 2025-06-10   NA</code></pre>
-</div>
-</div>
-<p><code>STD-001-0001</code> study days: -1, 1, 2. <code>STD-001-0002</code>: 1, then <code>NA</code>. Do not replace missing dates with 0. CDISC leaves <code>--DY</code> missing when either date is missing.</p>
-<p><code>INTCK('day', rfstdt, date)</code> in SAS is the raw interval, not <code>--DY</code>. Apply the same +1 on and after the reference date.</p>
 
 
 </section>

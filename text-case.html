@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Study day – SAS to R</title>
+<title>Change text case – SAS to R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -119,15 +119,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="Study day – SAS to R">
-<meta property="og:description" content="Date subtraction for --DY">
+<meta property="og:title" content="Change text case – SAS to R">
+<meta property="og:description" content="toupper() / tolower() / toTitleCase()">
 <meta property="og:image" content="https://sas-to-r.org/assets/og.png">
 <meta property="og:site_name" content="SAS to R">
 <meta property="og:image:height" content="630">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
-<meta name="twitter:title" content="Study day – SAS to R">
-<meta name="twitter:description" content="Date subtraction for --DY">
+<meta name="twitter:title" content="Change text case – SAS to R">
+<meta name="twitter:description" content="toupper() / tolower() / toTitleCase()">
 <meta name="twitter:image" content="https://sas-to-r.org/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="SAS to R. SAS programming tasks mapped to R.">
@@ -349,9 +349,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link active" data-scroll-target="#quick-reference">Quick reference</a></li>
-  <li><a href="#raw-diff-versus---dy" id="toc-raw-diff-versus---dy" class="nav-link" data-scroll-target="#raw-diff-versus---dy">Raw diff versus <code>--DY</code></a></li>
-  <li><a href="#compact-form" id="toc-compact-form" class="nav-link" data-scroll-target="#compact-form">Compact form</a></li>
-  <li><a href="#a-subject-table" id="toc-a-subject-table" class="nav-link" data-scroll-target="#a-subject-table">A subject table</a></li>
+  <li><a href="#usubjid-and-arm" id="toc-usubjid-and-arm" class="nav-link" data-scroll-target="#usubjid-and-arm"><code>USUBJID</code> and <code>ARM</code></a></li>
+  <li><a href="#proper-case" id="toc-proper-case" class="nav-link" data-scroll-target="#proper-case">Proper case</a></li>
+  <li><a href="#factors" id="toc-factors" class="nav-link" data-scroll-target="#factors">Factors</a></li>
   </ul>
 </nav>
     </div>
@@ -361,8 +361,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Study day</h1>
-<p class="subtitle lead">Date subtraction for –DY</p>
+<h1 class="title">Change text case</h1>
+<p class="subtitle lead">toupper() / tolower() / toTitleCase()</p>
 </div>
 
 
@@ -380,18 +380,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="sas-equiv">
-<p><strong>SAS:</strong> date minus date, <code>INTCK('day', ...)</code>, CDISC <code>--DY</code></p>
+<p><strong>SAS:</strong> <code>UPCASE</code>, <code>LOWCASE</code>, <code>PROPCASE</code></p>
 </div>
-<p>CDISC <code>--DY</code> has no day 0. The reference start date is day 1. Dates before the reference stay negative and are not shifted. Raw subtraction is not <code>--DY</code> on or after the reference date.</p>
+<p><code>toupper()</code> and <code>tolower()</code> match <code>UPCASE</code> and <code>LOWCASE</code> on ASCII letters <code>A-Z</code> and <code>a-z</code>. Digits and symbols are unchanged in both languages. Base R has no <code>PROPCASE</code>. The house stand-in for plain words is <code>tools::toTitleCase(tolower(x))</code>. It is not the same function.</p>
 <section id="quick-reference" class="level2">
 <h2 class="anchored" data-anchor-id="quick-reference">Quick reference</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># CDISC --DY has no day 0. The reference date is day 1, not day 0.</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(date <span class="sc">&lt;</span> rfstdt, date <span class="sc">-</span> rfstdt, date <span class="sc">-</span> rfstdt <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># same rule, no branch:</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">as.integer</span>(date <span class="sc">-</span> rfstdt) <span class="sc">+</span> <span class="fu">as.integer</span>(date <span class="sc">&gt;=</span> rfstdt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">toupper</span>(x)                         <span class="co"># UPCASE</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tolower</span>(x)                         <span class="co"># LOWCASE</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">tolower</span>(x))     <span class="co"># stand-in for PROPCASE; not equal to it</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -405,25 +401,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>date - rfstdt</code></td>
-<td>date minus date (raw, includes day 0)</td>
+<td><code>toupper(x)</code></td>
+<td><code>UPCASE(x)</code></td>
 </tr>
 <tr class="even">
-<td><code>if_else(date &lt; rfstdt, date - rfstdt, date - rfstdt + 1)</code></td>
-<td><code>--DY</code> (no day 0)</td>
+<td><code>tolower(x)</code></td>
+<td><code>LOWCASE(x)</code></td>
 </tr>
 <tr class="odd">
-<td><code>as.integer(date - rfstdt) + as.integer(date &gt;= rfstdt)</code></td>
-<td>the same <code>--DY</code> rule, compact</td>
+<td><code>tools::toTitleCase(tolower(x))</code></td>
+<td><code>PROPCASE(x)</code> for plain words only</td>
 </tr>
 </tbody>
 </table>
-<p>Traps: raw subtraction is not <code>--DY</code>. On the reference date the raw diff is 0; <code>--DY</code> is 1. Dates before the reference stay negative and do not shift. Missing either date must stay missing, not become day 0.</p>
+<p>Traps: <code>tools::toTitleCase()</code> is not <code>PROPCASE</code>. <code>PROPCASE</code> capitalizes every word, including <code>of</code>. <code>toTitleCase()</code> leaves English function words lowercase, and it does not treat <code>.</code> as a word break (<code>N.C.</code> becomes <code>N.c.</code> after <code>tolower()</code>). An all-caps word is left unchanged unless you <code>tolower()</code> first. <code>toupper()</code> on a factor returns character, not a factor. <code>toupper(NA)</code> is <code>NA</code>. <code>""</code> stays <code>""</code>.</p>
 <p>Worked examples below.</p>
 </section>
-<section id="raw-diff-versus---dy" class="level2">
-<h2 class="anchored" data-anchor-id="raw-diff-versus---dy">Raw diff versus <code>--DY</code></h2>
-<p>Five lab dates around one reference start: two before, the reference date, two after.</p>
+<section id="usubjid-and-arm" class="level2">
+<h2 class="anchored" data-anchor-id="usubjid-and-arm"><code>USUBJID</code> and <code>ARM</code></h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -440,140 +435,93 @@ Attaching package: 'dplyr'</code></pre>
 
     intersect, setdiff, setequal, union</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>lb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">LBDT   =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-01"</span>, <span class="st">"2025-06-02"</span>, <span class="st">"2025-06-03"</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-04"</span>, <span class="st">"2025-06-05"</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  )),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFSTDT =</span> <span class="fu">as.Date</span>(<span class="st">"2025-06-03"</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>lb <span class="sc">|&gt;</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">RAW  =</span> <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT),</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">LBDY =</span> <span class="fu">if_else</span>(</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      LBDT <span class="sc">&lt;</span> RFSTDT,</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT),</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT) <span class="sc">+</span> <span class="dv">1</span>L</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ae <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">"std-001-0001"</span>, <span class="st">"STD-001-0002"</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ARM =</span> <span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Active"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">AETERM =</span> <span class="fu">c</span>(<span class="st">"HEADACHE OF MILD SEVERITY"</span>, <span class="st">"Nausea"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>ae <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">USUBJID =</span> <span class="fu">toupper</span>(USUBJID),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">ARM_UP =</span> <span class="fu">toupper</span>(ARM),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">ARM_LO =</span> <span class="fu">tolower</span>(ARM)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID       LBDT     RFSTDT RAW LBDY
-1 STD-001-0001 2025-06-01 2025-06-03  -2   -2
-2 STD-001-0001 2025-06-02 2025-06-03  -1   -1
-3 STD-001-0001 2025-06-03 2025-06-03   0    1
-4 STD-001-0001 2025-06-04 2025-06-03   1    2
-5 STD-001-0001 2025-06-05 2025-06-03   2    3</code></pre>
+<pre><code>       USUBJID     ARM                    AETERM  ARM_UP  ARM_LO
+1 STD-001-0001 Placebo HEADACHE OF MILD SEVERITY PLACEBO placebo
+2 STD-001-0002  Active                    Nausea  ACTIVE  active</code></pre>
 </div>
 </div>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th><code>LBDT</code> vs <code>RFSTDT</code></th>
-<th>raw</th>
-<th><code>LBDY</code></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>two days before</td>
-<td>-2</td>
-<td>-2</td>
-</tr>
-<tr class="even">
-<td>one day before</td>
-<td>-1</td>
-<td>-1</td>
-</tr>
-<tr class="odd">
-<td>on the reference date</td>
-<td>0</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<td>one day after</td>
-<td>1</td>
-<td>2</td>
-</tr>
-<tr class="odd">
-<td>two days after</td>
-<td>2</td>
-<td>3</td>
-</tr>
-</tbody>
-</table>
-<p>The day before and the day after the reference are not symmetric. SAS date arithmetic returns the raw column. <code>--DY</code> is the <code>LBDY</code> column.</p>
+<p>SAS:</p>
+<pre class="sas"><code>usubjid = upcase(usubjid);
+arm_up = upcase(arm);
+arm_lo = lowcase(arm);</code></pre>
+<p><code>toupper()</code> changes <code>std-001-0001</code> to <code>STD-001-0001</code>. Hyphens and digits stay. <code>ARM_UP</code> is <code>PLACEBO</code> and <code>ACTIVE</code>. <code>ARM_LO</code> is <code>placebo</code> and <code>active</code>.</p>
+</section>
+<section id="proper-case" class="level2">
+<h2 class="anchored" data-anchor-id="proper-case">Proper case</h2>
+<p><code>PROPCASE</code> lowercases the argument, then capitalizes the first character of each word. The default word breaks are blank, <code>/</code>, <code>-</code>, <code>(</code>, <code>.</code>, and tab. SAS documents <code>PROPCASE("INTRODUCTION TO THE SCIENCE OF ASTRONOMY")</code> as <code>Introduction To The Science Of Astronomy</code>. Words such as <code>To</code> and <code>Of</code> are capitalized.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ae <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AETERM_TC =</span> tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">tolower</span>(AETERM)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       USUBJID     ARM                    AETERM                 AETERM_TC
+1 std-001-0001 Placebo HEADACHE OF MILD SEVERITY Headache of Mild Severity
+2 STD-001-0002  Active                    Nausea                    Nausea</code></pre>
+</div>
+</div>
+<p><code>tools::toTitleCase(tolower(AETERM))</code> returns <code>Headache of Mild Severity</code> and <code>Nausea</code>. <code>of</code> stays lowercase. <code>PROPCASE("HEADACHE OF MILD SEVERITY")</code> returns <code>Headache Of Mild Severity</code>.</p>
+<p><code>tolower()</code> first is required. <code>toTitleCase()</code> leaves an all-caps word unchanged:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="st">"HEADACHE"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "HEADACHE"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">tolower</span>(<span class="st">"HEADACHE"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Headache"</code></pre>
+</div>
+</div>
+<p><code>HEADACHE</code>, then <code>Headache</code>. SAS <code>propcase("HEADACHE")</code> is <code>Headache</code>.</p>
+<p><code>.</code> is a <code>PROPCASE</code> word break and is not a <code>toTitleCase()</code> word break. SAS documents <code>PROPCASE("WINSTON-SALEM, N.C.")</code> as <code>Winston-Salem, N.C.</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">tolower</span>(<span class="st">"WINSTON-SALEM, N.C."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Winston-Salem, N.c."</code></pre>
+</div>
+</div>
+<p><code>N.C.</code> becomes <code>N.c.</code>.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>There is no day 0
+<span class="screen-reader-only">Important</span><code>toTitleCase()</code> is not <code>PROPCASE</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>date - rfstdt</code> on the reference date is 0. <code>--DY</code> on that date is 1. Every date on or after the reference is shifted by +1. Dates before the reference remain a negative offset. The raw diff labels the first treatment day as 0 and offsets every later day by one.</p>
+<p><code>PROPCASE</code> capitalizes every word and splits on <code>.</code>. <code>tools::toTitleCase()</code> leaves English function words (<code>of</code>, <code>the</code>, <code>to</code>, and others) lowercase unless they lead the string, and it does not split on <code>.</code>. Call <code>tolower()</code> first or an all-caps word is returned unchanged.</p>
 </div>
 </div>
 </section>
-<section id="compact-form" class="level2">
-<h2 class="anchored" data-anchor-id="compact-form">Compact form</h2>
-<p>Add 1 when <code>date &gt;= rfstdt</code>, otherwise add 0:</p>
+<section id="factors" class="level2">
+<h2 class="anchored" data-anchor-id="factors">Factors</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>lb <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">LBDY =</span> <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT) <span class="sc">+</span> <span class="fu">as.integer</span>(LBDT <span class="sc">&gt;=</span> RFSTDT)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>arm <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Active"</span>))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">toupper</span>(arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID       LBDT     RFSTDT LBDY
-1 STD-001-0001 2025-06-01 2025-06-03   -2
-2 STD-001-0001 2025-06-02 2025-06-03   -1
-3 STD-001-0001 2025-06-03 2025-06-03    1
-4 STD-001-0001 2025-06-04 2025-06-03    2
-5 STD-001-0001 2025-06-05 2025-06-03    3</code></pre>
+<pre><code>[1] "PLACEBO" "ACTIVE" </code></pre>
 </div>
-</div>
-<p><code>as.integer(TRUE)</code> is 1. <code>as.integer(FALSE)</code> is 0. Same values as <code>if_else()</code>. <code>date - rfstdt</code> is a <code>difftime</code>; <code>as.integer()</code> converts it before the +1.</p>
-</section>
-<section id="a-subject-table" class="level2">
-<h2 class="anchored" data-anchor-id="a-subject-table">A subject table</h2>
-<p>Two subjects. <code>STD-001-0002</code> starts on <code>2025-06-10</code> and has one lab on that day. Missing <code>LBDT</code> remains missing.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lb2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>, <span class="st">"STD-001-0001"</span>,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"STD-001-0002"</span>, <span class="st">"STD-001-0002"</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">LBDT =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-02"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-04"</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-10"</span>, <span class="cn">NA</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  )),</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">RFSTDT =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>, <span class="st">"2025-06-03"</span>,</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2025-06-10"</span>, <span class="st">"2025-06-10"</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  ))</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>lb2 <span class="sc">|&gt;</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">LBDY =</span> <span class="fu">as.integer</span>(LBDT <span class="sc">-</span> RFSTDT) <span class="sc">+</span> <span class="fu">as.integer</span>(LBDT <span class="sc">&gt;=</span> RFSTDT)</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(<span class="fu">toupper</span>(arm))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       USUBJID       LBDT     RFSTDT LBDY
-1 STD-001-0001 2025-06-02 2025-06-03   -1
-2 STD-001-0001 2025-06-03 2025-06-03    1
-3 STD-001-0001 2025-06-04 2025-06-03    2
-4 STD-001-0002 2025-06-10 2025-06-10    1
-5 STD-001-0002       &lt;NA&gt; 2025-06-10   NA</code></pre>
+<pre><code>[1] "character"</code></pre>
 </div>
 </div>
-<p><code>STD-001-0001</code> study days: -1, 1, 2. <code>STD-001-0002</code>: 1, then <code>NA</code>. Do not replace missing dates with 0. CDISC leaves <code>--DY</code> missing when either date is missing.</p>
-<p><code>INTCK('day', rfstdt, date)</code> in SAS is the raw interval, not <code>--DY</code>. Apply the same +1 on and after the reference date.</p>
+<p>The result is character, the uppercased labels, not a factor. SAS character values are not factors. Wrap <code>factor()</code> again if a later step requires one.</p>
+<p><code>toupper(NA)</code> is <code>NA</code>. <code>toupper("")</code> is <code>""</code>. SAS <code>UPCASE</code> of a blank stays blank.</p>
+<p><code>UPCASE</code>, <code>LOWCASE</code>, and <code>PROPCASE</code> follow the SAS locale and translation table. The examples on this page are ASCII <code>A-Z</code>. <code>toupper()</code> and <code>tolower()</code> follow the R locale for letters outside that range.</p>
 
 
 </section>
