@@ -19,6 +19,7 @@ Basics
 - [Keep rows that match a condition](filter.qmd) `WHERE` / subsetting `IF` -> `filter`
 - [Conditional values](if-else-case-when.qmd) `IF-THEN` / `IFN` / `IFC` -> `if_else` / `case_when`
 - [First non-missing](coalesce.qmd) `COALESCE` / `coalescec` -> `coalesce`
+- [Convert character, numeric, and date](type-convert.qmd) `PUT` / `INPUT` -> `as.character` / `as.numeric` / `as.Date`
 :::
 
 ::: {.topic-group}
@@ -27,6 +28,7 @@ Text
 :::
 
 - [Extract part of a character value](substr.qmd) `SUBSTR` -> `substr`
+- [Change text case](text-case.qmd) `UPCASE` / `LOWCASE` / `PROPCASE` -> `toupper` / `tolower` / `toTitleCase`
 :::
 
 ::: {.topic-group}
@@ -45,6 +47,7 @@ Combining Data
 
 - [Merge on keys](joins.qmd) `MERGE` / SQL `JOIN` -> `*_join`
 - [Stack datasets](bind-rows.qmd) `SET` -> `bind_rows`
+- [Transpose rows and columns](transpose.qmd) `PROC TRANSPOSE` -> `pivot_longer` / `pivot_wider`
 :::
 
 ::: {.topic-group}

@@ -1,0 +1,208 @@
+---
+title: "Convert character, numeric, and date"
+subtitle: "as.character() / as.numeric() / as.Date()"
+---
+
+::: {.sas-equiv}
+**SAS:** `PUT`, `INPUT`, informats and formats (`BEST.`, `Zw.`, `YYMMDD10.`, `E8601DT.`)
+:::
+
+`PUT` writes a value with a format and always returns character. `INPUT` reads a
+character value with an informat. The informat sets the result type. R uses one
+function per target type.
+
+## Quick reference
+
+{{< include _quickref/type-convert.md >}}
+
+Worked examples below.
+
+## Character and numeric
+
+```{r}
+#| label: setup
+library(dplyr)
+
+raw <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0002", "STD-001-0003", "STD-001-0004"),
+  SITEC = c("001", "010", "002", "003"),
+  AGEC = c("54", "61", "", " "),
+  RESC = c("1.25", "1,25", "12", "8")
+)
+
+raw
+```
+
+`SITEC` is character, including leading zeros. `AGEC` has a zero-length string
+and a single space. `RESC` has one decimal point and one decimal comma.
+
+```{r}
+#| label: site-age
+raw |>
+  mutate(
+    SITE = as.numeric(SITEC),
+    AGE = as.numeric(na_if(trimws(AGEC), ""))
+  )
+```
+
+SAS:
+
+```sas
+site = input(sitec, best.);
+age = input(agec, best.);
+```
+
+`SITE` is 1, 10, 2, 3. `"001"` and `"010"` lose their leading zeros because a
+numeric has no zeros to keep. `AGE` is 54, 61, then `NA` for both the empty
+string and the space. `trimws()` makes an all-blank string `""`, and `na_if()`
+makes that `NA` before `as.numeric()`, so this path does not warn.
+
+Passed straight to `as.numeric()`, those blanks still become `NA`. There is no
+warning. A blank is not the same thing as text that cannot be a number.
+
+```{r}
+#| label: blank-num
+as.numeric(c("54", "", " "))
+```
+
+```{r}
+#| label: as-character
+as.character(1)
+```
+
+`as.character(1)` is `"1"`. SAS `strip(put(1, best.))` is `"1"`. `put(1, best.)`
+without `strip` is `BEST12.`, so the result can contain leading blanks.
+`as.character()` does not pad.
+
+::: {.callout-important}
+## Blank is not `NA`
+
+SAS character missing is blank. `missing()` is true when a character value is
+all blanks. In R, `""` and `" "` are present. Only `NA` is missing.
+`as.numeric("")` returns `NA` and does not warn. SAS `input("", best.)` also
+returns numeric missing without an invalid-data note. The character value was
+not `NA` before the call.
+:::
+
+## Decimal comma
+
+```{r}
+#| label: comma
+raw |>
+  mutate(RES = as.numeric(RESC))
+```
+
+`1.25`, `NA`, `12`, `8`. `"1,25"` is not a number to `as.numeric()`. `mutate()`
+warns `NAs introduced by coercion` for that value. A blank does not warn;
+`"1,25"` does. SAS `input("1,25", best.)` also returns missing, and it writes
+an invalid-data note. `input("1,25", ?? best.)` returns missing and suppresses
+the note. Neither reads the comma as a decimal mark.
+
+SAS `input("1,25", commax5.)` reads 1.25. `COMMAX` uses a comma as the decimal
+mark and a period as the thousands separator. `COMMA` is the opposite.
+
+```{r}
+#| label: comma-fix
+as.numeric(sub(",", ".", "1,25", fixed = TRUE))
+```
+
+`sub()` here replaces one comma. Use it only when the comma is the decimal mark
+and there is no thousands separator. It is not a general `COMMAX` parser.
+`as.numeric()` does not follow `options(OutDec = ",")`. That option changes how
+numbers are printed, not how `as.numeric()` reads them.
+
+## Put the zeros back
+
+The numeric value cannot store the width. Write it on the way out, as `Zw.` does.
+
+```{r}
+#| label: zeros
+raw |>
+  mutate(
+    SITE = as.integer(SITEC),
+    SITE_CHAR = as.character(SITE),
+    SITEC2 = sprintf("%03d", SITE)
+  )
+```
+
+`as.integer("001")` is `1`. `as.character()` of that value is `"1"`.
+`sprintf("%03d", SITE)` is `"001"`. SAS `put(site, z3.)` writes the same
+character zeros.
+
+## Factors
+
+`as.numeric()` on a factor uses the level codes.
+
+```{r}
+#| label: factor
+fac <- factor(c("10", "20"))
+as.numeric(fac)
+as.numeric(as.character(fac))
+```
+
+The codes are 1 and 2. The labels are `"10"` and `"20"`. Convert the labels:
+`as.numeric(as.character(fac))`.
+
+## Dates
+
+A complete ISO date string and a SAS date number are different types. Partial
+`--DTC` strings are a separate problem: see [Partial dates](partial-dates.qmd).
+Study day on `Date` values is [Study day](study-day.qmd).
+
+```{r}
+#| label: iso-date
+as.Date(c("2025-06-03", "2025-06-10", ""))
+```
+
+`as.Date("2025-06-03")` is that calendar day. `as.Date("")` is `NA`.
+SAS `input("2025-06-03", yymmdd10.)` does not return a `Date`. It returns the
+integer day count from 1960-01-01. `put` of that number with `yymmdd10.` is the
+character `2025-06-03` again.
+
+```{r}
+#| label: sas-date
+sas_n <- as.integer(as.Date("2025-06-03") - as.Date("1960-01-01"))
+sas_n
+as.Date(sas_n, origin = "1960-01-01")
+as.Date(sas_n)
+```
+
+`sas_n` is 23895. `origin = "1960-01-01"` returns 2025-06-03. With no `origin`,
+`as.Date()` counts from 1970-01-01 and returns 2035-06-04.
+
+::: {.callout-important}
+## A SAS date number is not an R Date
+
+`as.Date(n)` with no `origin` means days since 1970-01-01. A SAS date is days
+since 1960-01-01. The same integer is not the same calendar day. Pass
+`origin = "1960-01-01"` when `n` came from SAS.
+:::
+
+The other direction, from an R `Date` to a SAS date number:
+
+```{r}
+#| label: to-sas-date
+as.integer(as.Date("2025-06-03") - as.Date("1960-01-01"))
+```
+
+## Datetime
+
+SAS datetime values are seconds since 1960-01-01 00:00:00.
+`input("2025-06-03T14:30:00", e8601dt.)` reads that ISO form.
+`as.POSIXct()` does not accept the `T` separator unless you pass `format`.
+
+```{r}
+#| label: posix
+txt <- "2025-06-03T14:30:00"
+as.POSIXct(txt, format = "%Y-%m-%dT%H:%M:%S", tz = "UTC")
+
+sas_dt <- as.numeric(
+  as.POSIXct("2025-06-03 14:30:00", tz = "UTC") -
+    as.POSIXct("1960-01-01", tz = "UTC"),
+  units = "secs"
+)
+as.POSIXct(sas_dt, origin = "1960-01-01", tz = "UTC")
+```
+
+Set `tz`. A `POSIXct` value is an instant. Another zone prints another clock
+time. `"UTC"` keeps the clock time stored in a zone-naive SAS datetime.
