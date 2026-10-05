@@ -81,9 +81,9 @@ run;
 ```
 
 `NAME=` is `names_to`. Without an `ID` statement the values sit in `COL1`.
-Renaming `COL1` is `values_to`. `PREFIX=` without `ID` builds `COL1`, `COL2`,
-... as `prefix1`, `prefix2`, .... That is a different naming rule from
-`PREFIX=` used with `ID`.
+Renaming `COL1` is `values_to`. Without `ID`, `PREFIX=` replaces `COL` in
+`COL1`, `COL2`, .... That is a different naming rule from `PREFIX=` used with
+`ID`.
 
 ## Duplicate `ID` values
 
@@ -121,7 +121,11 @@ looks numeric. `IDVAR` names the parent key (`AESEQ`). `IDVARVAL` is that key's
 value, stored as character. A blank `IDVAR` means the qualifier is
 subject-level, and the key is `STUDYID` plus `USUBJID` only.
 
-This is not an ADaM imputation. The QNAMs below are example qualifier names.
+This is not an ADaM imputation. `AETRTEM` and `AENDAY` are the qualifier names
+in this example. `AENDAY` is sponsor-defined: a day count, stored as text. It
+is not an AE domain variable. A standard AE variable such as `AEDUR` stays on
+AE. The IG does not allow it in SUPPQUAL, and `AEDUR` is an ISO 8601 duration,
+not a number of days.
 
 ```{r}
 #| label: supp-data
@@ -142,7 +146,7 @@ suppae <- data.frame(
   ),
   IDVAR = "AESEQ",
   IDVARVAL = c("1", "1", "2", "2", "1"),
-  QNAM = c("AETRTEM", "AEDUR", "AETRTEM", "AEDUR", "AETRTEM"),
+  QNAM = c("AETRTEM", "AENDAY", "AETRTEM", "AENDAY", "AETRTEM"),
   QVAL = c("Y", "5", "Y", "", "N")
 )
 
@@ -150,8 +154,8 @@ ae
 suppae
 ```
 
-`STD-001-0001` sequence 2 has an `AEDUR` row whose `QVAL` is blank.
-`STD-001-0002` sequence 1 has no `AEDUR` row.
+`STD-001-0001` sequence 2 has an `AENDAY` row whose `QVAL` is blank.
+`STD-001-0002` sequence 1 has no `AENDAY` row.
 
 Keep record-level qualifiers, convert `IDVARVAL` to the parent type, then
 widen. See [Convert character, numeric, and date](type-convert.qmd) for
@@ -172,8 +176,8 @@ supp_wide <- suppae |>
 supp_wide
 ```
 
-`AETRTEM` and `AEDUR` are character. The blank `AEDUR` is `""`. The absent
-`AEDUR` is `NA`.
+`AETRTEM` and `AENDAY` are character. The blank `AENDAY` is `""`. The absent
+`AENDAY` is `NA`.
 
 SAS, after sorting by the `BY` variables:
 
@@ -184,7 +188,16 @@ proc transpose data=suppae(where=(rdomain="AE" and idvar="AESEQ"))
   id qnam;
   var qval;
 run;
+
+data supp_keyed;
+  set supp_wide;
+  aeseq = input(idvarval, best.);
+run;
 ```
+
+`IDVARVAL` is character. `AESEQ` on `AE` is numeric. `input(idvarval, best.)`
+is the SAS conversion before a `MERGE` on `studyid`, `usubjid`, and `aeseq`.
+Sort both tables by those keys first.
 
 Joining `AESEQ` (integer) to `IDVARVAL` (character) fails.
 
@@ -225,20 +238,21 @@ ae_plus
 ::: {.callout-important}
 ## A blank `QVAL` is not a missing SUPP row
 
-Sequence 2 for `STD-001-0001` has `AEDUR` equal to `""`: the qualifier was
-submitted blank. Sequence 1 for `STD-001-0002` has `AEDUR` equal to `NA`:
-`SUPPAE` has no `AEDUR` row for that event. `pivot_wider()` does not turn `""`
+Sequence 2 for `STD-001-0001` has `AENDAY` equal to `""`: the qualifier was
+submitted blank. Sequence 1 for `STD-001-0002` has `AENDAY` equal to `NA`:
+`SUPPAE` has no `AENDAY` row for that event. `pivot_wider()` does not turn `""`
 into `NA`. In SAS both results are character missing, so the transposed column
 cannot show the difference.
 :::
 
-`QVAL` is still character after the join. A duration used as a number has to
-be converted. `as.numeric(na_if(AEDUR, ""))` turns the blank into `NA`, and the
-already missing qualifier stays `NA`. After that step the two reasons are gone.
-Keep the character value, or a flag, if a later step must tell them apart.
+`QVAL` is still character after the join. A sponsor-defined day count has to
+be converted before it is used as a number. `as.numeric(na_if(AENDAY, ""))`
+turns the blank into `NA`, and the already missing qualifier stays `NA`. After
+that step the two reasons are gone. Keep the character value, or a flag, if a
+later step must tell them apart.
 
 ```{r}
-#| label: aedur
+#| label: aenday
 ae_plus |>
-  mutate(AEDUR = as.numeric(na_if(AEDUR, "")))
+  mutate(AENDAY = as.numeric(na_if(AENDAY, "")))
 ```

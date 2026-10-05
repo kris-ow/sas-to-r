@@ -129,6 +129,14 @@ raw |>
 `sprintf("%03d", SITE)` is `"001"`. SAS `put(site, z3.)` writes the same
 character zeros.
 
+`%03d` needs an integer. A non-integer numeric errors. Missing becomes
+`" NA"`, not a blank:
+
+```{r}
+#| label: sprintf-na
+sprintf("%03d", c(1L, NA_integer_))
+```
+
 ## Factors
 
 `as.numeric()` on a factor uses the level codes.
@@ -156,8 +164,15 @@ as.Date(c("2025-06-03", "2025-06-10", ""))
 
 `as.Date("2025-06-03")` is that calendar day. `as.Date("")` is `NA`.
 SAS `input("2025-06-03", yymmdd10.)` does not return a `Date`. It returns the
-integer day count from 1960-01-01. `put` of that number with `yymmdd10.` is the
-character `2025-06-03` again.
+integer day count from 1960-01-01. `as.Date()` is that `INPUT` direction only.
+
+```{r}
+#| label: date-put
+as.character(as.Date("2025-06-03"))
+format(as.Date("2025-06-03"), "%Y-%m-%d")
+```
+
+Both are the character `2025-06-03`. That is `put(date, yymmdd10.)`.
 
 ```{r}
 #| label: sas-date
@@ -189,11 +204,11 @@ as.integer(as.Date("2025-06-03") - as.Date("1960-01-01"))
 
 SAS datetime values are seconds since 1960-01-01 00:00:00.
 `input("2025-06-03T14:30:00", e8601dt.)` reads that ISO form.
-`as.POSIXct()` does not accept the `T` separator unless you pass `format`.
 
 ```{r}
 #| label: posix
 txt <- "2025-06-03T14:30:00"
+as.POSIXct(txt, tz = "UTC")
 as.POSIXct(txt, format = "%Y-%m-%dT%H:%M:%S", tz = "UTC")
 
 sas_dt <- as.numeric(
@@ -203,6 +218,10 @@ sas_dt <- as.numeric(
 )
 as.POSIXct(sas_dt, origin = "1960-01-01", tz = "UTC")
 ```
+
+With no `format`, `as.POSIXct(txt, tz = "UTC")` does not error. It returns
+`2025-06-03 UTC`. The date parses and the time is dropped. Pass
+`format = "%Y-%m-%dT%H:%M:%S"` to keep `14:30:00`.
 
 Set `tz`. A `POSIXct` value is an instant. Another zone prints another clock
 time. `"UTC"` keeps the clock time stored in a zone-naive SAS datetime.
