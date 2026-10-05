@@ -7,7 +7,7 @@ Published at <https://sas-to-r.org/>.
 ## Building locally
 
 Requires [Quarto](https://quarto.org) and R, plus the packages the examples use
-(currently `dplyr` and `lubridate`).
+(currently `dplyr`, `lubridate`, and `tidyr`).
 
 ```bash
 quarto preview     # live reload while writing

@@ -28,11 +28,19 @@ page for more detail.
 
 {{< include _quickref/coalesce.md >}}
 
+### [Convert character, numeric, and date](type-convert.qmd)
+
+{{< include _quickref/type-convert.md >}}
+
 ## Text
 
 ### [Extract part of a character value](substr.qmd)
 
 {{< include _quickref/substr.md >}}
+
+### [Change text case](text-case.qmd)
+
+{{< include _quickref/text-case.md >}}
 
 ## Dates
 
@@ -53,6 +61,10 @@ page for more detail.
 ### [Stack datasets](bind-rows.qmd)
 
 {{< include _quickref/bind-rows.md >}}
+
+### [Transpose rows and columns](transpose.qmd)
+
+{{< include _quickref/transpose.md >}}
 
 ## Derivations
 

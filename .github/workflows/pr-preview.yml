@@ -44,6 +44,7 @@ jobs:
             any::rmarkdown
             any::dplyr
             any::lubridate
+            any::tidyr
 
       - name: Render site
         if: github.event.action != 'closed'

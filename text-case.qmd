@@ -1,0 +1,116 @@
+---
+title: "Change text case"
+subtitle: "toupper() / tolower() / toTitleCase()"
+---
+
+::: {.sas-equiv}
+**SAS:** `UPCASE`, `LOWCASE`, `PROPCASE`
+:::
+
+`toupper()` and `tolower()` match `UPCASE` and `LOWCASE` on ASCII letters `A-Z`
+and `a-z`. Digits and symbols are unchanged in both languages. Base R has no
+`PROPCASE`. The house stand-in for plain words is
+`tools::toTitleCase(tolower(x))`. It is not the same function.
+
+## Quick reference
+
+{{< include _quickref/text-case.md >}}
+
+Worked examples below.
+
+## `USUBJID` and `ARM`
+
+```{r}
+#| label: setup
+library(dplyr)
+
+ae <- data.frame(
+  USUBJID = c("std-001-0001", "STD-001-0002"),
+  ARM = c("Placebo", "Active"),
+  AETERM = c("HEADACHE OF MILD SEVERITY", "Nausea")
+)
+
+ae |>
+  mutate(
+    USUBJID = toupper(USUBJID),
+    ARM_UP = toupper(ARM),
+    ARM_LO = tolower(ARM)
+  )
+```
+
+SAS:
+
+```sas
+usubjid = upcase(usubjid);
+arm_up = upcase(arm);
+arm_lo = lowcase(arm);
+```
+
+`toupper()` changes `std-001-0001` to `STD-001-0001`. Hyphens and digits stay.
+`ARM_UP` is `PLACEBO` and `ACTIVE`. `ARM_LO` is `placebo` and `active`.
+
+## Proper case
+
+`PROPCASE` lowercases the argument, then capitalizes the first character of
+each word. The default word breaks are blank, `/`, `-`, `(`, `.`, and tab.
+SAS documents `PROPCASE("INTRODUCTION TO THE SCIENCE OF ASTRONOMY")` as
+`Introduction To The Science Of Astronomy`. Words such as `To` and `Of` are
+capitalized.
+
+```{r}
+#| label: title
+ae |>
+  mutate(AETERM_TC = tools::toTitleCase(tolower(AETERM)))
+```
+
+`tools::toTitleCase(tolower(AETERM))` returns `Headache of Mild Severity` and
+`Nausea`. `of` stays lowercase. `PROPCASE("HEADACHE OF MILD SEVERITY")` returns
+`Headache Of Mild Severity`.
+
+`tolower()` first is required. `toTitleCase()` leaves an all-caps word unchanged:
+
+```{r}
+#| label: caps
+tools::toTitleCase("HEADACHE")
+tools::toTitleCase(tolower("HEADACHE"))
+```
+
+`HEADACHE`, then `Headache`. SAS `propcase("HEADACHE")` is `Headache`.
+
+`.` is a `PROPCASE` word break and is not a `toTitleCase()` word break.
+SAS documents `PROPCASE("WINSTON-SALEM, N.C.")` as `Winston-Salem, N.C.`.
+
+```{r}
+#| label: period
+tools::toTitleCase(tolower("WINSTON-SALEM, N.C."))
+```
+
+`N.C.` becomes `N.c.`.
+
+::: {.callout-important}
+## `toTitleCase()` is not `PROPCASE`
+
+`PROPCASE` capitalizes every word and splits on `.`.
+`tools::toTitleCase()` leaves English function words (`of`, `the`, `to`, and
+others) lowercase unless they lead the string, and it does not split on `.`.
+Call `tolower()` first or an all-caps word is returned unchanged.
+:::
+
+## Factors
+
+```{r}
+#| label: factor
+arm <- factor(c("Placebo", "Active"))
+toupper(arm)
+class(toupper(arm))
+```
+
+The result is character, the uppercased labels, not a factor. SAS character
+values are not factors. Wrap `factor()` again if a later step requires one.
+
+`toupper(NA)` is `NA`. `toupper("")` is `""`. SAS `UPCASE` of a blank stays
+blank.
+
+`UPCASE`, `LOWCASE`, and `PROPCASE` follow the SAS locale and translation
+table. The examples on this page are ASCII `A-Z`. `toupper()` and `tolower()`
+follow the R locale for letters outside that range.

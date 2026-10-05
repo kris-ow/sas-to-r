@@ -1,0 +1,258 @@
+---
+title: "Transpose rows and columns"
+subtitle: "pivot_longer() / pivot_wider()"
+---
+
+::: {.sas-equiv}
+**SAS:** `PROC TRANSPOSE` (`BY`, `ID`, `VAR`, `NAME=`, `PREFIX=`, `LET`),
+then `MERGE` / SQL `JOIN` of `SUPPxx` onto the parent domain
+:::
+
+`PROC TRANSPOSE` turns selected columns into rows. With `ID`, the values of
+that variable become column names. This site uses `tidyr::pivot_longer()` and
+`tidyr::pivot_wider()` for that pair. Base `reshape()` is not the form used
+here.
+
+## Quick reference
+
+{{< include _quickref/transpose.md >}}
+
+Worked examples below.
+
+## Long to wide
+
+One row per subject and lab test. The wide table has one row per subject and
+one column per `PARAMCD`.
+
+```{r}
+#| label: setup
+library(dplyr)
+library(tidyr)
+
+lb <- data.frame(
+  USUBJID = c("STD-001-0001", "STD-001-0001", "STD-001-0002", "STD-001-0002"),
+  PARAMCD = c("ALT", "AST", "ALT", "AST"),
+  AVAL = c(22, 24, 31, 28)
+)
+
+wide <- lb |>
+  pivot_wider(names_from = PARAMCD, values_from = AVAL)
+
+wide
+```
+
+SAS:
+
+```sas
+proc sort data=lb;
+  by usubjid;
+run;
+
+proc transpose data=lb out=lb_wide(drop=_name_);
+  by usubjid;
+  id paramcd;
+  var aval;
+run;
+```
+
+`BY` variables must be sorted before `PROC TRANSPOSE`. `ID` values become the
+column names `ALT` and `AST`. `VAR` supplies the cells. `_NAME_` holds the
+source variable name (`AVAL`); the `drop=` removes it. `pivot_wider()` does not
+add `_NAME_` and does not require a sort.
+
+`PREFIX=AVAL_` together with `ID` names the columns `AVAL_ALT` and `AVAL_AST`.
+In R that prefix is `names_prefix = "AVAL_"`.
+
+## Wide to long
+
+```{r}
+#| label: longer
+wide |>
+  pivot_longer(c(ALT, AST), names_to = "PARAMCD", values_to = "AVAL")
+```
+
+SAS:
+
+```sas
+proc transpose data=lb_wide out=lb_long(rename=(col1=aval)) name=paramcd;
+  by usubjid;
+  var alt ast;
+run;
+```
+
+`NAME=` is `names_to`. Without an `ID` statement the values sit in `COL1`.
+Renaming `COL1` is `values_to`. Without `ID`, `PREFIX=` replaces `COL` in
+`COL1`, `COL2`, .... That is a different naming rule from `PREFIX=` used with
+`ID`.
+
+## Duplicate `ID` values
+
+`STD-001-0001` now has two `ALT` rows.
+
+```{r}
+#| label: dup
+lb_dup <- rbind(
+  lb,
+  data.frame(USUBJID = "STD-001-0001", PARAMCD = "ALT", AVAL = 99)
+)
+
+lb_dup |>
+  pivot_wider(names_from = PARAMCD, values_from = AVAL)
+```
+
+`ALT` for `STD-001-0001` is a list of two numbers, not one result.
+`PROC TRANSPOSE` without `LET` stops when an `ID` value occurs twice in the
+same `BY` group. `LET` keeps the last occurrence in that group.
+
+```{r}
+#| label: let
+lb_dup |>
+  pivot_wider(names_from = PARAMCD, values_from = AVAL, values_fn = last)
+```
+
+`values_fn = last` keeps 99, the last `ALT` for `STD-001-0001`. That is the
+`LET` result. It does not check which row is the right one.
+
+## `SUPPAE` onto `AE`
+
+`SUPPxx` is SDTM. Each row is one supplemental qualifier as collected: `QNAM`
+is the name, `QVAL` is the value. `QVAL` is character, including when the text
+looks numeric. `IDVAR` names the parent key (`AESEQ`). `IDVARVAL` is that key's
+value, stored as character. A blank `IDVAR` means the qualifier is
+subject-level, and the key is `STUDYID` plus `USUBJID` only.
+
+This is not an ADaM imputation. `AETRTEM` and `AENDAY` are the qualifier names
+in this example. `AENDAY` is sponsor-defined: a day count, stored as text. It
+is not an AE domain variable. A standard AE variable such as `AEDUR` stays on
+AE. The IG does not allow it in SUPPQUAL, and `AEDUR` is an ISO 8601 duration,
+not a number of days.
+
+```{r}
+#| label: supp-data
+ae <- data.frame(
+  STUDYID = "STD-001",
+  USUBJID = c("STD-001-0001", "STD-001-0001", "STD-001-0002"),
+  AESEQ = c(1L, 2L, 1L),
+  AETERM = c("Headache", "Nausea", "Fatigue"),
+  AESEV = c("MILD", "MODERATE", "MILD")
+)
+
+suppae <- data.frame(
+  STUDYID = "STD-001",
+  RDOMAIN = "AE",
+  USUBJID = c(
+    "STD-001-0001", "STD-001-0001", "STD-001-0001",
+    "STD-001-0001", "STD-001-0002"
+  ),
+  IDVAR = "AESEQ",
+  IDVARVAL = c("1", "1", "2", "2", "1"),
+  QNAM = c("AETRTEM", "AENDAY", "AETRTEM", "AENDAY", "AETRTEM"),
+  QVAL = c("Y", "5", "Y", "", "N")
+)
+
+ae
+suppae
+```
+
+`STD-001-0001` sequence 2 has an `AENDAY` row whose `QVAL` is blank.
+`STD-001-0002` sequence 1 has no `AENDAY` row.
+
+Keep record-level qualifiers, convert `IDVARVAL` to the parent type, then
+widen. See [Convert character, numeric, and date](type-convert.qmd) for
+`as.integer()` and for turning a numeric-looking `QVAL` into a number
+afterwards.
+
+```{r}
+#| label: supp-wide
+supp_wide <- suppae |>
+  filter(RDOMAIN == "AE", IDVAR == "AESEQ") |>
+  mutate(AESEQ = as.integer(IDVARVAL)) |>
+  pivot_wider(
+    id_cols = c(STUDYID, USUBJID, AESEQ),
+    names_from = QNAM,
+    values_from = QVAL
+  )
+
+supp_wide
+```
+
+`AETRTEM` and `AENDAY` are character. The blank `AENDAY` is `""`. The absent
+`AENDAY` is `NA`.
+
+SAS, after sorting by the `BY` variables:
+
+```sas
+proc transpose data=suppae(where=(rdomain="AE" and idvar="AESEQ"))
+               out=supp_wide(drop=_name_);
+  by studyid usubjid idvarval;
+  id qnam;
+  var qval;
+run;
+
+data supp_keyed;
+  set supp_wide;
+  aeseq = input(idvarval, best.);
+run;
+```
+
+`IDVARVAL` is character. `AESEQ` on `AE` is numeric. `input(idvarval, best.)`
+is the SAS conversion before a `MERGE` on `studyid`, `usubjid`, and `aeseq`.
+Sort both tables by those keys first.
+
+Joining `AESEQ` (integer) to `IDVARVAL` (character) fails.
+
+```{r}
+#| label: bad-join
+#| error: true
+supp_bad <- suppae |>
+  filter(RDOMAIN == "AE", IDVAR == "AESEQ") |>
+  pivot_wider(
+    id_cols = c(STUDYID, USUBJID, IDVARVAL),
+    names_from = QNAM,
+    values_from = QVAL
+  )
+
+left_join(
+  ae,
+  supp_bad,
+  by = c("STUDYID", "USUBJID", "AESEQ" = "IDVARVAL"),
+  relationship = "one-to-one"
+)
+```
+
+Convert first, then join on `STUDYID`, `USUBJID`, and `AESEQ`. The join rules
+are [Merge on keys](joins.qmd).
+
+```{r}
+#| label: join
+ae_plus <- left_join(
+  ae,
+  supp_wide,
+  by = c("STUDYID", "USUBJID", "AESEQ"),
+  relationship = "one-to-one"
+)
+
+ae_plus
+```
+
+::: {.callout-important}
+## A blank `QVAL` is not a missing SUPP row
+
+Sequence 2 for `STD-001-0001` has `AENDAY` equal to `""`: the qualifier was
+submitted blank. Sequence 1 for `STD-001-0002` has `AENDAY` equal to `NA`:
+`SUPPAE` has no `AENDAY` row for that event. `pivot_wider()` does not turn `""`
+into `NA`. In SAS both results are character missing, so the transposed column
+cannot show the difference.
+:::
+
+`QVAL` is still character after the join. A sponsor-defined day count has to
+be converted before it is used as a number. `as.numeric(na_if(AENDAY, ""))`
+turns the blank into `NA`, and the already missing qualifier stays `NA`. After
+that step the two reasons are gone. Keep the character value, or a flag, if a
+later step must tell them apart.
+
+```{r}
+#| label: aenday
+ae_plus |>
+  mutate(AENDAY = as.numeric(na_if(AENDAY, "")))
+```
